@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbyGRk5bbw0awWU70VI9jr46DltmOPhXVsVazg7HpVjmcyxITBcw5iOR7eqm2VJcbHq6/exec';window.SCV_APPBAN='9.8-202610241211';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxH4t2vC0pYYMC9-S_oQi5dppbGA5VjshqyzBBh3uCanmlBFDbt-cFIkVgwQeKVHjDY/exec';window.SCV_APPBAN='9.9-202610241357';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -210,6 +210,7 @@ table.dk td.nw{white-space:nowrap}
   .dk-wrap{min-height:300px;max-height:60vh}
   .dk-mobfab{display:block}
 }
+.gybox{display:none;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:4px;max-height:280px;overflow:auto;box-shadow:var(--shadow)}.gyi{padding:9px 11px;border-bottom:1px solid var(--line);cursor:pointer}.gyi:last-child{border-bottom:0}.gyi span{color:var(--muted);font-size:13px}.gyi:active{background:var(--soft)}
 </style>
 </head>
 <body>
@@ -845,7 +846,7 @@ function showKCC(id){
     '<div class="box"><div class="kv"><div>Có / còn</div><div>' + kN(c[4]) + ' / ' + kN(c[5]) + '</div><div>Tình trạng</div><div>' + esc(c[6]) + '</div>' + (c[7] ? '<div>Hạn kiểm định</div><div>' + esc(kD(c[7]) + '/' + c[7].slice(0, 4)) + '</div>' : '') + (c[9] ? '<div>Phụ kiện</div><div>' + esc(c[9]) + '</div>' : '') + (c[8] ? '<div>Đã đặt</div><div>' + esc(c[8]) + '</div>' : '') + '</div></div>';
   if (mu.length) h += '<div class="box"><h3>Phiếu đang mở</h3>' + mu.map(function(m){ return '<div class="mini" data-kmu="' + esc(m[0]) + '" style="cursor:pointer"><span>' + esc(m[1]) + ' · ' + esc(m[7]) + ' ' + kD(m[9]) + ' → ' + kD(m[10]) + '</span><span class="tag ' + (m[11] === 'DAT' ? 'violet' : 'blue') + '">' + (m[11] === 'DAT' ? 'đặt chỗ' : 'đang mượn') + '</span></div>'; }).join('') + '</div>';
   h += '<div class="box"><h3>Cho mượn / đặt chỗ</h3><datalist id="kng">' + ng + '</datalist>' +
-    '<div class="grid2"><div><label class="f">Mã NV (VNW..., 4 số cuối hoặc tên)</label><input id="kNv" class="inp" list="kng" autocomplete="off"></div><div><label class="f">Họ tên</label><input id="kTen" class="inp"></div></div>' +
+    '<div class="grid2"><div><label class="f">Người mượn (gõ tên / 4 số cuối / VNW)</label><input id="kNv" class="inp" autocomplete="off" placeholder="gõ tên / 4 số cuối"></div><div><label class="f">Họ tên</label><input id="kTen" class="inp"></div></div>' +
     '<div class="grid2"><div><label class="f">Điện thoại</label><input id="kDt" class="inp" type="tel"></div><div><label class="f">Số lượng</label><input id="kSl" class="inp" type="number" min="1" value="1"' + (c[3] ? '' : ' disabled') + '></div></div>' +
     '<label class="chk"><input id="kDat" type="checkbox"> Đặt chỗ trước (chưa lấy ngay)</label>' +
     '<div class="grid2"><div><label class="f">Từ ngày</label><input id="kTu" class="inp" type="date" value="' + today() + '"></div><div><label class="f">Đến ngày / hạn trả</label><input id="kDen" class="inp" type="date" value="' + addDays(nd) + '"></div></div>' +
@@ -1656,7 +1657,7 @@ function showKPxNew(){
   var h = '<div class="sh-h"><h2>Lập phiếu xuất</h2><button class="ibtn" data-close="1">&#10005;</button></div><datalist id="kvtl">' + ((S.kho && S.kho.vt) || []).map(function(v){ return '<option value="' + esc(v[0]) + '">' + esc(v[1] + ' · tồn ' + kN(v[4])) + '</option>'; }).join('') + '</datalist>' +
     '<datalist id="kng2">' + ((S.kho && S.kho.ng) || []).map(function(x){ return '<option value="' + esc(x[0]) + '">' + esc(x[1] + ' · ' + x[2]) + '</option>'; }).join('') + '</datalist>' +
     '<div class="box"><div class="grid2"><div><label class="f">Ngày</label><input id="kpxNgay" class="inp" type="date" value="' + esc(hd.ngay) + '"></div><div><label class="f">Loại</label><select id="kpxLoai" class="inp">' + ['Xuất cho tổ','Xuất dùng chung','Xuất sửa chữa','Xuất hao hụt / huỷ','Xuất khác'].map(function(x){ return '<option' + (hd.loaiCT === x ? ' selected' : '') + '>' + x + '</option>'; }).join('') + '</select></div></div>' +
-    '<div class="grid2"><div><label class="f">Tổ / bộ phận</label><select id="kpxBp" class="inp"><option value="">(không)</option>' + (kOwn().bp || []).map(function(b){ return '<option value="' + esc(b[0]) + '"' + (hd.bp === b[0] ? ' selected' : '') + '>' + esc(b[0] + ' ' + b[1]) + '</option>'; }).join('') + '</select></div><div><label class="f">Người nhận (mã NV)</label><input id="kpxNv" class="inp" list="kng2" value="' + esc(hd.nv) + '"></div></div>' +
+    '<div class="grid2"><div><label class="f">Tổ / bộ phận</label><select id="kpxBp" class="inp"><option value="">(không)</option>' + (kOwn().bp || []).map(function(b){ return '<option value="' + esc(b[0]) + '"' + (hd.bp === b[0] ? ' selected' : '') + '>' + esc(b[0] + ' ' + b[1]) + '</option>'; }).join('') + '</select></div><div><label class="f">Người nhận (gõ tên / 4 số cuối / VNW)</label><input id="kpxNv" class="inp" autocomplete="off" value="' + esc(hd.nv) + '"></div></div>' +
     '<label class="f">Dùng cho</label><input id="kpxDung" class="inp" value="' + esc(hd.dung) + '"><label class="f">Ghi chú</label><input id="kpxGc" class="inp" value="' + esc(hd.gc) + '"></div><div class="box"><h3>Hàng xuất (bỏ trống lô = tự lấy lô hạn gần trước)</h3>';
   S.kpxRows.forEach(function(r, i){ var v = vm[String(r.ma || '').toUpperCase()], ls = v ? (tl[v[0]] || []) : [];
     h += '<div style="border-top:1px dashed var(--line);padding:6px 0"><div class="grid2"><div><input id="kpxM' + i + '" class="inp" list="kvtl" placeholder="Mã" value="' + esc(r.ma) + '"></div><div style="display:flex;gap:4px"><input id="kpxS' + i + '" class="inp" type="number" min="0" step="any" inputmode="decimal" placeholder="SL" value="' + esc(r.sl) + '"><button class="btn sm red" data-ko="pxdel" data-v="' + i + '">&#10005;</button></div></div>' +
@@ -1666,7 +1667,7 @@ function showKPxNew(){
   openSheet(h); kKyGan();
   S.kpxRows.forEach(function(r, i){ var e = $('kpxM' + i); if (e) e.addEventListener('change', function(){ kPxRead(); showKPxNew(); }); });
   if (S.kpxFocus != null) { var fe = $('kpxS' + S.kpxFocus); S.kpxFocus = null; if (fe) setTimeout(function(){ try { fe.focus(); fe.scrollIntoView({ block: 'center' }); } catch(e){} }, 120); }
-  $('kpxNv').addEventListener('change', function(){ var v = this.value.trim().toUpperCase(); ((S.kho && S.kho.ng) || []).forEach(function(x){ if (x[0] === v && x[2]) $('kpxBp').value = x[2]; }); });
+  $('kpxNv').addEventListener('change', function(){ var v = this.value.trim().toUpperCase(); ((S.kho && S.kho.ng) || []).forEach(function(x){ if (x[0] === v) kGyChon('kpxNv', x); }); });
 }
 function kPxSend(){
   kPxRead(); var hd = S.kpxHead, vm = kVtMap(), rows = [], bad = [];
@@ -2238,6 +2239,36 @@ document.addEventListener('click', function(ev){
   else if (a === 'quet') { kPnRead(); kkQuet(kPnScan); }
   else if (a === 'gui') kPnSend();
 });
+
+/* ===================== 9.9: O NGUOI NHAN - DANH SACH GOI Y VE TREN TRANG (iPhone khong hien datalist), NHOM TO ===================== */
+function kGyBpSet(){ var e = $('kpxBp'); if (!e || !e.value) return []; var b = (kOwn().bp || []).filter(function(x){ return x[0] === e.value; })[0]; return (b && b[2] && b[2].length) ? b[2].map(String) : [String(e.value)]; }
+function kGyTim(q, set){ q = String(q || '').trim(); if (q.length < 2) return [];
+  var u = q.toUpperCase().split(' - ')[0].trim(), so = /^(VNW)?0*(\d{2,})$/.exec(u), w = bodau(q).split(/\s+/).filter(function(x){ return x; });
+  var r = ((S.kho && S.kho.ng) || []).filter(function(x){ var m = String(x[0]).toUpperCase(); if (m === u) return true; if (so) return new RegExp('0*' + so[2] + '$').test(m); var t = ' ' + bodau(x[1]) + ' '; return w.every(function(p){ return t.indexOf(p) >= 0; }); });
+  r.sort(function(a, b){ var ia = set.indexOf(String(a[2])) >= 0 ? 0 : 1, ib = set.indexOf(String(b[2])) >= 0 ? 0 : 1; return ia - ib || String(a[1]).localeCompare(String(b[1])); });
+  return r.slice(0, 8); }
+function kGyAn(id){ var b = $(id + '_gy'); if (b) { b.style.display = 'none'; b.innerHTML = ''; } }
+function kGyOk(inp){ if (!inp) return; var e = $(inp.id + '_ok'); if (!e) { e = document.createElement('div'); e.id = inp.id + '_ok'; e.className = 'hint'; inp.insertAdjacentElement('afterend', e); }
+  var v = inp.value.trim().toUpperCase(), x = ((S.kho && S.kho.ng) || []).filter(function(n){ return String(n[0]).toUpperCase() === v; })[0], set = inp.id === 'kpxNv' ? kGyBpSet() : [];
+  e.innerHTML = x ? ('<span style="color:var(--green)">&#10003; ' + esc(x[1]) + ' · tổ ' + esc(x[2]) + '</span>' + (set.length && set.indexOf(String(x[2])) < 0 ? ' <span style="color:var(--red)">- không thuộc tổ / nhóm đã chọn</span>' : ''))
+    : (v ? '<span style="color:var(--muted)">Gõ tên, 4 số cuối hoặc mã VNW rồi chọn trong danh sách</span>' : ''); }
+function kGyVe(inp){ var id = inp.id, box = $(id + '_gy');
+  if (!box) { box = document.createElement('div'); box.id = id + '_gy'; box.className = 'gybox'; inp.insertAdjacentElement('afterend', box); }
+  var set = id === 'kpxNv' ? kGyBpSet() : [], r = kGyTim(inp.value, set), v = inp.value.trim().toUpperCase();
+  S.gyDs = S.gyDs || {}; S.gyDs[id] = r;
+  if (!r.length || (r.length === 1 && String(r[0][0]).toUpperCase() === v)) kGyAn(id);
+  else { box.innerHTML = r.map(function(x, i){ return '<div class="gyi" data-gy="' + esc(id) + '" data-i="' + i + '"><b>' + esc(x[1]) + '</b><br><span>' + esc(x[0]) + ' · tổ ' + esc(x[2]) + (set.length && set.indexOf(String(x[2])) < 0 ? ' · ngoài tổ đã chọn' : '') + '</span></div>'; }).join(''); box.style.display = 'block'; }
+  kGyOk(inp); }
+function kGyChon(id, x){ var inp = $(id); if (!inp || !x) return; inp.value = x[0]; kGyAn(id);
+  if (id === 'kpxNv') { var bp = $('kpxBp'); if (bp) { var set = kGyBpSet(); if (!bp.value || set.indexOf(String(x[2])) < 0) { if ([].some.call(bp.options, function(o){ return o.value === String(x[2]); })) bp.value = x[2]; } } }
+  if (id === 'kNv') { var tn = $('kTen'); if (tn && (!tn.value || tn.dataset.auto)) { tn.value = x[1]; tn.dataset.auto = '1'; } if ($('kDt') && !$('kDt').value) $('kDt').value = x[3] || ''; }
+  kGyOk(inp); }
+document.addEventListener('input', function(e){ var t = e.target; if (t && (t.id === 'kpxNv' || t.id === 'kNv')) kGyVe(t); });
+document.addEventListener('change', function(e){ var t = e.target; if (t && t.id === 'kpxBp') kGyOk($('kpxNv')); });
+document.addEventListener('focusin', function(e){ var t = e.target; ['kpxNv', 'kNv'].forEach(function(id){ if (!t || t.id !== id) kGyAn(id); }); });
+document.addEventListener('click', function(e){ var it = e.target && e.target.closest ? e.target.closest('[data-gy]') : null; if (!it) return; e.preventDefault(); var id = it.getAttribute('data-gy'); kGyChon(id, ((S.gyDs || {})[id] || [])[+it.getAttribute('data-i')]); });
+(function(){ var o = showKPxNew; showKPxNew = function(){ o.apply(this, arguments); kGyOk($('kpxNv')); }; })();
+window.kGyTim = kGyTim; window.kGyChon = kGyChon; window.kGyVe = kGyVe;
 
 })();
 
