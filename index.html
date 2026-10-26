@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxH4t2vC0pYYMC9-S_oQi5dppbGA5VjshqyzBBh3uCanmlBFDbt-cFIkVgwQeKVHjDY/exec';window.SCV_APPBAN='9.9-202610241357';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycby1WY4HHNPnc--8IgkD4A-dq6KtAqLF9PfKz8jdDSoyqcNieNZfr-fOBXA_yi6hHqk0rQ/exec';window.SCV_APPBAN='9.9c-202610261437';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -211,6 +211,7 @@ table.dk td.nw{white-space:nowrap}
   .dk-mobfab{display:block}
 }
 .gybox{display:none;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:4px;max-height:280px;overflow:auto;box-shadow:var(--shadow)}.gyi{padding:9px 11px;border-bottom:1px solid var(--line);cursor:pointer}.gyi:last-child{border-bottom:0}.gyi span{color:var(--muted);font-size:13px}.gyi:active{background:var(--soft)}
+#temIn{display:none}body.inTem #temIn{display:block;position:fixed;inset:0;overflow:auto;background:#fff;z-index:9999}@media print{body.inTem>*:not(#temIn){display:none!important}body.inTem #temIn{position:static;overflow:visible}.noin{display:none!important}}
 </style>
 </head>
 <body>
@@ -1772,9 +1773,12 @@ function kKeSvg(ph, hl, z){
   for (var i = 1; i < P[2]; i++) s += '<line x1="' + i * z + '" y1="0" x2="' + i * z + '" y2="' + H + '" stroke="#EEE" stroke-width=".6"/>';
   for (var j = 1; j < P[3]; j++) s += '<line x1="0" y1="' + j * z + '" x2="' + W + '" y2="' + j * z + '" stroke="#EEE" stroke-width=".6"/>';
   (k.ob || []).forEach(function(o){ if (o[0] !== ph) return; var c = KSD_MAU[o[1]] || ['#E5E7EB', '#6B7280', '']; s += '<rect x="' + o[2] * z + '" y="' + o[3] * z + '" width="' + o[4] * z + '" height="' + o[5] * z + '" fill="' + c[0] + '" stroke="' + c[1] + '"' + (o[1] === 'LOI' ? ' stroke-dasharray="5 3"' : '') + '/>'; var t = o[6] || c[2]; if (t && o[4] * z >= z) s += '<text x="' + (o[2] + o[4] / 2) * z + '" y="' + (o[3] + o[5] / 2) * z + '" font-size="' + Math.min(12, z * .55) + '" text-anchor="middle" dominant-baseline="middle" fill="' + c[1] + '">' + esc(t) + '</text>'; });
-  (k.ke || []).forEach(function(e){ if (e[5] !== ph || e[6] < 0) return; var m = khu[e[1]] || '#475569', h = !!hl[e[0]], sel = S.kkeSel === e[0];
-    s += '<g data-kke="' + esc(e[0]) + '" style="cursor:pointer"><rect x="' + e[6] * z + '" y="' + e[7] * z + '" width="' + e[8] * z + '" height="' + e[9] * z + '" rx="3" fill="' + (h ? '#FDE047' : m) + '" fill-opacity="' + (h ? 1 : .3) + '" stroke="' + (sel ? '#1D4ED8' : h ? '#DC2626' : m) + '" stroke-width="' + (sel || h ? 3.5 : 1.6) + '"' + (e[2] === 'TAM' ? ' stroke-dasharray="4 3"' : '') + '/>';
-    s += '<text x="' + (e[6] + e[8] / 2) * z + '" y="' + (e[7] + e[9] / 2) * z + '" font-size="' + Math.max(8, Math.min(13, e[8] * z / 4.2, e[9] * z * .62)) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="#0F172A">' + esc(e[0]) + '</text></g>'; });
+  (k.ke || []).forEach(function(e){ if (e[5] !== ph || e[6] < 0) return; var m = khu[e[1]] || '#475569', h = !!hl[e[0]], sel = S.kkeSel === e[0], dd = S.kkeXem !== 'KHU' ? (kOwn().kdd || {})[e[0]] : null, df = dd ? (dd[2] ? ['#E2E8F0', '#64748B'] : dd[0] === 0 ? ['#BBF7D0', '#16A34A'] : dd[0] >= dd[1] ? ['#FECACA', '#DC2626'] : ['#FEF08A', '#CA8A04']) : null, mo = S.kkeLoc && S.kkeLoc !== e[1];
+    s += '<g data-kke="' + esc(e[0]) + '" style="cursor:pointer"><rect x="' + e[6] * z + '" y="' + e[7] * z + '" width="' + e[8] * z + '" height="' + e[9] * z + '" rx="3" fill="' + (h ? '#FDE047' : mo ? '#F1F5F9' : df ? df[0] : m) + '" fill-opacity="' + (h || df || mo ? 1 : .3) + '" stroke="' + (sel ? '#1D4ED8' : h ? '#DC2626' : mo ? '#CBD5E1' : df ? df[1] : m) + '" stroke-width="' + (sel || h ? 3.5 : 1.6) + '"' + (e[2] === 'TAM' ? ' stroke-dasharray="4 3"' : '') + '/>';
+    var l1 = String(e[0]), l2 = dd ? (dd[2] ? 'sàn' : dd[0] + '/' + dd[1]) : '', bw = e[8] * z - 4, bh = e[9] * z, cx = (e[6] + e[8] / 2) * z, cy = (e[7] + e[9] / 2) * z, fc = mo ? '#94A3B8' : '#0F172A';
+    var f1 = Math.min(13, bh * .62, bw / (Math.max(1, (l1 + (l2 ? ' ' + l2 : '')).length) * .6));
+    if (!l2 || f1 >= 9) s += '<text x="' + cx + '" y="' + cy + '" font-size="' + Math.max(7, f1).toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '">' + esc(l1 + (l2 ? ' ' + l2 : '')) + '</text></g>';
+    else { var f2 = Math.max(7, Math.min(13, bh * .36, bw / (Math.max(l1.length, l2.length) * .6))); s += '<text x="' + cx + '" y="' + (cy - f2 * .55) + '" font-size="' + f2.toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '">' + esc(l1) + '</text><text x="' + cx + '" y="' + (cy + f2 * .6) + '" font-size="' + f2.toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '">' + esc(l2) + '</text></g>'; } });
   return s + '</svg>';
 }
 function kKeFront(ma, ho){
@@ -1793,6 +1797,9 @@ function kKeView(){
   if (r.rs.length) { var ke0 = null; (k.ke || []).forEach(function(e){ if (r.hl[e[0]] && !ke0) ke0 = e; }); if (ke0 && ke0[5] && ke0[5] !== S.kph && !S.kphTay) S.kph = ke0[5]; }
   var h = '<div style="display:flex;gap:6px;margin-bottom:6px"><input id="kkeq" class="inp" placeholder="Tìm hàng: mã / tên / KE:A-01" value="' + esc(S.kkeq || '') + '"><button class="btn sm" data-ko="kefind" data-v="">Tìm</button></div>';
   if (phs.length > 1) h += '<div class="chips">' + phs.map(function(p){ return '<button class="chip' + (S.kph === p[0] ? ' on' : '') + '" data-ko="keph" data-v="' + esc(p[0]) + '">' + esc(p[1]) + '</button>'; }).join('') + '</div>';
+  h += '<div class="chips"><button class="chip' + (S.kkeXem !== 'KHU' ? ' on' : '') + '" data-k9="kexem" data-v="TRONG">Chỗ trống</button><button class="chip' + (S.kkeXem === 'KHU' ? ' on' : '') + '" data-k9="kexem" data-v="KHU">Theo khu</button>' +
+    '<select class="inp" data-k9s="keloc" style="width:auto;padding:4px 8px"><option value="">Tất cả khu</option>' + ((k.khu || []).map(function(x){ return '<option value="' + esc(x[0]) + '"' + (S.kkeLoc === x[0] ? ' selected' : '') + '>Khu ' + esc(x[0] + ' ' + (x[1] || '')) + '</option>'; }).join('')) + '</select></div>' +
+    (S.kkeXem !== 'KHU' ? '<div class="hint" style="margin:0 2px 6px"><span style="background:#BBF7D0;border:1px solid #16A34A;padding:0 6px">trống</span> <span style="background:#FEF08A;border:1px solid #CA8A04;padding:0 6px">còn chỗ</span> <span style="background:#FECACA;border:1px solid #DC2626;padding:0 6px">đầy</span> <span style="background:#E2E8F0;border:1px solid #64748B;padding:0 6px">khu sàn</span> · số = ô có hàng / tổng ô</div>' : '');
   if (S.kkeq) h += '<div class="box"><h3>Kết quả (' + r.rs.length + ' chỗ)</h3>' + (r.rs.length ? r.rs.slice(0, 40).map(function(x){ var v = vm[String(x[0]).toUpperCase()]; return '<div class="mini"><span>&#128205; <b>' + esc(x[1] || 'Chờ cất') + '</b> · ' + esc(x[0]) + ' ' + esc(v ? v[1] : '') + (x[3] ? ' · lô ' + esc(x[3]) : '') + '</span><span class="hint">' + (x[2] ? 'chính' : 'phụ') + '</span></div>'; }).join('') : '<div class="hint">Không thấy.</div>') + '</div>';
   var cho = (k.hg || []).filter(function(x){ return !x[1]; });
   h += '<div class="box" style="overflow:auto">' + (S.kph ? kKeSvg(S.kph, r.hl, S.desk ? 24 : 16) : '<div class="hint">Chưa có phòng trên sơ đồ.</div>') + '<div class="hint">' + (k.khu || []).map(function(x){ return '<span style="display:inline-block;width:10px;height:10px;background:' + esc(x[2]) + ';opacity:.6"></span> ' + esc(x[0]) + ' ' + esc(x[1]); }).join(' &nbsp; ') + '</div></div>';
@@ -1907,7 +1914,7 @@ function kKKView(){
     list += '<div class="mini" data-kk="dem" data-k="' + esc(x.k) + '" style="cursor:pointer;padding:9px 2px"><span><b>' + esc(x.ma) + '</b> ' + esc(x.ten) + (x.lo || x.co ? ' <span class="hint">' + esc([x.lo ? 'lô ' + x.lo : '', x.co ? 'cỡ ' + x.co : ''].filter(Boolean).join(' · ')) + '</span>' : '') + (x.moi ? ' <span class="hint">(ngoài phiếu)</span>' : '') + '</span>' + r + (x.loc && !x.loc.sent ? ' <span title="chưa gửi về máy">&#8987;</span>' : '') + '</div>';
   });
   h += '<div class="box">' + (list || '<div class="hint">' + (loc === 'chua' ? '&#127881; Đã đếm hết các mã trong danh sách này.' : 'Không có mã nào.') + '</div>') + (f.length > 300 ? '<div class="hint">Chỉ hiện 300 dòng - lọc theo ô / gõ mã.</div>' : '') + '</div>';
-  return h + '<div class="hint" style="margin:6px 2px 20px">Số sổ sách không hiện trước khi đếm (đếm khách quan) - gõ số xong mới báo lệch. Đếm xong: máy công ty &gt; Kho &gt; Kiểm kê &gt; xem chênh lệch &gt; CHỐT.</div>';
+  return h + '<div class="hint" style="margin:6px 2px 20px">Số sổ sách không hiện trước khi đếm (đếm khách quan) - gõ số xong mới báo lệch. Đếm xong: bấm <b>Chênh lệch &amp; CHỐT</b> ở trên (hoặc chốt trên máy công ty).</div>';
 }
 /* ---------- o nhap so dem ---------- */
 function kkMo(k){
@@ -1959,7 +1966,7 @@ function kkGui(im){
   Object.keys(all).forEach(function(id){ if (job) return; var L = all[id], ks = Object.keys(L).filter(function(k){ return !L[k].sent; }); if (ks.length) job = { id: id, ks: ks.slice(0, 150) }; });
   if (!job) { if (!im) toast('Đã gửi hết về máy'); return; }
   if (navigator.onLine === false) { if (!im) toast('Đang mất mạng - số vẫn lưu trên điện thoại, có mạng sẽ tự gửi', 3500); return; }
-  var L = all[job.id], rows = job.ks.map(function(k){ var e = L[k]; return { k: k, ma: e.ma, lo: e.lo, co: e.co, sl: e.sl, l1: e.l1, gc: e.gc, luc: e.luc }; });
+  var L = all[job.id], rows = job.ks.map(function(k){ var e = L[k]; var o = { k: k, ma: e.ma, lo: e.lo, co: e.co, sl: e.sl, l1: e.l1, gc: e.gc, luc: e.luc }; if (e.moiMa) { o.ten = e.ten; o.dvt = e.dvt; o.khu = e.khu || ''; } return o; });
   S.kkGuiDang = true;
   call('change', { op: 'kkdem', id: job.id, data: { id: job.id, rows: rows }, td: 'Kiểm kê ' + rows.length + ' mã' }).then(function(r){
     S.kkGuiDang = false;
@@ -2046,7 +2053,7 @@ function kkTimVe(){
   if (q.length >= 2 && r.length < 6) ((S.kho && S.kho.vt) || []).forEach(function(v){ if (ex.length >= 8 || co[String(v[0]).toUpperCase()]) return; if (kMatch(v[0] + ' ' + v[1], q)) ex.push(v); });
   box.innerHTML = '<div class="box">' + r.map(function(x){ var v = kkVal(x); return '<div class="mini" data-kk="dem" data-k="' + esc(x.k) + '" style="cursor:pointer;padding:9px 2px"><span><b>' + esc(x.ma) + '</b> ' + esc(x.ten) + '<br><span class="hint">' + esc([x.vt, x.lo ? 'lô ' + x.lo : '', x.co ? 'cỡ ' + x.co : ''].filter(Boolean).join(' · ')) + '</span></span>' + (v != null ? '<span class="tag green">' + kN(v) + '</span>' : '<span class="tag blue">Đếm &rsaquo;</span>') + '</div>'; }).join('') +
     ex.map(function(v){ return '<div class="mini" data-kk="them" data-ma="' + esc(v[0]) + '" style="cursor:pointer;padding:9px 2px"><span><b>' + esc(v[0]) + '</b> ' + esc(v[1]) + '<br><span class="hint">ngoài đợt kiểm kê - bấm để thêm và đếm</span></span><span class="tag">+ Thêm</span></div>'; }).join('') +
-    (!r.length && !ex.length ? '<div class="hint">Không thấy mã nào.</div>' : '') + '</div>';
+    (!r.length && !ex.length ? '<div class="hint">Không thấy mã nào.</div>' + (/^[A-Za-z0-9][A-Za-z0-9\-_.\/]{2,}$/.test(q) ? '<button class="btn sm" style="margin-top:6px" data-k9="moima" data-ma="' + esc(q.toUpperCase()) + '">+ Mã mới ' + esc(q.toUpperCase()) + ' (chưa có trong danh mục)</button>' : '') : '') + '</div>';
 }
 document.addEventListener('input', function(e){ if (e.target && e.target.id === 'kkTim') kkTimVe(); });
 document.addEventListener('keydown', function(e){ if (e.key === 'Enter' && e.target && e.target.id === 'kkSL') { e.preventDefault(); kkLuu(false); } if (e.key === 'Enter' && e.target && e.target.id === 'kkTim') { e.preventDefault(); var f = document.querySelector('#kkKQT [data-kk]'); if (f) f.click(); } });
@@ -2270,6 +2277,358 @@ document.addEventListener('click', function(e){ var it = e.target && e.target.cl
 (function(){ var o = showKPxNew; showKPxNew = function(){ o.apply(this, arguments); kGyOk($('kpxNv')); }; })();
 window.kGyTim = kGyTim; window.kGyChon = kGyChon; window.kGyVe = kGyVe;
 
+/* QR toi gian (byte, muc L, phien ban 1-10) - tu viet, khong can mang */
+var QRK = (function(){
+  var T = [null,[26,7,1],[44,10,1],[70,15,1],[100,20,1],[134,26,1],[172,18,2],[196,20,2],[242,24,2],[292,30,2],[346,18,4]];
+  var AL = [null,[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50]];
+  var EX = [], LG = []; (function(){ var x = 1; for (var i = 0; i < 255; i++) { EX[i] = x; LG[x] = i; x <<= 1; if (x & 256) x ^= 0x11d; } for (i = 255; i < 512; i++) EX[i] = EX[i - 255]; })();
+  function mul(a, b){ return a && b ? EX[LG[a] + LG[b]] : 0; }
+  function gen(n){ var g = [1]; for (var i = 0; i < n; i++) { var r = []; for (var j = 0; j <= g.length; j++) r[j] = (j < g.length ? g[j] : 0) ^ (j > 0 ? mul(g[j - 1], EX[i]) : 0); g = r; } return g; }
+  function ecc(d, n){ var g = gen(n), r = d.concat(new Array(n).fill(0)); for (var i = 0; i < d.length; i++) { var c = r[i]; if (c) for (var j = 0; j < g.length; j++) r[i + j] ^= mul(g[j], c); } return r.slice(d.length); }
+  function utf8(s){ var b = []; s = unescape(encodeURIComponent(s)); for (var i = 0; i < s.length; i++) b.push(s.charCodeAt(i)); return b; }
+  function make(text){
+    var by = utf8(text), v = 1;
+    for (; v <= 10; v++) { var t = T[v], dc = t[0] - t[1] * t[2]; if (4 + (v < 10 ? 8 : 16) + by.length * 8 <= dc * 8) break; }
+    if (v > 10) throw new Error('QR: nội dung quá dài');
+    var t = T[v], ecLen = t[1], nb = t[2], raw = t[0], dataCw = raw - ecLen * nb, bits = [];
+    function put(val, n){ for (var i = n - 1; i >= 0; i--) bits.push((val >>> i) & 1); }
+    put(4, 4); put(by.length, v < 10 ? 8 : 16); by.forEach(function(b){ put(b, 8); });
+    put(0, Math.min(4, dataCw * 8 - bits.length)); while (bits.length % 8) bits.push(0);
+    var data = []; for (var i = 0; i < bits.length; i += 8) { var x = 0; for (var j = 0; j < 8; j++) x = (x << 1) | bits[i + j]; data.push(x); }
+    for (var p = 0; data.length < dataCw; p++) data.push(p % 2 ? 0x11 : 0xEC);
+    var nShort = nb - raw % nb, shortLen = Math.floor(raw / nb), blocks = [], k = 0;
+    for (i = 0; i < nb; i++) { var dl = shortLen - ecLen + (i < nShort ? 0 : 1), d = data.slice(k, k + dl); k += dl; blocks.push({ d: d, e: ecc(d, ecLen) }); }
+    var out = [], mx = shortLen - ecLen + 1;
+    for (i = 0; i < mx; i++) blocks.forEach(function(b){ if (i < b.d.length) out.push(b.d[i]); });
+    for (i = 0; i < ecLen; i++) blocks.forEach(function(b){ out.push(b.e[i]); });
+    var n = 17 + 4 * v, M = [], F = [];
+    for (i = 0; i < n; i++) { M.push(new Array(n).fill(false)); F.push(new Array(n).fill(false)); }
+    function sf(x, y, d){ M[y][x] = d; F[y][x] = true; }
+    for (i = 0; i < n; i++) { sf(6, i, i % 2 === 0); sf(i, 6, i % 2 === 0); }
+    [[3,3],[n-4,3],[3,n-4]].forEach(function(c){ for (var dy = -4; dy <= 4; dy++) for (var dx = -4; dx <= 4; dx++) { var x = c[0] + dx, y = c[1] + dy; if (x < 0 || y < 0 || x >= n || y >= n) continue; var di = Math.max(Math.abs(dx), Math.abs(dy)); sf(x, y, di !== 2 && di !== 4); } });
+    var al = AL[v]; for (i = 0; i < al.length; i++) for (j = 0; j < al.length; j++) { if ((i === 0 && j === 0) || (i === 0 && j === al.length - 1) || (i === al.length - 1 && j === 0)) continue; for (var dy2 = -2; dy2 <= 2; dy2++) for (var dx2 = -2; dx2 <= 2; dx2++) sf(al[i] + dx2, al[j] + dy2, Math.max(Math.abs(dx2), Math.abs(dy2)) !== 1); }
+    function fmt(mask){ var d = (1 << 3) | mask, r = d; for (var i = 0; i < 10; i++) r = (r << 1) ^ ((r >>> 9) * 0x537); var b = ((d << 10) | r) ^ 0x5412, g = function(i){ return ((b >>> i) & 1) !== 0; };
+      for (i = 0; i <= 5; i++) sf(8, i, g(i)); sf(8, 7, g(6)); sf(8, 8, g(7)); sf(7, 8, g(8)); for (i = 9; i < 15; i++) sf(14 - i, 8, g(i));
+      for (i = 0; i < 8; i++) sf(n - 1 - i, 8, g(i)); for (i = 8; i < 15; i++) sf(8, n - 15 + i, g(i)); sf(8, n - 8, true); }
+    fmt(0);
+    if (v >= 7) { var r = v; for (i = 0; i < 12; i++) r = (r << 1) ^ ((r >>> 11) * 0x1F25); var vb = (v << 12) | r; for (i = 0; i < 18; i++) { var bit = ((vb >>> i) & 1) !== 0, a = n - 11 + i % 3, b = Math.floor(i / 3); sf(a, b, bit); sf(b, a, bit); } }
+    var bi = 0;
+    for (var right = n - 1; right >= 1; right -= 2) { if (right === 6) right = 5; for (var vert = 0; vert < n; vert++) for (j = 0; j < 2; j++) { var x = right - j, up = ((right + 1) & 2) === 0, y = up ? n - 1 - vert : vert; if (!F[y][x] && bi < out.length * 8) { M[y][x] = ((out[bi >>> 3] >>> (7 - (bi & 7))) & 1) !== 0; bi++; } } }
+    var MK = [function(x,y){return (x+y)%2===0;},function(x,y){return y%2===0;},function(x,y){return x%3===0;},function(x,y){return (x+y)%3===0;},function(x,y){return (Math.floor(x/3)+Math.floor(y/2))%2===0;},function(x,y){return x*y%2+x*y%3===0;},function(x,y){return (x*y%2+x*y%3)%2===0;},function(x,y){return ((x+y)%2+x*y%3)%2===0;}];
+    function ap(m){ for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) if (!F[y][x] && MK[m](x, y)) M[y][x] = !M[y][x]; }
+    function pen(){ var s = 0, dark = 0, y, x;
+      for (y = 0; y < n; y++) { var run = 1; for (x = 1; x <= n; x++) { if (x < n && M[y][x] === M[y][x-1]) run++; else { if (run >= 5) s += run - 2; run = 1; } } }
+      for (x = 0; x < n; x++) { var run2 = 1; for (y = 1; y <= n; y++) { if (y < n && M[y][x] === M[y-1][x]) run2++; else { if (run2 >= 5) s += run2 - 2; run2 = 1; } } }
+      for (y = 0; y < n - 1; y++) for (x = 0; x < n - 1; x++) { var c = M[y][x]; if (c === M[y][x+1] && c === M[y+1][x] && c === M[y+1][x+1]) s += 3; }
+      for (y = 0; y < n; y++) for (x = 0; x < n; x++) if (M[y][x]) dark++;
+      s += Math.floor(Math.abs(dark * 20 - n * n * 10) / (n * n)) * 10; return s; }
+    var best = 0, bs = 1e9;
+    for (var m = 0; m < 8; m++) { ap(m); fmt(m); var sc = pen(); if (sc < bs) { bs = sc; best = m; } ap(m); }
+    ap(best); fmt(best);
+    return M;
+  }
+  function svg(text, px){ var M = make(text), n = M.length, q = 4, s = (n + 2 * q), p = '';
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) if (M[y][x]) p += 'M' + (x + q) + ',' + (y + q) + 'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + s + ' ' + s + '" width="' + (px || 120) + '" height="' + (px || 120) + '" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="#fff"/><path d="' + p + '" fill="#000"/></svg>'; }
+  return { make: make, svg: svg };
+})();
+
+
+/* ===================== 9.9a: CHU KHO TREN DIEN THOAI DAY DU HON ===================== */
+/* kiem ke tao / chot / huy chot / xoa, ma moi khi dem; huy phieu, soan hang; sua ma, cat hang, the kho 90 ngay, in tem;
+   tro ly, bao cao nhanh, thu hoi / mo lai yeu cau to, nguoi nhan; linh nhieu don */
+['kknew','kkchot','kkhuychot','kkxoa','kpxhuy','kvt','kcat','kdxmua','kyc','knv','knvsync'].forEach(function(o){
+  KOWN_OPS[o] = { kknew: 'Tạo phiếu kiểm kê', kkchot: 'Chốt kiểm kê', kkhuychot: 'Huỷ chốt kiểm kê', kkxoa: 'Xoá phiếu kiểm kê', kpxhuy: 'Huỷ phiếu', kvt: 'Thêm / sửa mã', kcat: 'Cất hàng / chuyển ô', kdxmua: 'Đề xuất mua', kyc: 'Yêu cầu gửi tổ', knv: 'Người nhận', knvsync: 'Đồng bộ người nhận' }[o]; });
+var kPend99a = kPend; kPend = function(){ return kPend99a().concat(S.queue.filter(function(c){ return /^(kknew|kkchot|kkhuychot|kkxoa|kpxhuy|kvt|kcat|kdxmua|kyc|knv|knvsync)$/.test(c.op); })); };
+(function(){ var i = -1; KOT.forEach(function(x, j){ if (x[0] === 'kk') i = j; }); KOT.splice(i >= 0 ? i + 1 : KOT.length, 0, ['tro', '&#11088; Trợ lý'], ['bc', '&#128202; Báo cáo'], ['ql', '&#9881; Quản lý']); })();
+function k9(op, data, td){ return send(op, '', data, td); }
+function kAllKK(){ return kOwn().kk || []; }
+kkDots = function(){ return kAllKK().filter(function(x){ return x.tt !== 'Đã chốt'; }); };
+
+/* ---------- kiem ke: tao phieu moi ---------- */
+function kkNewSheet(){
+  var t = kOwn().tro || {}, kes = {}; ((kOwn().ke || {}).hg || []).forEach(function(x){ var p = String(x[1] || '').split('-'); if (p.length >= 2) kes[p[0] + '-' + p[1]] = 1; });
+  openSheet('<div class="sh-h"><h2>+ Phiếu kiểm kê mới</h2><button class="ibtn" data-close="1">&#10005;</button></div>' +
+    '<div class="box"><h3>&#11088; Xoay vòng ABC</h3><div class="hint">Mã đến hạn đếm: <b>' + (t.xvDen || 0) + '</b> (A mỗi tháng, B mỗi quý, C nửa năm)</div><div style="display:flex;gap:6px;margin-top:6px;align-items:center"><span>Số mã</span><input id="kkN" class="inp" type="number" value="25" min="1" style="width:90px"><button class="btn pri" style="flex:1" data-k9="kknew" data-v="XOAY">Tạo đợt xoay vòng</button></div></div>' +
+    '<div class="box"><h3>&#128205; Theo kệ</h3><input id="kkKe" class="inp" list="kkKeL" placeholder="Mã kệ, vd A-01" autocomplete="off"><datalist id="kkKeL">' + Object.keys(kes).sort().map(function(k){ return '<option value="' + esc(k) + '">'; }).join('') + '</datalist><button class="btn pri" style="width:100%;margin-top:6px" data-k9="kknew" data-v="KE">Tạo phiếu theo kệ</button></div>' +
+    '<div class="box"><h3>&#128221; Danh sách mã</h3><textarea id="kkMas" class="inp" placeholder="Mỗi dòng / dấu phẩy 1 mã - hoặc bấm Quét để thêm"></textarea><div style="display:flex;gap:6px;margin-top:6px"><button class="btn" style="flex:1" data-k9="kkquetds">&#128247; Quét thêm mã</button><button class="btn pri" style="flex:1" data-k9="kknew" data-v="DS">Tạo phiếu</button></div></div>' +
+    '<div class="box"><h3>&#127970; Toàn kho</h3><button class="btn" style="width:100%" data-k9="kknew" data-v="ALL">Tạo phiếu toàn kho</button></div>' +
+    '<div class="hint">Máy công ty tạo phiếu (lấy tồn sổ sách theo lô / cỡ), khoảng 1 phút sau hiện ở tab Kiểm kê.</div>');
+}
+function kkNewGui(kieu){
+  var d = { kieu: kieu };
+  if (kieu === 'XOAY') d.n = +($('kkN') || {}).value || 25;
+  if (kieu === 'KE') { d.ke = String(($('kkKe') || {}).value || '').trim().toUpperCase(); if (!d.ke) { toast('Gõ mã kệ'); return; } }
+  if (kieu === 'DS') { d.mas = String(($('kkMas') || {}).value || '').toUpperCase().split(/[\s,;]+/).filter(Boolean); if (!d.mas.length) { toast('Chưa có mã nào'); return; } }
+  if (kieu === 'ALL' && !confirm('Tạo phiếu kiểm kê TOÀN KHO?')) return;
+  k9('kknew', d, { XOAY: 'xoay vòng ' + d.n + ' mã', KE: 'kệ ' + d.ke, DS: (d.mas || []).length + ' mã', ALL: 'toàn kho' }[kieu]).then(function(ok){ if (ok !== false) closeSheet(); });
+}
+/* ---------- kiem ke: xem chenh lech + chot ---------- */
+function kkChotSheet(){
+  var d = kkDot(); if (!d) return; var rows = kkRows(d), dem = 0, cg = 0, th = [], ti = [];
+  rows.forEach(function(x){ var v = kkVal(x); if (v != null) { dem++; var df = kkDiff(x); if (df > 0) th.push([x, df]); if (df < 0) ti.push([x, df]); } if (x.loc && !x.loc.sent) cg++; });
+  var li = function(a){ return a.map(function(p){ var x = p[0]; return '<div class="mini"><span><b>' + esc(x.ma) + '</b> ' + esc(x.ten) + (x.co ? ' cỡ ' + esc(x.co) : '') + (x.lo ? ' lô ' + esc(x.lo) : '') + '<br><span class="hint">sổ ' + kN(x.ss) + ' · đếm ' + kN(kkVal(x)) + '</span></span><span class="tag ' + (p[1] > 0 ? 'green' : 'red') + '">' + kkSo(p[1]) + ' ' + esc(x.dvt) + '</span></div>'; }).join(''); };
+  openSheet('<div class="sh-h"><h2>Chênh lệch &amp; chốt</h2><button class="ibtn" data-close="1">&#10005;</button></div>' +
+    '<div class="box"><div class="kv"><div>Đợt</div><div>' + esc(kD(d.ngay)) + ' · ' + esc(d.ten || (d.ke ? 'kệ ' + d.ke : 'toàn kho')) + '</div><div>Đã đếm</div><div><b>' + dem + '</b> / ' + rows.length + ' dòng (chưa đếm = coi như khớp)</div><div>Thừa</div><div>' + th.length + ' dòng → phiếu nhập "Kiểm kê thừa"</div><div>Thiếu</div><div>' + ti.length + ' dòng → phiếu xuất "Kiểm kê thiếu"</div></div></div>' +
+    (cg ? '<div class="pend">&#9888; Còn <b>' + cg + '</b> số chưa gửi về máy. <button class="btn sm" data-kk="gui">Gửi ngay</button> - gửi xong mới chốt.</div>' : '') +
+    (th.length ? '<div class="box"><h3>Thừa</h3>' + li(th) + '</div>' : '') + (ti.length ? '<div class="box"><h3>Thiếu</h3>' + li(ti) + '</div>' : '') +
+    '<button class="btn green" style="width:100%;font-size:17px;padding:13px"' + (cg ? ' disabled' : '') + ' data-k9="kkchot" data-v="' + esc(d.id) + '">CHỐT kiểm kê</button>' +
+    '<div class="hint">Chênh lệch tính theo tồn lúc đếm. Chốt nhầm: mục "Đã chốt gần đây" &gt; Huỷ chốt.</div>');
+}
+var kKKView99 = kKKView;
+kKKView = function(){
+  var ds = kkDots(), d = ds.length ? kkDot() : null, chot = kAllKK().filter(function(x){ return x.tt === 'Đã chốt'; });
+  var h = '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px"><button class="btn green sm" data-k9="kknewsh">+ Phiếu kiểm kê mới</button>' +
+    (d ? '<button class="btn pri sm" data-k9="kkchotsh">Chênh lệch &amp; CHỐT</button><button class="btn sm red" data-k9="kkxoa" data-v="' + esc(d.id) + '">Xoá đợt này</button>' : '') + '</div>';
+  h += ds.length ? kKKView99() : '<div class="empty">Chưa có đợt kiểm kê đang mở.<br>Bấm <b>+ Phiếu kiểm kê mới</b> (xoay vòng, theo kệ, danh sách mã, toàn kho).</div>';
+  if (chot.length) h += '<div class="box"><h3>Đã chốt gần đây</h3>' + chot.map(function(x){ return '<div class="mini"><span><b>' + esc(kD(x.ngay)) + '</b> ' + esc(x.ten || (x.ke ? 'kệ ' + x.ke : 'toàn kho')) + '<br><span class="hint">' + x.nd + ' dòng · ' + esc([x.pn, x.pxx].filter(Boolean).join(', ') || 'khớp sổ') + '</span></span><span style="display:flex;gap:4px"><button class="btn sm" data-k9="kkhuychot" data-v="' + esc(x.id) + '">Huỷ chốt</button><button class="btn sm red" data-k9="kkxoahan" data-v="' + esc(x.id) + '">Xoá</button></span></div>'; }).join('') + '</div>';
+  return h;
+};
+/* ma moi (chua co trong danh muc) khi dem */
+function kkMoiMa(ma){
+  ma = String(ma || '').trim().toUpperCase(); if (!/^[A-Z0-9][A-Z0-9\-_.\/]{2,}$/.test(ma)) { toast('Mã không đúng dạng'); return; }
+  var ten = prompt('Mã ' + ma + ' chưa có trong danh mục.\nTên vật tư (máy sẽ tạo mã mới khi nhận số đếm):', ''); if (!ten || !ten.trim()) return;
+  var dvt = prompt('Đơn vị tính (PC, CAI, BX...):', 'PC') || '';
+  var d = kkDot(), all = kkLoad(), L = all[d.id] = all[d.id] || {}, k = (ma + '||').toUpperCase();
+  L[k] = { ma: ma, lo: '', co: '', ten: ten.trim(), dvt: dvt.trim(), ss: 0, sl: null, sent: true, moi: 1, moiMa: 1 }; kkSave(all); kkMo(k);
+}
+
+/* ---------- phieu: huy, soan hang ---------- */
+var showKPX99 = showKPX;
+showKPX = function(id){
+  showKPX99(id); var p = null; (kOwn().px || []).forEach(function(x){ if (x[0] === id) p = x; }); if (!p || p[8]) return;
+  var sh = $('sheet'); if (!sh) return;
+  sh.insertAdjacentHTML('beforeend', '<div style="display:flex;gap:6px;margin-top:8px">' + (p[3] === 'X' ? '<button class="btn" style="flex:1" data-k9="soan" data-v="' + esc(p[0]) + '">&#128230; Soạn hàng (theo đường đi)</button>' : '') +
+    '<button class="btn red" style="flex:1" data-k9="pxhuy" data-v="' + esc(p[1]) + '">Huỷ phiếu</button></div>');
+};
+function kViTriMa(ma){ var r = []; ((kOwn().ke || {}).hg || []).forEach(function(x){ if (String(x[0]).toUpperCase() === String(ma).toUpperCase() && x[1]) r.push(x[1]); }); if (!r.length) { var v = kVtMap()[String(ma).toUpperCase()]; if (v && v[3]) r.push(v[3]); } return r; }
+function kSoan(id){
+  var p = null; (kOwn().px || []).forEach(function(x){ if (x[0] === id) p = x; }); if (!p) return;
+  S.soanOk = S.soanOk || {}; var ok = S.soanOk[id] = S.soanOk[id] || {};
+  var ds = (p[10] || []).map(function(d, i){ var vt = kViTriMa(d[0]); return { i: i, d: d, vt: vt[0] || '', vts: vt }; });
+  ds.sort(function(a, b){ return String(a.vt || 'zzz').localeCompare(String(b.vt || 'zzz')); });
+  var n = ds.filter(function(x){ return ok[x.i]; }).length;
+  openSheet('<div class="sh-h"><h2>Soạn hàng ' + esc(p[1]) + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="hint" style="margin:0 2px 6px">Đi theo thứ tự ô (kệ - tầng - ô). Lấy xong bấm vào dòng để đánh dấu. Đã lấy <b>' + n + ' / ' + ds.length + '</b></div><div class="box">' +
+    ds.map(function(x){ var d = x.d; return '<div class="mini" data-k9="soanok" data-v="' + esc(id) + '" data-i="' + x.i + '" style="cursor:pointer;padding:10px 2px;' + (ok[x.i] ? 'opacity:.45;text-decoration:line-through' : '') + '"><span>&#128205; <b>' + esc(x.vt || 'chưa có vị trí') + '</b>' + (x.vts.length > 1 ? ' <span class="hint">(+' + esc(x.vts.slice(1).join(', ')) + ')</span>' : '') + '<br><b>' + esc(d[0]) + '</b> ' + esc(d[1]) + ([d[4], d[5]].filter(Boolean).length ? ' <span class="hint">' + esc([d[4], d[5]].filter(Boolean).join(' · ')) + '</span>' : '') + '</span><span class="tag ' + (ok[x.i] ? 'green' : 'blue') + '" style="white-space:nowrap">' + kN(d[2]) + ' ' + esc(d[3]) + '</span></div>'; }).join('') + '</div>');
+}
+
+/* ---------- ma: the kho 90 ngay (ton chay), sua ma, cat hang / chuyen o, in tem ---------- */
+var showKVT99 = showKVT;
+showKVT = function(ma){
+  showKVT99(ma); var v = kVtMap()[String(ma).toUpperCase()], sh = $('sheet'); if (!v || !sh) return;
+  var tk = (kOwn().tk || []).filter(function(r){ return r[0] === String(v[0]).toUpperCase(); });
+  if (tk.length) {
+    var ton = +v[4] || 0, rows = tk.map(function(r){ var x = { r: r, sau: ton }; ton = ton - (r[3] === 'N' ? r[4] : -r[4]); return x; });
+    var bx = Array.prototype.filter.call(sh.querySelectorAll('.box'), function(b){ var h3 = b.querySelector('h3'); return h3 && /^Thẻ kho/.test(h3.textContent); })[0];
+    var html = '<h3>Thẻ kho 90 ngày (' + tk.length + ' dòng) · tồn đầu ' + kN(ton) + '</h3><table class="dk"><tr><th>Ngày</th><th>Phiếu</th><th>Nhập</th><th>Xuất</th><th>Tồn</th><th>Cho / từ</th></tr>' + rows.map(function(x){ var r = x.r; return '<tr><td class="nw">' + kD(r[1]) + '</td><td class="nw">' + esc(r[2]) + '</td><td class="num">' + (r[3] === 'N' ? kN(r[4]) : '') + '</td><td class="num">' + (r[3] === 'X' ? kN(r[4]) : '') + '</td><td class="num"><b>' + kN(x.sau) + '</b></td><td>' + esc([r[5], r[6]].filter(Boolean).join(' · ') || r[7]) + '</td></tr>'; }).join('') + '</table>';
+    if (bx) bx.innerHTML = html; else sh.insertAdjacentHTML('beforeend', '<div class="box">' + html + '</div>');
+  }
+  sh.insertAdjacentHTML('beforeend', '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn" style="flex:1" data-k9="vtsua" data-v="' + esc(v[0]) + '">&#9998; Sửa mã</button><button class="btn" style="flex:1" data-k9="catsh" data-v="' + esc(v[0]) + '">&#128230; Cất / chuyển ô</button><button class="btn" style="flex:1" data-k9="tem" data-v="' + esc(v[0]) + '">&#128424; In tem</button></div>');
+};
+function kVtSua(ma){
+  var v = ma ? kVtMap()[String(ma).toUpperCase()] : null;
+  openSheet('<div class="sh-h"><h2>' + (v ? 'Sửa mã ' + esc(v[0]) : '+ Mã vật tư mới') + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box">' +
+    '<label class="f">Mã</label><input id="kvMa" class="inp" value="' + esc(v ? v[0] : (ma || '')) + '"' + (v ? ' readonly' : '') + ' autocomplete="off" style="text-transform:uppercase">' +
+    '<label class="f">Tên</label><input id="kvTen" class="inp" value="' + esc(v ? v[1] : '') + '"><div class="grid2"><div><label class="f">ĐVT</label><input id="kvDvt" class="inp" value="' + esc(v ? v[2] : '') + '"></div><div><label class="f">Tồn tối thiểu</label><input id="kvMin" class="inp" type="number" min="0" value="' + esc(v && v[6] ? v[6] : '') + '"></div></div>' +
+    '<label class="f">Vị trí chính (Kệ-Tầng-Ô)</label><div style="display:flex;gap:6px"><input id="kvKe" class="inp" value="' + esc(v ? v[3] : '') + '" placeholder="A-01-2-03" style="text-transform:uppercase"><button class="btn sm" data-k9="kvkeq">&#128247;</button></div>' +
+    '<button class="btn green" style="width:100%;margin-top:10px" data-k9="kvgui">Lưu</button></div>');
+}
+function kVtGui(){
+  var d = { ma: String($('kvMa').value || '').trim().toUpperCase(), ten: $('kvTen').value.trim(), dvt: $('kvDvt').value.trim(), min: $('kvMin').value, ke: String($('kvKe').value || '').trim().toUpperCase() };
+  if (!d.ma) { toast('Gõ mã'); return; } if (!kVtMap()[d.ma] && !d.ten) { toast('Mã mới cần tên'); return; }
+  k9('kvt', d, d.ma + ' ' + d.ten).then(function(ok){ if (ok !== false) closeSheet(); });
+}
+function kCatSh(ma){
+  var v = kVtMap()[String(ma).toUpperCase()]; if (!v) return; var ps = kViTriMa(v[0]); S.catMa = v[0]; S.catTu = '';
+  openSheet('<div class="sh-h"><h2>&#128230; Cất / chuyển ô</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><b>' + esc(v[0]) + '</b> ' + esc(v[1]) + '<div class="hint">Đang ở: ' + esc(ps.join(', ') || 'chưa có vị trí') + '</div>' +
+    (ps.length ? '<label class="f">Cách làm</label><select id="catTu" class="inp"><option value="">Cất thêm 1 chỗ mới (giữ chỗ cũ)</option>' + ps.map(function(p){ return '<option value="' + esc(p) + '">Chuyển từ ' + esc(p) + ' sang ô mới</option>'; }).join('') + '</select>' : '') +
+    '<label class="f">Ô mới (quét tem ô hoặc gõ)</label><div style="display:flex;gap:6px"><input id="catO" class="inp" placeholder="A-01-2-03" style="text-transform:uppercase" autocomplete="off"><button class="btn sm" data-k9="catq">&#128247; Quét ô</button></div>' +
+    '<button class="btn green" style="width:100%;margin-top:10px" data-k9="catgui">Gửi</button></div>');
+}
+function kCatGui(){
+  var o = String(($('catO') || {}).value || '').trim().toUpperCase().replace(/^KE:/, ''); if (!o) { toast('Quét / gõ ô'); return; }
+  var tu = ($('catTu') || {}).value || '';
+  k9('kcat', { ma: S.catMa, vitri: o, tu: tu }, S.catMa + ' → ' + o).then(function(ok){ if (ok !== false) closeSheet(); });
+}
+/* che do cat hang lien tuc: quet tem hang -> quet tem o */
+function kCatQuet(){ toast('Quét tem HÀNG cần cất', 1800); kkQuet(function(code){ var u = String(code || '').trim().toUpperCase(); if (u.indexOf('KE:') === 0) { toast('Đây là tem ô - quét tem hàng trước'); return; } if (!kVtMap()[u]) { toast('Không có mã ' + u); return; } kCatSh(u); setTimeout(function(){ toast('Quét tiếp tem Ô', 1800); kkQuet(function(c2){ var e = $('catO'); if (e) { e.value = String(c2 || '').toUpperCase().replace(/^KE:/, ''); } }); }, 400); }); }
+/* in tem tren dien thoai (QR) */
+function kTemIn(mas){
+  var vm = kVtMap(), ds = mas.map(function(m){ return vm[String(m).toUpperCase()]; }).filter(Boolean); if (!ds.length) return;
+  var box = document.getElementById('temIn'); if (!box) { box = document.createElement('div'); box.id = 'temIn'; document.body.appendChild(box); }
+  box.innerHTML = '<div class="noin" style="position:sticky;top:0;background:#fff;padding:8px;display:flex;gap:8px;border-bottom:1px solid #ccc"><button class="btn pri" style="flex:1" onclick="window.print()">&#128424; In</button><button class="btn" style="flex:1" onclick="document.body.classList.remove(\'inTem\')">Đóng</button></div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:3mm;padding:3mm">' + ds.map(function(v){ return '<div style="border:1px dashed #999;width:62mm;padding:2mm;display:flex;gap:2mm;align-items:center;page-break-inside:avoid">' + QRK.svg(v[0], 80) + '<div style="font:12px Arial;color:#000"><b style="font-size:15px">' + esc(v[0]) + '</b><br>' + esc(String(v[1]).slice(0, 60)) + '<br><span style="font-size:11px">' + esc(v[2]) + (v[3] ? ' · ' + esc(v[3]) : '') + '</span></div></div>'; }).join('') + '</div>';
+  closeSheet(); document.body.classList.add('inTem');
+}
+
+/* ---------- linh nhieu don cung luc ---------- */
+var kPnDs99 = kPnDs;
+kPnDs = function(){ return '<button class="btn pri sm" style="width:100%;margin:6px 0" data-k9="pnnhieu">&#9745; Lĩnh nhiều đơn cùng lúc</button>' + kPnDs99(); };
+function kPnNhieu(){
+  var cl = (kOwn().cl || []).filter(function(d){ return !d[10]; }); S.pnN = S.pnN || {};
+  openSheet('<div class="sh-h"><h2>Lĩnh nhiều đơn</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="hint" style="margin:0 2px 6px">Tick các đơn lĩnh về, sửa số nếu lĩnh thiếu. Mỗi đơn máy lập 1 phiếu nhập. (Mã theo cỡ: lĩnh từng đơn để chọn cỡ.)</div>' +
+    '<div class="box"><div class="grid2"><div><label class="f">Ngày</label><input id="pnNg" class="inp" type="date" value="' + today() + '"></div><div><label class="f">Số phiếu lĩnh ERP</label><input id="pnSo" class="inp"></div></div></div><div class="box">' +
+    (cl.length ? cl.map(function(d, i){ return '<div class="mini" style="align-items:center"><input type="checkbox" id="pnC' + i + '" data-don="' + esc(d[0]) + '" data-ma="' + esc(d[1]) + '" style="width:22px;height:22px"><span style="flex:1"><b>' + esc(d[1]) + '</b> ' + esc(d[2]) + '<br><span class="hint">Đơn ' + esc(d[0]) + ' · ' + esc(d[5]) + ' · chờ lĩnh ' + kN(d[4]) + ' ' + esc(d[3]) + '</span></span><input id="pnS' + i + '" class="inp" type="number" step="any" value="' + d[4] + '" style="width:90px"></div>'; }).join('') : '<div class="hint">Không có đơn nào (mã không theo cỡ) đang chờ lĩnh.</div>') +
+    '</div><button class="btn green" style="width:100%" data-k9="pnnhieugui">Gửi lập phiếu nhập</button>');
+}
+function kPnNhieuGui(){
+  var rows = []; for (var i = 0; ; i++) { var c = $('pnC' + i); if (!c) break; if (!c.checked) continue; var sl = +String($('pnS' + i).value).replace(',', '.'); if (!(sl > 0)) { toast('Số lượng dòng ' + c.dataset.ma); return; } rows.push({ ma: c.dataset.ma, sl: sl, don: c.dataset.don, co: '', lo: '', han: '' }); }
+  if (!rows.length) { toast('Tick ít nhất 1 đơn'); return; }
+  var dons = {}; rows.forEach(function(r){ dons[r.don] = 1; });
+  kOutQ('kpn', { loai: 'LINH', ngay: $('pnNg').value, soLinh: $('pnSo').value.trim(), don: '', loaiCT: 'Lĩnh từ kho chung ERP', gc: '', rows: rows }, 'Lĩnh ' + Object.keys(dons).length + ' đơn, ' + rows.length + ' dòng').then(function(ok){ if (ok) closeSheet(); });
+}
+
+/* ---------- tab tro ly ---------- */
+function kTroView(){
+  var t = kOwn().tro; if (!t) return '<div class="empty">Máy công ty chưa gửi dữ liệu trợ lý (cần bản 9.9a).</div>';
+  var mc = { DO: 'red', CAM: 'orange', VANG: 'blue' }, h = '<div class="box"><div style="display:flex;align-items:center;gap:12px"><div style="font-size:34px;font-weight:800;color:' + (t.diem >= 85 ? 'var(--green)' : t.diem >= 60 ? 'var(--orange)' : 'var(--red)') + '">' + (t.diem == null ? '-' : t.diem) + '</div><div><b>Sức khoẻ dữ liệu kho</b><div class="hint">/100 điểm · ' + (t.muc || []).length + ' mục cần xử lý</div></div></div>' +
+    (t.muc || []).map(function(m, i){ return '<details style="border-top:1px dashed var(--line);padding:6px 0"><summary style="cursor:pointer"><span class="tag ' + mc[m[2]] + '">' + m[1] + '</span> ' + esc(m[0]) + '</summary><div class="hint">Cách sửa: ' + esc(m[3]) + '</div>' + (m[4] || []).map(function(x){ return '<div class="hint">· ' + esc(x) + '</div>'; }).join('') + '</details>'; }).join('') + '</div>';
+  h += '<div class="box"><h3>&#128221; Kiểm kê xoay vòng ABC: ' + (t.xvDen || 0) + ' mã đến hạn</h3>' + (t.xv || []).slice(0, 15).map(function(x){ return '<div class="mini"><span><span class="tag ' + (x[2] === 'A' ? 'red' : x[2] === 'B' ? 'orange' : '') + '">' + esc(x[2]) + '</span> <b>' + esc(x[0]) + '</b> ' + esc(x[1]) + '<br><span class="hint">' + (x[5] ? 'đếm lần cuối ' + kD(x[5]) : 'chưa từng đếm') + (x[4] ? ' · ' + esc(x[4]) : '') + '</span></span><span class="hint">' + (x[3] < 0 ? 'trễ ' + (-x[3]) + ' ngày' : 'đến hạn') + '</span></div>'; }).join('') +
+    (t.xvDen ? '<button class="btn pri" style="width:100%;margin-top:6px" data-k9="kknewsh">Tạo đợt kiểm kê xoay vòng</button>' : '<div class="hint">Không có mã nào đến hạn.</div>') + '</div>';
+  var dx = t.dx || []; S.dxSel = S.dxSel || {};
+  h += '<div class="box"><h3>&#128722; Đề xuất mua (' + dx.length + ')</h3>' + (dx.length ? dx.map(function(x, i){ var k = x[0] + '|' + x[2]; return '<label class="mini" style="align-items:center;cursor:pointer"><input type="checkbox" data-dx="' + esc(k) + '"' + (S.dxSel[k] ? ' checked' : '') + ' style="width:20px;height:20px"><span style="flex:1"><b>' + esc(x[0]) + '</b> ' + esc(x[1]) + (x[2] ? ' cỡ ' + esc(x[2]) : '') + '<br><span class="hint">' + esc(x[5]) + ' · ' + esc(x[6]) + '</span></span><span class="tag violet" style="white-space:nowrap">' + kN(x[3]) + ' ' + esc(x[7]) + '</span></label>'; }).join('') +
+    '<button class="btn green" style="width:100%;margin-top:6px" data-k9="dxgui">Tạo việc + tờ trình (mã đã tick)</button>' : '<div class="hint">Không có mã nào dưới mức.</div>') + '</div>';
+  var bt = t.bt || [];
+  h += '<div class="box"><h3>&#128269; Lĩnh bất thường 30 ngày (' + bt.length + ')</h3>' + (bt.length ? bt.map(function(x){ return '<div class="mini"><span><b>' + esc(x[2] || x[1]) + '</b> <span class="hint">' + esc(x[1]) + ' · tổ ' + esc(x[0]) + '</span><br>' + esc(x[3]) + ' ' + esc(x[4]) + ': <b>' + kN(x[5]) + ' ' + esc(x[6]) + '</b><br><span class="hint">' + esc(x[7]) + '</span></span></div>'; }).join('') : '<div class="hint">Không thấy bất thường.</div>') + '</div>';
+  return h;
+}
+/* ---------- tab bao cao ---------- */
+function kBcView(){
+  var b = kOwn().bc; if (!b) return '<div class="empty">Máy công ty chưa gửi báo cáo (cần bản 9.9a).</div>';
+  var tg = [0, 0, 0]; (b.to || []).forEach(function(x){ tg[0] += x[2]; tg[1] += x[3]; tg[2] += x[4]; });
+  var h = '<div class="box"><h3>Tiêu hao theo tổ (giá trị)</h3><table class="dk"><tr><th>Tổ</th><th>Tháng này</th><th>Tháng trước</th><th>Năm nay</th></tr>' + (b.to || []).map(function(x){ var tang = x[3] > 0 && x[2] > x[3] * 1.5; return '<tr><td><b>' + esc(x[0]) + '</b><br><span class="hint">' + esc(x[1]) + '</span></td><td class="num"' + (tang ? ' style="color:var(--red);font-weight:700"' : '') + '>' + kN(x[2]) + '</td><td class="num">' + kN(x[3]) + '</td><td class="num">' + kN(x[4]) + '</td></tr>'; }).join('') +
+    '<tr><td><b>Cộng</b></td><td class="num"><b>' + kN(tg[0]) + '</b></td><td class="num"><b>' + kN(tg[1]) + '</b></td><td class="num"><b>' + kN(tg[2]) + '</b></td></tr></table><div class="hint">Tháng ' + esc(b.t0) + ' so với ' + esc(b.t1) + '. Đỏ = tăng trên 50%.</div></div>';
+  h += '<div class="box"><h3>Mã xuất nhiều nhất tháng này</h3>' + (b.top || []).map(function(x, i){ return '<div class="mini" data-kvt="' + esc(x[0]) + '" style="cursor:pointer"><span>' + (i + 1) + '. <b>' + esc(x[0]) + '</b> ' + esc(x[1]) + '<br><span class="hint">' + kN(x[2]) + ' ' + esc(x[3]) + '</span></span><span class="tag">' + kN(x[4]) + '</span></div>'; }).join('') + '</div>';
+  return h;
+}
+/* ---------- tab quan ly: yeu cau gui to, nguoi nhan ---------- */
+function kQlView(){
+  var yc = kOwn().yc || [], tn = { TP: 'Biểu thực phát', DX: 'Đề xuất dự tính', TON: 'Báo tồn' };
+  var h = '<div class="box"><h3>Yêu cầu đã gửi các tổ</h3>' + (yc.length ? yc.map(function(x){ return '<div class="mini" style="align-items:center"><span style="flex:1"><b>' + esc(tn[x[0]] || x[0]) + '</b> kỳ ' + esc(x[1]) + '<br><span class="hint">' + esc(x[5]) + (x[3] ? ' · hạn ' + kD(x[3]) : '') + ' · đã làm ' + x[6] + ', chưa ' + x[7] + '</span></span>' +
+    (x[4] ? '<button class="btn sm red" data-k9="ycthu" data-l="' + esc(x[0]) + '" data-v="' + esc(x[1]) + '">Thu hồi</button>' : '<button class="btn sm green" data-k9="ycmo" data-l="' + esc(x[0]) + '" data-v="' + esc(x[1]) + '">Mở lại</button>') + '</div>'; }).join('') : '<div class="hint">Không có yêu cầu nào.</div>') +
+    '<div class="hint">Thu hồi chỉ đóng web tổ, số tổ đã gửi vẫn giữ. Xoá số tổ đã gửi: làm trên máy (có xem trước, sao lưu).</div></div>';
+  h += '<div class="box"><h3>Người nhận</h3><div style="display:flex;gap:6px"><input id="nvTim" class="inp" placeholder="Tìm tên / 4 số cuối / tổ" value="' + esc(S.nvTim || '') + '" autocomplete="off"><button class="btn sm green" data-k9="nvmoi">+ Mới</button></div><div id="nvDs">' + kNvDs() + '</div>' +
+    '<button class="btn" style="width:100%;margin-top:8px" data-k9="nvsync">&#8635; Đồng bộ người nhận từ dữ liệu nhân sự</button></div>';
+  return h;
+}
+function kNvDs(){ var q = S.nvTim || ''; if (q.length < 2) return '<div class="hint">Gõ ít nhất 2 ký tự.</div>'; var r = kGyTim(q, []); if (!r.length) return '<div class="hint">Không thấy.</div>'; return r.map(function(x){ return '<div class="mini" data-k9="nvsua" data-v="' + esc(x[0]) + '" style="cursor:pointer"><span><b>' + esc(x[1]) + '</b><br><span class="hint">' + esc(x[0]) + ' · tổ ' + esc(x[2]) + '</span></span><span class="tag">Sửa</span></div>'; }).join(''); }
+function kNvSua(ma){
+  var x = ma ? ((S.kho && S.kho.ng) || []).filter(function(n){ return n[0] === ma; })[0] : null;
+  openSheet('<div class="sh-h"><h2>' + (x ? esc(x[1]) : '+ Người nhận mới') + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><label class="f">Mã NV (VNW...)</label><input id="nvMa" class="inp" value="' + esc(x ? x[0] : '') + '"' + (x ? ' readonly' : '') + ' style="text-transform:uppercase"><label class="f">Họ tên</label><input id="nvTen" class="inp" value="' + esc(x ? x[1] : '') + '">' +
+    '<label class="f">Tổ</label><select id="nvBp" class="inp"><option value=""></option>' + (kOwn().bp || []).filter(function(b){ return !b[2] || b[2].length <= 1; }).map(function(b){ return '<option value="' + esc(b[0]) + '"' + (x && x[2] === b[0] ? ' selected' : '') + '>' + esc(b[0] + ' ' + b[1]) + '</option>'; }).join('') + '</select>' +
+    '<label class="f">Điện thoại</label><input id="nvDt" class="inp" type="tel" value="' + esc(x ? x[3] || '' : '') + '">' +
+    '<button class="btn green" style="width:100%;margin-top:10px" data-k9="nvgui" data-v="' + (x ? 'sua' : 'them') + '">Lưu</button>' + (x ? '<button class="btn red" style="width:100%;margin-top:6px" data-k9="nvngung" data-v="' + esc(x[0]) + '">Ngừng dùng (nghỉ việc / chuyển đi)</button>' : '') + '</div>');
+}
+
+/* ---------- ve tab moi ---------- */
+var drawKho99a = drawKho;
+drawKho = function(){
+  if (S.role || !S.kho || ['tro', 'bc', 'ql'].indexOf(S.ktab) < 0) return drawKho99a();
+  var h = kTabs(), pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy công ty: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
+  if (!S.kown) return h + '<div class="empty">Máy công ty chưa gửi phần dữ liệu chủ kho.</div>';
+  h += '<div class="hint" style="margin:0 2px 6px">Số liệu lúc ' + esc(S.kown.luc || '') + '</div>';
+  return h + ({ tro: kTroView, bc: kBcView, ql: kQlView })[S.ktab]();
+};
+/* nut tren tab Ton kho / Ke: + ma moi, cat hang */
+var kTonList99a = kTonList;
+kTonList = function(){ var h = kTonList99a(); if (S.role || !S.kown) return h; return '<div style="display:flex;gap:6px;margin:4px 0 6px"><button class="btn sm green" style="flex:1" data-k9="vtmoi">+ Mã mới</button><button class="btn sm" style="flex:1" data-k9="catquet">&#128230; Cất hàng (quét)</button></div>' + h; };
+
+document.addEventListener('input', function(e){ var t = e.target; if (t && t.id === 'nvTim') { S.nvTim = t.value; var l = $('nvDs'); if (l) l.innerHTML = kNvDs(); } });
+document.addEventListener('change', function(e){ var t = e.target; if (t && t.dataset && t.dataset.dx) { S.dxSel = S.dxSel || {}; S.dxSel[t.dataset.dx] = t.checked; } });
+document.addEventListener('click', function(ev){
+  var el = ev.target.closest('[data-k9]'); if (!el || S.role) return; var a = el.dataset.k9, v = el.dataset.v;
+  if (a === 'kknewsh') kkNewSheet();
+  else if (a === 'kknew') kkNewGui(v);
+  else if (a === 'kkquetds') kkQuet(function(c){ var u = String(c || '').trim().toUpperCase(); if (u.indexOf('KE:') === 0) { toast('Tem ô - quét tem hàng'); return; } kkNewSheet(); var e = $('kkMas'); if (e) { S.kkMasTam = (S.kkMasTam ? S.kkMasTam + '\n' : '') + u; e.value = S.kkMasTam; } toast('Đã thêm ' + u); });
+  else if (a === 'kkchotsh') kkChotSheet();
+  else if (a === 'kkchot') { if (!confirm('Chốt kiểm kê? Máy lập phiếu thừa / thiếu.')) return; k9('kkchot', { id: v }, 'chốt').then(function(ok){ if (ok !== false) closeSheet(); }); }
+  else if (a === 'kkxoa') { if (!confirm('Xoá đợt kiểm kê đang mở (chưa chốt)? Số đã đếm của đợt này bị bỏ.')) return; k9('kkxoa', { id: v }, 'đợt chưa chốt'); }
+  else if (a === 'kkhuychot') { if (!confirm('Huỷ chốt? Máy huỷ phiếu thừa / thiếu, đợt về "đang kiểm" để đếm / sửa lại.')) return; k9('kkhuychot', { id: v, xoa: false }, 'huỷ chốt'); }
+  else if (a === 'kkxoahan') { if (!confirm('Xoá hẳn phiếu kiểm kê đã chốt? Máy huỷ phiếu thừa / thiếu rồi xoá.')) return; k9('kkhuychot', { id: v, xoa: true }, 'xoá đã chốt'); }
+  else if (a === 'moima') kkMoiMa(el.dataset.ma);
+  else if (a === 'pxhuy') { var ld = prompt('Huỷ phiếu ' + v + ' - lý do:', 'lập nhầm'); if (!ld || !ld.trim()) return; k9('kpxhuy', { so: v, ld: ld.trim() }, v).then(function(ok){ if (ok !== false) closeSheet(); }); }
+  else if (a === 'soan') kSoan(v);
+  else if (a === 'soanok') { var o = S.soanOk[v] || (S.soanOk[v] = {}); o[el.dataset.i] = !o[el.dataset.i]; kSoan(v); }
+  else if (a === 'vtsua') kVtSua(v);
+  else if (a === 'vtmoi') kVtSua('');
+  else if (a === 'kvgui') kVtGui();
+  else if (a === 'kvkeq') kkQuet(function(c){ var e = $('kvKe'); if (e) e.value = String(c || '').toUpperCase().replace(/^KE:/, ''); });
+  else if (a === 'catsh') kCatSh(v);
+  else if (a === 'catq') kkQuet(function(c){ var e = $('catO'); if (e) e.value = String(c || '').toUpperCase().replace(/^KE:/, ''); });
+  else if (a === 'catgui') kCatGui();
+  else if (a === 'catquet') kCatQuet();
+  else if (a === 'tem') kTemIn([v]);
+  else if (a === 'pnnhieu') kPnNhieu();
+  else if (a === 'pnnhieugui') kPnNhieuGui();
+  else if (a === 'dxgui') { var ks = Object.keys(S.dxSel || {}).filter(function(k){ return S.dxSel[k]; }); if (!ks.length) { toast('Tick mã cần đề xuất'); return; } k9('kdxmua', { keys: ks }, ks.length + ' mã').then(function(ok){ if (ok !== false) S.dxSel = {}; }); }
+  else if (a === 'ycthu') { if (!confirm('Thu hồi ' + el.dataset.l + ' kỳ ' + v + '? Web tổ đóng mục này (số đã gửi vẫn giữ).')) return; k9('kyc', { loai: el.dataset.l, ky: v, act: 'thuhoi' }, el.dataset.l + ' ' + v); }
+  else if (a === 'ycmo') { var den = prompt('Mở lại đến ngày (yyyy-mm-dd):', addDays(5)); if (!den) return; k9('kyc', { loai: el.dataset.l, ky: v, act: 'molai', den: den.trim() }, el.dataset.l + ' ' + v); }
+  else if (a === 'nvmoi') kNvSua('');
+  else if (a === 'nvsua') kNvSua(v);
+  else if (a === 'nvgui') { var d = { act: v, ma: String($('nvMa').value || '').trim().toUpperCase(), ten: $('nvTen').value.trim(), bp: $('nvBp').value, dt: $('nvDt').value.trim() }; if (!d.ma) { toast('Gõ mã NV'); return; } if (v === 'them' && (!d.ten || !d.bp)) { toast('Người mới: cần họ tên và tổ'); return; } k9('knv', d, d.ma + ' ' + d.ten).then(function(ok){ if (ok !== false) closeSheet(); }); }
+  else if (a === 'nvngung') { if (!confirm('Ngừng dùng người nhận ' + v + '? (không xoá, phiếu cũ giữ nguyên)')) return; k9('knv', { act: 'ngung', ma: v }, v).then(function(ok){ if (ok !== false) closeSheet(); }); }
+  else if (a === 'nvsync') { if (!confirm('Đồng bộ danh mục người nhận với dữ liệu nhân sự (thêm người mới, đổi tổ, người nghỉ -> ngừng dùng)?')) return; k9('knvsync', {}, 'từ nhân sự'); }
+});
+window.showKPX = function(i){ showKPX(i); }; window.showKVT = function(m){ showKVT(m); }; window.kVtSua = kVtSua; window.kTroView = kTroView; window.kBcView = kBcView; window.kQlView = kQlView; window.kTemIn = kTemIn; window.kSoan = kSoan; window.kkNewSheet = kkNewSheet; window.kkChotSheet = kkChotSheet; window.kPnNhieu = kPnNhieu; window.kkMoiMa = kkMoiMa;
+
+/* ===================== 9.9b: KHU THEO LOAI HANG (goi y khi them ma), SO DO CHO TRONG ===================== */
+function kKhuDs(){ return kOwn().khu || ((kOwn().ke || {}).khu) || []; }
+/* goi y khu cho ma moi tren dien thoai: cung tien to (3 chu dau) -> khu da biet */
+function kKhuGoiY(ma){ ma = String(ma || '').toUpperCase(); var vk = kOwn().vk || {}; if (vk[ma]) return vk[ma]; var p = ma.slice(0, 3), dem = {}, best = '', n = 0;
+  if (!/^[A-Z]{3}/.test(p)) return ''; Object.keys(vk).forEach(function(m){ if (m.slice(0, 3) === p) { dem[vk[m]] = (dem[vk[m]] || 0) + 1; if (dem[vk[m]] > n) { n = dem[vk[m]]; best = vk[m]; } } }); return best; }
+function kKhuNut(id, cur){ var ds = kKhuDs(); if (!ds.length) return '';
+  return '<label class="f">Khu (loại hàng)</label><input type="hidden" id="' + id + '" value="' + esc(cur || '') + '"><div style="display:flex;flex-wrap:wrap;gap:6px">' + ds.map(function(x){ var on = x[0] === cur; return '<button type="button" class="btn sm" data-k9="khuchon" data-kid="' + id + '" data-v="' + esc(x[0]) + '" style="' + (on ? 'background:' + esc(x[2]) + ';color:#fff;border-color:' + esc(x[2]) : 'border-left:6px solid ' + esc(x[2])) + '">' + esc(x[0]) + ' ' + esc(String(x[1] || '').slice(0, 18)) + '</button>'; }).join('') + '</div>' + (cur ? '<div class="hint">Máy gợi ý khu ' + esc(cur) + ' - bấm khu khác nếu sai.</div>' : '<div class="hint">Máy chưa đoán được khu - bấm chọn (để trống = chờ phân loại).</div>'); }
+var kVtSua99b = kVtSua;
+kVtSua = function(ma){ kVtSua99b(ma); var v = ma ? kVtMap()[String(ma).toUpperCase()] : null, cur = kKhuGoiY(ma);
+  var b = document.querySelector('[data-k9="kvgui"]'); if (!b) return; var d = document.createElement('div'); d.id = 'kvKhuBox'; d.innerHTML = kKhuNut('kvKhu', cur) + '<label class="f">Chỗ để</label><select id="kvCd" class="inp"><option value="">Tự động</option><option value="KE">Luôn lên kệ</option><option value="SAN">Luôn để sàn</option></select>'; b.parentNode.insertBefore(d, b);
+  var mi = $('kvMa'); if (mi && !v) mi.addEventListener('change', function(){ var c = kKhuGoiY(this.value); var bx = $('kvKhuBox'); if (bx && c && !$('kvKhu').value) { var cd = $('kvCd').value; bx.innerHTML = kKhuNut('kvKhu', c) + bx.innerHTML.slice(bx.innerHTML.indexOf('<label class="f">Chỗ để')); $('kvCd').value = cd; } }); };
+var kVtGui99b = kVtGui;
+kVtGui = function(){ var k = $('kvKhu'), c = $('kvCd'); S.kvKhuTam = { khu: k ? k.value : '', chode: c ? c.value : '' }; kVtGui99b(); };
+var k9_99b = k9;
+k9 = function(op, data, td){ if (op === 'kvt' && S.kvKhuTam) { data.khu = S.kvKhuTam.khu; data.chode = S.kvKhuTam.chode; S.kvKhuTam = null; } return k9_99b(op, data, td); };
+/* ma moi khi kiem ke: hoi them khu */
+var kkMoiMa99b = kkMoiMa;
+kkMoiMa = function(ma){ kkMoiMa99b(ma); var d = kkDot(); if (!d) return; var all = kkLoad(), L = all[d.id] || {}, k = (String(ma || '').trim().toUpperCase() + '||'), e = L[k]; if (!e || !e.moiMa) return;
+  var gy = kKhuGoiY(ma), ds = kKhuDs().map(function(x){ return x[0] + '=' + x[1]; }).join(', ');
+  var kh = prompt('Khu cho mã ' + e.ma + ' (' + ds + ')' + (gy ? '\nMáy gợi ý: ' + gy : '') + '\nGõ 1 chữ (để trống = chờ phân loại):', gy || '');
+  if (kh && /^[A-Za-z]$/.test(kh.trim())) { e.khu = kh.trim().toUpperCase(); kkSave(all); } };
+document.addEventListener('click', function(ev){ var el = ev.target.closest('[data-k9]'); if (!el || S.role) return; var a = el.dataset.k9;
+  if (a === 'khuchon') { var id = el.dataset.kid, inp = $(id); if (!inp) return; inp.value = inp.value === el.dataset.v ? '' : el.dataset.v;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-k9="khuchon"][data-kid="' + id + '"]'), function(b){ var x = (kKhuDs().filter(function(k){ return k[0] === b.dataset.v; })[0] || [])[2] || '#475569', on = b.dataset.v === inp.value;
+      b.style.background = on ? x : ''; b.style.color = on ? '#fff' : ''; b.style.borderColor = on ? x : ''; b.style.borderLeft = on ? '' : '6px solid ' + x; }); }
+  else if (a === 'kexem') { S.kkeXem = el.dataset.v; draw(); } });
+document.addEventListener('change', function(ev){ var el = ev.target; if (el && el.dataset && el.dataset.k9s === 'keloc') { S.kkeLoc = el.value; draw(); } });
+window.kKhuGoiY = kKhuGoiY; window.kVtSua = kVtSua;
+
+/* ===================== 9.9c: VIEC KHO (truong rieng) ===================== */
+KOWN_OPS.kvkhoan = 'Hoãn nhắc việc kho'; KOWN_OPS.kvkso = 'Đưa việc kho vào Sổ';
+var kPend99c = kPend; kPend = function(){ return kPend99c().concat(S.queue.filter(function(c){ return c.op === 'kvkhoan' || c.op === 'kvkso'; })); };
+(function(){ KOT.splice(0, 0, ['viec', '&#128203; Việc kho']); })();
+function kViecView(){
+  var ds = kOwn().viec || []; S.vkMo = S.vkMo || {};
+  if (!ds.length) return '<div class="empty">Không có việc kho nào cần làm.</div>';
+  var mau = ['#64748B', '#CA8A04', '#DC2626'];
+  return '<div class="hint" style="margin:0 2px 6px">Gom mọi nhắc của kho về đây (không lẫn việc chính). Hoãn = tạm không nhắc; Đưa vào Sổ = 1 việc gộp, tự tick khi xử lý xong.</div>' + ds.map(function(c){
+    var mo = !!S.vkMo[c[0]], rs = c[5] || [];
+    return '<div class="box" style="border-left:6px solid ' + mau[c[2] || 0] + (c[4] ? ';opacity:.6' : '') + '"><div style="display:flex;justify-content:space-between;gap:6px;align-items:flex-start"><div><b>' + esc(c[1]) + '</b>' + (c[2] >= 2 ? ' <span style="color:#DC2626;font-weight:700">GẤP</span>' : '') + '<div class="hint">' + esc(c[3]) + (c[4] ? ' · hoãn đến ' + esc(String(c[4]).split('-').reverse().join('/')) : '') + '</div></div>' +
+      (rs.length ? '<button class="btn sm" data-k9="vkmo" data-v="' + esc(c[0]) + '">' + (mo ? 'Ẩn' : 'Xem ' + rs.length) + '</button>' : '') + '</div>' +
+      (mo ? '<div style="margin-top:6px;max-height:320px;overflow:auto">' + rs.map(function(r){ return '<div class="mini"><span>' + esc(r) + '</span></div>'; }).join('') + '</div>' : '') +
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">' + (c[4] ? '<button class="btn sm" data-k9="vkhoan" data-v="' + esc(c[0]) + '" data-n="0">Bỏ hoãn</button>' : [1, 3, 7].map(function(n){ return '<button class="btn sm" data-k9="vkhoan" data-v="' + esc(c[0]) + '" data-n="' + n + '">Hoãn ' + n + ' ngày</button>'; }).join('')) +
+      '<button class="btn sm green" data-k9="vkso" data-v="' + esc(c[0]) + '">Đưa vào Sổ</button></div></div>';
+  }).join('');
+}
+var drawKho99c = drawKho;
+drawKho = function(){
+  if (S.role || !S.kho || S.ktab !== 'viec') return drawKho99c();
+  var h = kTabs(), pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy công ty: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
+  if (!S.kown) return h + '<div class="empty">Máy công ty chưa gửi phần dữ liệu chủ kho.</div>';
+  return h + '<div class="hint" style="margin:0 2px 6px">Số liệu lúc ' + esc(S.kown.luc || '') + '</div>' + kViecView();
+};
+document.addEventListener('click', function(ev){ var el = ev.target.closest('[data-k9]'); if (!el || S.role) return; var a = el.dataset.k9, v = el.dataset.v;
+  if (a === 'vkmo') { S.vkMo = S.vkMo || {}; S.vkMo[v] = !S.vkMo[v]; draw(); }
+  else if (a === 'vkhoan') { var n = +el.dataset.n || 0; k9('kvkhoan', { loai: v, ngay: n }, n ? 'hoãn ' + n + ' ngày' : 'bỏ hoãn'); }
+  else if (a === 'vkso') { if (!confirm('Đưa loại việc kho này vào Sổ công việc thành 1 việc gộp?')) return; k9('kvkso', { loai: v }, v); } });
+window.kViecView = kViecView; window.kkMoiMa = kkMoiMa; window.kVtSua = kVtSua;
 })();
 
 </script>
