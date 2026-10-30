@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycby_OFsVe6HT3cUVFj0FzOI5syXuTzmPpXWvjFEpVJRi_bafeHNnJnDtiTxbVywU2F8K/exec';window.SCV_APPBAN='9.9f-202610291658';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbydNlKFX-4bsl0A1ZqE-eCO6BuYYXLg2sOHkefhsO5XFqXy-lVgGViXQ8OBfWIo8EYI/exec';window.SCV_APPBAN='9.9i-202610301617';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -82,6 +82,7 @@ nav.bot button .ic{font-size:18px;line-height:1.2}
 nav.bot button.on{color:var(--pri);font-weight:700}
 .fab{position:fixed;right:18px;bottom:76px;width:56px;height:56px;border-radius:18px;border:0;background:var(--pri);color:#fff;font-size:30px;line-height:1;box-shadow:0 6px 18px rgba(31,111,235,.35);z-index:31}
 @media (min-width:800px){.fab{right:calc(50% - 370px)}}
+.fab.ext{width:auto;min-width:56px;padding:0 18px 0 14px;border-radius:28px;display:flex;align-items:center;gap:6px}.fab .fl{font-size:15px;font-weight:600;white-space:nowrap}.fab.mini .fl{display:none}.fab.mini{padding:0;justify-content:center;width:56px}body.shOpen .fab,body.kbOpen .fab{display:none !important}
 .ov{position:fixed;inset:0;background:rgba(10,15,25,.45);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 body.shOpen #iosHint{display:none !important}
 .sheet{background:var(--bg);width:100%;max-width:760px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom))}
@@ -620,6 +621,8 @@ function drawSync(){
   var s = on ? 'Máy công ty đang bật · đồng bộ ' + pad(d.getHours()) + ':' + pad(d.getMinutes())
     : (d ? 'Máy công ty tắt / mất mạng · lần cuối ' + fDT(ymdhm(d)) : 'Máy công ty chưa đồng bộ');
   if (S.snap && S.snap.luc) s += ' · dữ liệu lúc ' + String(S.snap.luc).slice(11, 16);
+  var pa = Object.keys(S.pcs || {}).filter(function(k){ return S.srvNow - (+S.pcs[k] || 0) < 3 * 3600000; });
+  if (pa.length > 1) s += ' · ⚠ ' + pa.length + ' máy cùng gửi web: ' + pa.join(', ') + ' (dữ liệu bị đè)';
   $('sTxt').textContent = s;
   try { $('dkSync').innerHTML = '<span style="color:' + (on ? '#4cc584' : '#f5a04a') + '">&#9679;</span> ' + esc(s); } catch(e){}
   if (S.snap && S.snap.ten) $('hTitle').textContent = 'Sổ công việc · ' + S.snap.ten;
@@ -1287,7 +1290,7 @@ function load(){
     if (r.kho) { try { S.khoRaw = JSON.parse(r.kho); } catch(e){} }
     if (r.kown) { try { S.kown = JSON.parse(r.kown); } catch(e){} }
     S.kownErr = r.kownErr || '';
-    S.snap = snap; S.queue = mq(r.queue || []); khoOpt(); S.results = r.results || []; S.lastPc = r.lastPc || 0; S.srvNow = r.now || Date.now();
+    S.snap = snap; S.queue = mq(r.queue || []); khoOpt(); S.results = r.results || []; S.lastPc = r.lastPc || 0; S.srvNow = r.now || Date.now(); S.pcs = r.pcs || {};
     S.results.forEach(function(x){ if (!S.seen[x.cid]) { S.seen[x.cid] = 1; if (!x.ok && (Date.now() - x.luc) < 10 * 60000 && !S.read[x.cid]) toast('Máy công ty báo: ' + (x.msg || 'lỗi') + '  (bấm để xem)', 7000); } });
     drawBell();
     drawSync(); draw();
@@ -1812,7 +1815,7 @@ function kLeView(){
   return h;
 }
 /* ---------- ke & so do (ve SVG tai trinh duyet) ---------- */
-var KSD_MAU = { CUA: ['#BBF7D0', '#15803D', 'Cửa'], LOI: ['#FEF9C3', '#CA8A04', 'Lối đi'], COT: ['#57534E', '#292524', ''], NEN: ['#E2E8F0', '#64748B', 'Khu nền'], TUONG: ['#44403C', '#1C1917', ''] };
+var KSD_MAU = { CUA: ['#22C55E', '#15803D', ''], LOI: ['#F8FAFC', '#94A3B8', 'Lối đi'], COT: ['#57534E', '#292524', ''], NEN: ['#E2E8F0', '#64748B', 'Khu nền'], TUONG: ['#44403C', '#1C1917', ''] };
 function kKeHl(){
   var k = kOwn().ke || {}, q = (S.kkeq || '').trim(), hl = {}, ho = {}, rs = []; if (!q) return { hl: hl, ho: ho, rs: rs };
   var vm = kVtMap(), qu = q.toUpperCase().replace(/^KE:/, ''), byCode = /^[A-Z]-\d{2}/.test(qu);
@@ -1830,24 +1833,36 @@ function kKeSvg(ph, hl, z){
   s += '<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="#FAFAF9" stroke="#334155" stroke-width="3"/>';
   for (var i = 1; i < P[2]; i++) s += '<line x1="' + i * z + '" y1="0" x2="' + i * z + '" y2="' + H + '" stroke="#EEE" stroke-width=".6"/>';
   for (var j = 1; j < P[3]; j++) s += '<line x1="0" y1="' + j * z + '" x2="' + W + '" y2="' + j * z + '" stroke="#EEE" stroke-width=".6"/>';
-  (k.ob || []).forEach(function(o){ if (o[0] !== ph) return; var c = KSD_MAU[o[1]] || ['#E5E7EB', '#6B7280', '']; s += '<rect x="' + o[2] * z + '" y="' + o[3] * z + '" width="' + o[4] * z + '" height="' + o[5] * z + '" fill="' + c[0] + '" stroke="' + c[1] + '"' + (o[1] === 'LOI' ? ' stroke-dasharray="5 3"' : '') + '/>'; var t = o[6] || c[2]; if (t && o[4] * z >= z) s += '<text x="' + (o[2] + o[4] / 2) * z + '" y="' + (o[3] + o[5] / 2) * z + '" font-size="' + Math.min(12, z * .55) + '" text-anchor="middle" dominant-baseline="middle" fill="' + c[1] + '">' + esc(t) + '</text>'; });
-  var kst = kKeChong(k.ke || []);
-  (k.ke || []).forEach(function(e){ if (e[5] !== ph || e[6] < 0 || kst.la[e[0]]) return; var tr = kst.tren[e[0]] || [], m = khu[e[1]] || '#475569', h = !!hl[e[0]] || tr.some(function(x){ return !!hl[x]; }), sel = S.kkeSel === e[0] || tr.indexOf(S.kkeSel) >= 0, dd = S.kkeXem !== 'KHU' ? kKeDDGop([e[0]].concat(tr)) : null, df = dd ? (dd[2] ? ['#E2E8F0', '#64748B'] : dd[0] === 0 ? ['#BBF7D0', '#16A34A'] : dd[0] >= dd[1] ? ['#FECACA', '#DC2626'] : ['#FEF08A', '#CA8A04']) : null, mo = S.kkeLoc && S.kkeLoc !== e[1];
-    s += '<g data-kke="' + esc(e[0]) + '" style="cursor:pointer"><rect x="' + e[6] * z + '" y="' + e[7] * z + '" width="' + e[8] * z + '" height="' + e[9] * z + '" rx="3" fill="' + (h ? '#FDE047' : mo ? '#F1F5F9' : df ? df[0] : m) + '" fill-opacity="' + (h || df || mo ? 1 : .3) + '" stroke="' + (sel ? '#1D4ED8' : h ? '#DC2626' : mo ? '#CBD5E1' : df ? df[1] : m) + '" stroke-width="' + (sel || h ? 3.5 : 1.6) + '"' + (e[2] === 'TAM' ? ' stroke-dasharray="4 3"' : '') + '/>';
-    var l1 = [e[0]].concat(tr).join(' / '), l2 = dd ? (dd[2] ? 'sàn' : dd[0] + '/' + dd[1] + ' ô') : '', bw = e[8] * z - 4, bh = e[9] * z, cx = (e[6] + e[8] / 2) * z, cy = (e[7] + e[9] / 2) * z, fc = mo ? '#94A3B8' : '#0F172A';
-    var f1 = Math.min(13, bh * .62, bw / (Math.max(1, (l1 + (l2 ? ' ' + l2 : '')).length) * .6));
-    if (!l2 || f1 >= 9) s += '<text x="' + cx + '" y="' + cy + '" font-size="' + Math.max(7, f1).toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '">' + esc(l1 + (l2 ? ' ' + l2 : '')) + '</text></g>';
-    else { var f2 = Math.max(7, Math.min(13, bh * .36, bw / (Math.max(l1.length, l2.length) * .6))); s += '<text x="' + cx + '" y="' + (cy - f2 * .55) + '" font-size="' + f2.toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '">' + esc(l1) + '</text><text x="' + cx + '" y="' + (cy + f2 * .6) + '" font-size="' + f2.toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '">' + esc(l2) + '</text></g>'; } });
+  (k.ob || []).forEach(function(o){ if (o[0] !== ph) return; var c = KSD_MAU[o[1]] || ['#E5E7EB', '#6B7280', '']; s += '<rect x="' + o[2] * z + '" y="' + o[3] * z + '" width="' + o[4] * z + '" height="' + o[5] * z + '" fill="' + c[0] + '"' + (o[1] === 'LOI' ? '' : ' stroke="' + c[1] + '"') + '/>'; var t = o[6] || c[2]; if (t && o[4] * z >= z) s += '<text x="' + (o[2] + o[4] / 2) * z + '" y="' + (o[3] + o[5] / 2) * z + '" font-size="' + Math.min(12, z * .55) + '" text-anchor="middle" dominant-baseline="middle" fill="' + c[1] + '">' + esc(t) + '</text>'; });
+  var kst = kKeChong(k.ke || []), kdd = kOwn().kdd || {}, byM = {}; (k.ke || []).forEach(function(e){ byM[e[0]] = e; });
+  (k.ke || []).forEach(function(e){ if (e[5] !== ph || e[6] < 0 || kst.la[e[0]]) return;
+    var tr = (kst.tren[e[0]] || []).slice().sort().reverse(), nh = tr.concat([e[0]]), m = khu[e[1]] || '#475569', h = nh.some(function(x){ return !!hl[x]; }), sel = nh.indexOf(S.kkeSel) >= 0, mo = S.kkeLoc && !nh.some(function(x){ return byM[x] && byM[x][1] === S.kkeLoc; });
+    var X = e[6] * z + 1, Y = e[7] * z + 1, W = e[8] * z - 2, H = e[9] * z - 2, san = false, muc = [];
+    nh.forEach(function(x){ var d = kdd[x]; if (!d) return; if (d[2]) san = true; else muc.push(d); });
+    s += '<g data-kke="' + esc(e[0]) + '" style="cursor:pointer"><rect x="' + X + '" y="' + Y + '" width="' + W + '" height="' + H + '" rx="3" fill="' + (mo ? '#F8FAFC' : m) + '" fill-opacity="' + (mo ? 1 : (san ? .08 : .14)) + '" stroke="' + (mo ? '#E2E8F0' : m) + '" stroke-width="1.6"' + (san || e[2] === 'TAM' ? ' stroke-dasharray="5 3"' : '') + '/>';
+    if (h) s += '<rect x="' + (X - 2) + '" y="' + (Y - 2) + '" width="' + (W + 4) + '" height="' + (H + 4) + '" rx="4" fill="none" stroke="#DC2626" stroke-width="3"/>';
+    if (sel) s += '<rect x="' + (X - 1) + '" y="' + (Y - 1) + '" width="' + (W + 2) + '" height="' + (H + 2) + '" rx="4" fill="none" stroke="#1D4ED8" stroke-width="3"/>';
+    var cao = 0;
+    if (S.kkeXem !== 'KHU' && !mo && muc.length && H >= 14 && W >= 12) { var bh = Math.max(2.5, Math.min(4.5, z * .26)), bw = W - 6, y0 = Y + H - 3 - muc.length * (bh + 2) + 2;
+      muc.forEach(function(d, i){ var yy = y0 + i * (bh + 2), tl = d[1] > 0 ? Math.min(1, d[0] / d[1]) : 0; s += '<rect x="' + (X + 3) + '" y="' + yy.toFixed(1) + '" width="' + bw + '" height="' + bh + '" rx="' + (bh / 2) + '" fill="#fff" stroke="#CBD5E1" stroke-width=".6"/>' + (tl > 0 ? '<rect x="' + (X + 3) + '" y="' + yy.toFixed(1) + '" width="' + Math.max(2, bw * tl).toFixed(1) + '" height="' + bh + '" rx="' + (bh / 2) + '" fill="#334155"/>' : ''); });
+      cao = muc.length * (bh + 2) + 2; }
+    var l1 = String(e[0]), fc = mo ? '#94A3B8' : '#0F172A', ah = H - cao, cx = X + W / 2, cy = Y + ah / 2 + 1, fs = Math.min(12, Math.max(8, z * .62)), tw = l1.length * fs * .6;
+    if (tw <= W - 3 && fs <= ah + 2) s += '<text x="' + cx + '" y="' + cy + '" font-size="' + fs.toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '">' + esc(l1) + '</text>';
+    else if (ah > W && tw <= ah - 3) s += '<text x="' + cx + '" y="' + cy + '" font-size="' + fs.toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '" transform="rotate(-90 ' + cx + ' ' + cy + ')">' + esc(l1) + '</text>';
+    else { var f2 = Math.min((W - 3) / (l1.length * .6), ah); if (f2 >= 6) s += '<text x="' + cx + '" y="' + cy + '" font-size="' + f2.toFixed(1) + '" font-weight="bold" text-anchor="middle" dominant-baseline="middle" fill="' + fc + '">' + esc(l1) + '</text>'; }
+    if (nh.length > 1 && !mo) { var rr = Math.max(4.5, Math.min(6.5, z * .38)); s += '<circle cx="' + (X + 2 + rr) + '" cy="' + (Y + 2 + rr) + '" r="' + rr + '" fill="#334155"/><text x="' + (X + 2 + rr) + '" y="' + (Y + 2.6 + rr) + '" font-size="' + (rr * 1.25).toFixed(1) + '" font-weight="bold" fill="#fff" text-anchor="middle" dominant-baseline="middle">' + nh.length + '</text>'; }
+    s += '</g>'; });
   return s + '</svg>';
 }
 function kKeFront(ma, ho){
   var k = kOwn().ke || {}, e = null; (k.ke || []).forEach(function(x){ if (x[0] === ma) e = x; }); if (!e) return '';
   var by = {}; (k.hg || []).forEach(function(x){ if (String(x[1] || '').indexOf(ma + '-') === 0) (by[x[1]] = by[x[1]] || []).push(x); });
+  var vmF = kVtMap(), coHang = function(ds){ return ds.some(function(x){ var v = vmF[String(x[0]).toUpperCase()]; return !v || +v[4] > 0; }); };
   var T = e[3], O = e[4], cw = Math.max(92, 4 + 46 * Math.max.apply(null, [1].concat(Object.keys(e[11] || {}).map(function(q){ return (e[11] || {})[q] | 0; })))), ch = 42, s = '<svg viewBox="0 0 ' + (O * cw + 34) + ' ' + (T * ch + 8) + '" width="100%" style="max-width:' + (O * cw + 34) + 'px;font-family:Segoe UI,Arial,sans-serif">';
   for (var t = T; t >= 1; t--) { var y = (T - t) * ch + 4; s += '<text x="14" y="' + (y + ch / 2) + '" font-size="12" text-anchor="middle" dominant-baseline="middle" fill="#475569">T' + t + '</text>';
     for (var o = 1; o <= O; o++) { var g0 = ma + '-' + t + '-' + (o < 10 ? '0' : '') + o, nC = ((e[11] || {})[t + '-' + o] | 0), nn = nC >= 2 ? nC : 1, sw = (cw - 3) / nn;
-      for (var c = 0; c < nn; c++) { var code = nn > 1 ? g0 + String.fromCharCode(65 + c) : g0, ds = by[code] || [], x = 30 + (o - 1) * cw + c * sw, fill = ho[code] ? '#FDE047' : (ds.length ? (e[2] === 'TAM' ? '#FFEDD5' : '#DCFCE7') : '#F8FAFC'), lim = Math.max(3, Math.floor(sw / 7));
-        s += '<rect x="' + x.toFixed(1) + '" y="' + y + '" width="' + (sw - (nn > 1 ? 1 : 0)).toFixed(1) + '" height="' + (ch - 3) + '" fill="' + fill + '" stroke="#64748B"/><text x="' + (x + 3).toFixed(1) + '" y="' + (y + 11) + '" font-size="9" fill="#64748B">' + t + '-' + (o < 10 ? '0' : '') + o + (nn > 1 ? String.fromCharCode(65 + c) : '') + '</text>' + (ds.length ? '<text x="' + (x + 3).toFixed(1) + '" y="' + (y + 26) + '" font-size="10.5" font-weight="bold" fill="#0F172A">' + esc(String(ds[0][0]).substr(0, Math.min(13, lim))) + (ds.length > 1 ? ' +' + (ds.length - 1) : '') + '</text>' : ''); } } }
+      for (var c = 0; c < nn; c++) { var code = nn > 1 ? g0 + String.fromCharCode(65 + c) : g0, ds = by[code] || [], gc = ds.length && !coHang(ds), x = 30 + (o - 1) * cw + c * sw, fill = ho[code] ? '#FDE047' : (gc ? '#E5E7EB' : (ds.length ? (e[2] === 'TAM' ? '#FFEDD5' : '#DCFCE7') : '#F8FAFC')), lim = Math.max(3, Math.floor(sw / 7));
+        s += '<rect x="' + x.toFixed(1) + '" y="' + y + '" width="' + (sw - (nn > 1 ? 1 : 0)).toFixed(1) + '" height="' + (ch - 3) + '" fill="' + fill + '" stroke="#64748B"/><text x="' + (x + 3).toFixed(1) + '" y="' + (y + 11) + '" font-size="9" fill="#64748B">' + t + '-' + (o < 10 ? '0' : '') + o + (nn > 1 ? String.fromCharCode(65 + c) : '') + '</text>' + (ds.length ? '<text x="' + (x + 3).toFixed(1) + '" y="' + (y + 26) + '" font-size="10.5" font-weight="bold" fill="' + (gc ? '#64748B' : '#0F172A') + '"' + (gc ? ' font-style="italic"' : '') + '>' + esc(String(ds[0][0]).substr(0, Math.min(13, lim))) + (ds.length > 1 ? ' +' + (ds.length - 1) : '') + '</text>' + (gc ? '<text x="' + (x + 3).toFixed(1) + '" y="' + (y + 36) + '" font-size="8" fill="#64748B">giữ chỗ</text>' : '') : ''); } } }
   return s + '</svg>';
 }
 function kKeView(){
@@ -1859,14 +1874,14 @@ function kKeView(){
   if (phs.length > 1) h += '<div class="chips">' + phs.map(function(p){ return '<button class="chip' + (S.kph === p[0] ? ' on' : '') + '" data-ko="keph" data-v="' + esc(p[0]) + '">' + esc(p[1]) + '</button>'; }).join('') + '</div>';
   h += '<div class="chips"><button class="chip' + (S.kkeXem !== 'KHU' ? ' on' : '') + '" data-k9="kexem" data-v="TRONG">Chỗ trống</button><button class="chip' + (S.kkeXem === 'KHU' ? ' on' : '') + '" data-k9="kexem" data-v="KHU">Theo khu</button>' +
     '<select class="inp" data-k9s="keloc" style="width:auto;padding:4px 8px"><option value="">Tất cả khu</option>' + ((k.khu || []).map(function(x){ return '<option value="' + esc(x[0]) + '"' + (S.kkeLoc === x[0] ? ' selected' : '') + '>Khu ' + esc(x[0] + ' ' + (x[1] || '')) + '</option>'; }).join('')) + '</select></div>' +
-    (S.kkeXem !== 'KHU' ? '<div class="hint" style="margin:0 2px 6px"><span style="background:#BBF7D0;border:1px solid #16A34A;padding:0 6px">trống</span> <span style="background:#FEF08A;border:1px solid #CA8A04;padding:0 6px">còn chỗ</span> <span style="background:#FECACA;border:1px solid #DC2626;padding:0 6px">đầy</span> <span style="background:#E2E8F0;border:1px solid #64748B;padding:0 6px">khu sàn</span> · số = ô có hàng / tổng ô</div>' : '');
+    (S.kkeXem !== 'KHU' ? '<div class="hint" style="margin:0 2px 6px">Màu = khu · thanh dưới mã kệ = mức đầy (đen = ô có hàng) · số tròn = tủ chồng · khung đứt = để sàn · bấm kệ xem mặt trước</div>' : '');
   if (S.kkeq) h += '<div class="box"><h3>Kết quả (' + r.rs.length + ' chỗ)</h3>' + (r.rs.length ? r.rs.slice(0, 40).map(function(x){ var v = vm[String(x[0]).toUpperCase()]; return '<div class="mini"><span>&#128205; <b>' + esc(x[1] || 'Chờ cất') + '</b> · ' + esc(x[0]) + ' ' + esc(v ? v[1] : '') + (x[3] ? ' · lô ' + esc(x[3]) : '') + '</span><span class="hint">' + (x[2] ? 'chính' : 'phụ') + '</span></div>'; }).join('') : '<div class="hint">Không thấy.</div>') + '</div>';
   var cho = (k.hg || []).filter(function(x){ return !x[1]; });
   h += '<div class="box" style="overflow:auto">' + (S.kph ? kKeSvg(S.kph, r.hl, S.desk ? 24 : 16) : '<div class="hint">Chưa có phòng trên sơ đồ.</div>') + '<div class="hint">' + (k.khu || []).map(function(x){ return '<span style="display:inline-block;width:10px;height:10px;background:' + esc(x[2]) + ';opacity:.6"></span> ' + esc(x[0]) + ' ' + esc(x[1]); }).join(' &nbsp; ') + '</div></div>';
   if (S.kkeSel) { var ds = (k.hg || []).filter(function(x){ return String(x[1] || '') === S.kkeSel || String(x[1] || '').indexOf(S.kkeSel + '-') === 0; });
     var kst2 = kKeChong(k.ke || []), g2 = kst2.la[S.kkeSel] || S.kkeSel, nh = [g2].concat(kst2.tren[g2] || []);
     if (nh.length > 1) ds = (k.hg || []).filter(function(x){ return nh.some(function(m){ return String(x[1] || '').indexOf(m + '-') === 0; }); });
-    h += '<div class="box"><h3>' + (nh.length > 1 ? 'Tủ chồng ' + esc(nh.join(' / ')) + ' (dưới / trên)' : 'Kệ ' + esc(S.kkeSel) + ' - mặt trước') + '</h3>' + nh.slice().reverse().map(function(m){ return (nh.length > 1 ? '<div class="hint">' + esc(m) + '</div>' : '') + kKeFront(m, r.ho); }).join('') + ds.map(function(x){ var v = vm[String(x[0]).toUpperCase()]; return '<div class="mini"><span><b>' + esc(x[1]) + '</b> · ' + esc(x[0]) + ' ' + esc(v ? v[1] : '') + '</span><span class="hint">' + (v ? kN(v[4]) + ' ' + esc(v[2]) : '') + '</span></div>'; }).join('') + '</div>'; }
+    h += '<div class="box"><h3>' + (nh.length > 1 ? 'Tủ chồng ' + esc(nh.join(' / ')) + ' (dưới / trên)' : 'Kệ ' + esc(S.kkeSel) + ' - mặt trước') + '</h3>' + nh.slice().reverse().map(function(m){ return (nh.length > 1 ? '<div class="hint">' + esc(m) + '</div>' : '') + kKeFront(m, r.ho); }).join('') + '<div class="hint" style="margin:2px 0 6px"><span style="display:inline-block;width:10px;height:10px;background:#DCFCE7;border:1px solid #64748B"></span> có hàng &nbsp; <span style="display:inline-block;width:10px;height:10px;background:#E5E7EB;border:1px solid #64748B"></span> giữ chỗ (tồn 0) &nbsp; <span style="display:inline-block;width:10px;height:10px;background:#F8FAFC;border:1px solid #64748B"></span> trống</div>' + ds.map(function(x){ var v = vm[String(x[0]).toUpperCase()]; return '<div class="mini"><span><b>' + esc(x[1]) + '</b> · ' + esc(x[0]) + ' ' + esc(v ? v[1] : '') + '</span><span class="hint">' + (v ? kN(v[4]) + ' ' + esc(v[2]) : '') + '</span></div>'; }).join('') + '</div>'; }
   var kc = (k.ke || []).filter(function(e){ return e[6] < 0 || !e[5]; });
   if (kc.length) h += '<div class="hint">Kệ chờ (chưa đặt lên sơ đồ): ' + kc.map(function(e){ return esc(e[0]); }).join(', ') + '</div>';
   if (cho.length) h += '<div class="box"><h3>Chờ cất (' + cho.length + ')</h3>' + cho.map(function(x){ var v = vm[String(x[0]).toUpperCase()]; return '<div class="mini"><span>' + esc(x[0]) + ' ' + esc(v ? v[1] : '') + '</span><span class="hint">' + esc(String(x[4] || '').substr(0, 10)) + '</span></div>'; }).join('') + '</div>';
@@ -2734,6 +2749,26 @@ kTonList = function(){ var h = kTonList99e.apply(this, arguments); if (S.role ||
   h = h.replace(/<div class="mini" data-kvt="([^"]*)"/g, function(all, m){ return '<div class="mini" data-kvtc="' + m + '" style="cursor:pointer;' + (sel[m] ? 'background:var(--blue-bg,#dbeafe);' : '') + '"'; }).replace(/data-kvtc="([^"]*)"([^>]*)><span>/g, function(all, m, rest){ return 'data-kvtc="' + m + '"' + rest + '><span>' + (sel[m] ? '☑ ' : '☐ '); });
   return bar + h + '<div style="position:sticky;bottom:0;background:var(--card);padding:8px;display:flex;gap:6px;border-top:1px solid var(--line);margin-top:6px"><b style="align-self:center">' + c + ' mã</b><button class="btn pri" style="flex:1" data-k9="tonlap" data-v="px">Lập phiếu xuất</button><button class="btn green" style="flex:1" data-k9="tonlap" data-v="pn">Lập phiếu nhập</button></div>'; };
 document.addEventListener('click', function(e){ var el = e.target && e.target.closest ? e.target.closest('[data-kvtc]') : null; if (!el) return; e.preventDefault(); e.stopPropagation(); var m = el.getAttribute('data-kvtc'); S.tonSel = S.tonSel || {}; S.tonSel[m] = !S.tonSel[m]; var y = window.scrollY; draw(); window.scrollTo(0, y); }, true);
+/* ===================== 9.9h: NUT + THEO NGU CANH ===================== */
+function fabCtx(){
+  if (S.role) return null; var t = S.tab;
+  if (t === 'viec' || t === 'homnay') return { t: 'Việc', go: function(){ showAdd(); } };
+  if (t === 'nhac') return { t: 'Nhắc', go: function(){ showAdd(); setTimeout(function(){ var c = $('aNhac'); if (c) c.checked = true; var h = document.querySelector('#sheet .sh-h h2'); if (h) h.textContent = 'Thêm nhắc nhở'; }, 30); } };
+  if (t === 'nv') return { t: 'Giao việc', go: function(){ showAdd(); setTimeout(function(){ var h = document.querySelector('#sheet .sh-h h2'); if (h) h.textContent = 'Giao việc cho nhân viên'; var g = $('aGiao'); if (g) try { g.focus(); } catch(e){} }, 30); } };
+  if (t === 'kho' && S.ktab === 'px') return { t: 'Phiếu', go: function(){ openSheet('<div class="sh-h"><h2>Lập phiếu</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><button class="btn pri" style="width:100%;margin-bottom:8px" data-ko="pxnew">&#8593; Phiếu XUẤT (cấp cho tổ)</button><button class="btn green" style="width:100%" data-ko="pnnew">&#8595; Phiếu NHẬP (lĩnh kho chung / mua)</button></div>'); } };
+  return null;
+}
+function fabUpd(){ var b = $('bAdd'); if (!b) return; var c = fabCtx(); if (!c) { b.style.display = 'none'; return; }
+  b.style.display = ''; b.classList.add('ext'); b.title = '+ ' + c.t; var w = '<span class="fp">+</span><span class="fl">' + esc(c.t) + '</span>'; if (b.innerHTML !== w) b.innerHTML = w; b.classList.toggle('mini', !!S.fabMini); }
+(function(){
+  var b = $('bAdd'); if (b) { try { b.removeEventListener('click', showAdd); } catch(e){} b.addEventListener('click', function(){ var c = fabCtx(); if (c) c.go(); }); }
+  var dr = draw; draw = function(){ dr.apply(this, arguments); fabUpd(); };
+  var y0 = 0; window.addEventListener('scroll', function(){ var y = window.scrollY || 0; var m = y > y0 + 8 ? true : (y < y0 - 8 ? false : S.fabMini); y0 = y; if (m !== S.fabMini) { S.fabMini = m; fabUpd(); } }, { passive: true });
+  document.addEventListener('focusin', function(e){ var t = e.target; if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) && t.type !== 'checkbox' && t.type !== 'radio') document.body.classList.add('kbOpen'); });
+  document.addEventListener('focusout', function(){ setTimeout(function(){ var a = document.activeElement; if (!a || !/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) document.body.classList.remove('kbOpen'); }, 60); });
+  try { fabUpd(); } catch(e){}
+})();
+
 })();
 
 </script>
