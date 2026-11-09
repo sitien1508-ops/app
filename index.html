@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.9-202611091041';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.9a-202611091111';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -220,7 +220,7 @@ table.dk td.nw{white-space:nowrap}
 <div id="vLogin" class="login hidden">
   <div class="box">
     <h1>Sổ công việc</h1>
-    <div class="hint" style="margin:0 0 14px">Bản web - đồng bộ với máy công ty</div>
+    <div class="hint" style="margin:0 0 14px">Bản web - đồng bộ với máy chủ</div>
     <label class="f" for="pass">Mật khẩu</label>
     <input id="pass" class="inp" type="password" autocomplete="current-password">
     <label class="chk"><input id="nho" type="checkbox" checked> Ghi nhớ trên máy này 30 ngày</label>
@@ -369,7 +369,7 @@ function call(act, extra){
   });
 }
 
-/* ---------- phân loại việc (giống máy công ty) ---------- */
+/* ---------- phân loại việc (giống máy chủ) ---------- */
 function isDone(t){ return t.tt === TT.xong || t.tt === TT.bo; }
 function isHoan(t){ var h = pDate(t.hoan); return !!h && h > new Date() && !isDone(t); }
 function dueTime(t){ if(!t.han) return null; var d = pDate(t.han); if(!d) return null; if (t.gio) { var g = /^(\d{1,2}):(\d{2})/.exec(t.gio); if (g) { d.setHours(+g[1], +g[2]); return d; } } d.setHours(23,59,59); return d; }
@@ -452,7 +452,7 @@ function taskRow(t){
   if (isCho(t)) m.push('<span class="tag violet">' + (t.cho ? 'chờ: ' + esc(t.cho) : 'chờ phản hồi') + '</span>');
   if (t.dem) m.push('<span class="tag green">&#9201; đang tính giờ</span>');
   (t.nhan || []).forEach(function(n){ m.push('<span class="tag">#' + esc(n) + '</span>'); });
-  if (t._pend) m.push('<span class="tag orange">&#8987; chờ máy công ty</span>');
+  if (t._pend) m.push('<span class="tag orange">&#8987; chờ máy chủ</span>');
   var bar = (!isDone(t) && t.p > 0) ? '<div class="bar"><i style="width:' + Math.min(100, +t.p) + '%"></i></div>' : '';
   return '<div class="task ' + cls + '" data-id="' + esc(t.id) + '">' +
     '<button class="ck" data-done="' + esc(t.id) + '" title="Hoàn thành">' + (isDone(t) ? '&#10003;' : '') + '</button>' +
@@ -479,7 +479,7 @@ function draw0(){
   var chinh = open.filter(function(t){ return !isNhac(t); });
   var vis = chinh.filter(function(t){ return cat(t) !== 'an'; });
   var pend = S.queue.length;
-  if (pend) h += '<div class="pend">&#8987; ' + pend + ' thay đổi đang chờ máy công ty áp dụng' + (qNoLoc() ? ' (' + qNoLoc() + ' chưa gửi lên' + (S.qLoi ? ' - mất sóng, tự gửi lại' : '') + ')' : '') + (isOnline() ? '…' : ' (máy công ty đang tắt / mất mạng)') + '<button id="bPend">Xem</button></div>';
+  if (pend) h += '<div class="pend">&#8987; ' + pend + ' thay đổi đang chờ máy chủ áp dụng' + (qNoLoc() ? ' (' + qNoLoc() + ' chưa gửi lên' + (S.qLoi ? ' - mất sóng, tự gửi lại' : '') + ')' : '') + (isOnline() ? '…' : ' (máy chủ đang tắt / mất mạng)') + '<button id="bPend">Xem</button></div>';
   if (qRejL().length) h += '<div class="pend" style="border-color:var(--red);color:var(--red)">&#10007; ' + qRejL().length + ' thay đổi bị từ chối<button id="bPend2">Xem</button></div>';
   if (S.tab === 'viec') {
     var khan = vis.filter(isKhan), qua = vis.filter(function(t){ return !isKhan(t) && cat(t) === 'quahan'; }), hom = vis.filter(function(t){ return !isKhan(t) && cat(t) === 'homnay'; });
@@ -553,7 +553,7 @@ function draw0(){
   $('main').innerHTML = h;
   if (S.tab === 'kho' && aid && $(aid)) { var nf = $(aid); nf.focus(); try { nf.setSelectionRange(ss, ss); } catch(e){} }
 }
-/* ---------- hộp thư OA (máy công ty đọc HCL Notes) ---------- */
+/* ---------- hộp thư OA (máy chủ đọc HCL Notes) ---------- */
 var OAK = { un:'Chưa đọc', '1':'Hôm nay', '3':'3 ngày', '7':'7 ngày', '14':'14 ngày' };
 function oaTB(){ var v = lsGet('scv_oatb'); if (v) return v === '1'; return !S.oa || S.oa.hientb !== false; }
 function oaPendRead(){ var r = null; S.queue.forEach(function(c){ if (c.op === 'oa') r = c; }); return r; }
@@ -573,10 +573,10 @@ function oaTags(m){
 }
 function drawOA(){
   var h = '', o = S.oa, pr = oaPendRead();
-  h += '<div class="box"><h3>Hộp thư OA trên máy công ty</h3><div class="chips" style="padding-bottom:4px">' +
+  h += '<div class="box"><h3>Hộp thư OA trên máy chủ</h3><div class="chips" style="padding-bottom:4px">' +
     ['un','1','3','7','14'].map(function(k){ return '<button class="chip' + (o && o.kind === k ? ' on' : '') + '" data-oakind="' + k + '"' + (pr ? ' disabled' : '') + '>' + (k === 'un' ? '&#128308; ' : '') + OAK[k] + '</button>'; }).join('') + '</div>';
-  if (pr) h += '<div class="pend"><span class="spin"></span> Máy công ty đang đọc hộp thư Notes (' + esc(OAK[pr.data.kind] || '') + ')… thường 10-60 giây' + (isOnline() ? '' : ' - máy công ty đang tắt, sẽ đọc khi bật') + '</div>';
-  else if (!o) h += '<div class="hint">Bấm 1 nút ở trên để máy công ty đọc hộp thư HCL Notes. Notes trên máy công ty phải đang mở.</div>';
+  if (pr) h += '<div class="pend"><span class="spin"></span> Máy chủ đang đọc hộp thư Notes (' + esc(OAK[pr.data.kind] || '') + ')… thường 10-60 giây' + (isOnline() ? '' : ' - máy chủ đang tắt, sẽ đọc khi bật') + '</div>';
+  else if (!o) h += '<div class="hint">Bấm 1 nút ở trên để máy chủ đọc hộp thư HCL Notes. Notes trên máy chủ phải đang mở.</div>';
   if (o) {
     var ntb = (o.items || []).filter(function(m){ return m.tb; }).length;
     h += '<div class="hint">Đọc lúc ' + esc(fDT(o.luc)) + ' · ' + esc(OAK[o.kind] || '') + ' · ' + (o.items || []).length + ' thư' + (ntb ? ' (' + ntb + ' thư thông báo' + (oaTB() ? '' : ' - đang ẩn') + ')' : '') + '</div>';
@@ -601,10 +601,10 @@ function showOAMail(u){
   var m = oaBy(u); if (!m) return;
   var h = '<div class="sh-h"><h2>' + esc(m.sj || '(không chủ đề)') + '</h2><button class="ibtn" data-close="1">&#10005;</button></div>' +
     '<div class="box"><div class="kv"><div>Người gửi</div><div>' + esc(m.tu) + '</div><div>Lúc</div><div>' + esc(fDT(m.ng)) + '</div>' +
-    (m.han ? '<div>Hạn văn bản</div><div><b>' + esc(fDate(m.han)) + '</b></div>' : '') + (m.f ? '<div>File</div><div>' + m.f + ' file (xem trên máy công ty)</div>' : '') +
+    (m.han ? '<div>Hạn văn bản</div><div><b>' + esc(fDate(m.han)) + '</b></div>' : '') + (m.f ? '<div>File</div><div>' + m.f + ' file (xem trên máy chủ)</div>' : '') +
     '<div>Gợi ý</div><div>' + (oaTags(m) || 'không phải việc') + '</div></div></div>';
   if (m.so) h += '<div class="box">Thư này đã có trong sổ.' + (m.so !== 'luutru' && findT(m.so) ? ' <button class="btn sm" data-id="' + esc(m.so) + '">Mở việc</button>' : '') + '</div>';
-  else if (oaPendAdd(m.u)) h += '<div class="pend">&#8987; Đang chờ máy công ty đưa vào sổ.</div>';
+  else if (oaPendAdd(m.u)) h += '<div class="pend">&#8987; Đang chờ máy chủ đưa vào sổ.</div>';
   else h += '<div class="acts" style="margin-bottom:10px"><button class="btn pri" data-oaadd="c">&#10133; Vào sổ</button><button class="btn" data-oaadd="n">&#10133; Nhắc nhở</button><button class="btn red" data-oaadd="k">&#128293; Vào sổ KHẨN</button></div>';
   if (m.nd) h += '<div class="box"><h3>Nội dung thư</h3><div class="nd">' + esc(m.nd) + '</div></div>';
   h += '<div class="hint">Việc tạo từ thư OA tự lấy hạn trong thư / văn bản, các bước đánh số, đặt KHẨN nếu thư bị nhắc (催辦 / 提示). Thư cùng văn bản với việc đã có sẽ được gộp vào việc cũ.</div>';
@@ -619,8 +619,8 @@ function isOnline(){ return S.lastPc && (S.srvNow - S.lastPc) < 3 * 60000; }
 function drawSync(){
   var on = isOnline(), d = S.lastPc ? new Date(S.lastPc) : null;
   $('sDot').className = 'dot ' + (on ? 'on' : 'off');
-  var s = on ? 'Máy công ty đang bật · đồng bộ ' + pad(d.getHours()) + ':' + pad(d.getMinutes())
-    : (d ? 'Máy công ty tắt / mất mạng · lần cuối ' + fDT(ymdhm(d)) : 'Máy công ty chưa đồng bộ');
+  var s = on ? 'Máy chủ đang bật · đồng bộ ' + pad(d.getHours()) + ':' + pad(d.getMinutes())
+    : (d ? 'Máy chủ tắt / mất mạng · lần cuối ' + fDT(ymdhm(d)) : 'Máy chủ chưa đồng bộ');
   if (S.snap && S.snap.luc) s += ' · dữ liệu lúc ' + String(S.snap.luc).slice(11, 16);
   var pa = Object.keys(S.pcs || {}).filter(function(k){ return S.srvNow - (+S.pcs[k] || 0) < 3 * 3600000; });
   if (pa.length > 1) s += ' · ⚠ ' + pa.length + ' máy cùng gửi web: ' + pa.join(', ') + ' (dữ liệu bị đè)';
@@ -638,8 +638,8 @@ function showTask(id){
   S.open = id;
   var c = cat(t), tmp = String(t.id).indexOf('tmp-') === 0;
   var h = '<div class="sh-h"><h2>' + esc(t.td) + '</h2><button class="ibtn" data-close="1">&#10005;</button></div>';
-  if (t._pend) h += '<div class="pend">&#8987; Có thay đổi đang chờ máy công ty áp dụng.</div>';
-  if (tmp) { h += '<div class="box">Việc mới đang chờ máy công ty tạo. Khi máy công ty đồng bộ xong, anh mới sửa được chi tiết.</div>'; openSheet(h); return; }
+  if (t._pend) h += '<div class="pend">&#8987; Có thay đổi đang chờ máy chủ áp dụng.</div>';
+  if (tmp) { h += '<div class="box">Việc mới đang chờ máy chủ tạo. Khi máy chủ đồng bộ xong, anh mới sửa được chi tiết.</div>'; openSheet(h); return; }
   h += '<div class="box"><div class="kv">' +
     '<div>Trạng thái</div><div><b>' + esc(t.tt) + '</b>' + (t.p && !isDone(t) ? ' · ' + t.p + '%' : '') + '</div>' +
     '<div>Hạn</div><div>' + esc(fDue(t)) + (remain(t) && !isDone(t) ? ' <span class="tag ' + (c === 'quahan' ? 'red' : 'blue') + '">' + esc(remain(t)) + '</span>' : '') + '</div>' +
@@ -693,7 +693,7 @@ function showHoan(t){
     '<label class="f">Chọn ngày giờ khác</label><div class="row"><input id="hDate" class="inp" type="date" value="' + ymd(m8) + '"><input id="hTime" class="inp" type="time" value="08:00"></div>' +
     '<button class="btn pri" style="width:100%;margin-top:10px" data-act="hoanok">Hoãn tới giờ đã chọn</button>' +
     (isHoan(t) ? '<button class="btn" style="width:100%;margin-top:8px" data-hoanto="">Bỏ hoãn (hiện lại ngay)</button>' : '') +
-    '<div class="hint">Tới giờ hẹn, máy công ty và điện thoại sẽ nhắc lại việc này.</div></div>';
+    '<div class="hint">Tới giờ hẹn, máy chủ và điện thoại sẽ nhắc lại việc này.</div></div>';
   openSheet(h);
 }
 function personSelect(id, cur){
@@ -707,9 +707,9 @@ function showEdit(t){
     '<div class="grid2"><div><label class="f">Hạn</label><input id="eHan" class="inp" type="date" value="' + esc(t.han) + '"></div><div><label class="f">Giờ</label><input id="eGio" class="inp" type="time" value="' + esc(t.gio) + '"></div></div>' +
     '<div class="grid2"><div><label class="f">Người làm</label>' + personSelect('eGiao', t.giao) + '</div><div><label class="f">Ưu tiên</label>' + utSelect('eUt', t.ut) + '</div></div>' +
     '<label class="f">Danh sách</label><select id="eDs" class="inp"><option value="Chinh"' + (isNhac(t) ? '' : ' selected') + '>Công việc chính</option><option value="NhacNho"' + (isNhac(t) ? ' selected' : '') + '>Nhắc nhở</option></select>' +
-    (t.ndCut ? '<div class="hint">Nội dung dài - chỉ sửa được trên máy công ty.</div>' : '<label class="f">Nội dung</label><textarea id="eNd" class="inp">' + esc(t.nd) + '</textarea>') +
+    (t.ndCut ? '<div class="hint">Nội dung dài - chỉ sửa được trên máy chủ.</div>' : '<label class="f">Nội dung</label><textarea id="eNd" class="inp">' + esc(t.nd) + '</textarea>') +
     '<button class="btn pri" style="width:100%;margin-top:12px" data-act="editok">Lưu thay đổi</button>' +
-    '<div class="hint">Để trống Hạn = bỏ hạn. Đổi người làm: máy công ty sẽ tự gửi việc cho nhân viên qua Zalo/LINE/Telegram (nếu đã nối).</div></div>';
+    '<div class="hint">Để trống Hạn = bỏ hạn. Đổi người làm: máy chủ sẽ tự gửi việc cho nhân viên qua Zalo/LINE/Telegram (nếu đã nối).</div></div>';
   openSheet(h);
 }
 function showAdd(){
@@ -752,11 +752,11 @@ function showPend(){
   var nhacH = all.filter(function(t){ return !isDone(t) && isNhac(t) && (cat(t) === 'quahan' || cat(t) === 'homnay'); });
   var h = '<div class="sh-h"><h2>&#128276; Thông báo</h2><button class="ibtn" data-close="1">&#10005;</button></div>';
   h += lst('&#9200; Việc hoãn đã tới giờ', hoanToi) + lst('&#128293; Khẩn / quá hạn / sắp hết giờ', chu) + lst('&#128276; Nhắc nhở hôm nay', nhacH);
-  h += '<div class="box"><h3>Kết quả từ máy công ty</h3>' + (S.results.length ? S.results.slice(0, 12).map(function(r){ var d = r.luc ? new Date(r.luc) : null; return '<div class="log"' + (r.ok ? '' : ' style="color:var(--red)"') + '><b>' + (d ? pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth()+1) : '') + ' ' + (r.ok ? '&#10003;' : '&#10007;') + '</b>' + esc(r.msg || opName(r)) + '</div>'; }).join('') : '<div class="hint">Chưa có.</div>') + '</div>';
+  h += '<div class="box"><h3>Kết quả từ máy chủ</h3>' + (S.results.length ? S.results.slice(0, 12).map(function(r){ var d = r.luc ? new Date(r.luc) : null; return '<div class="log"' + (r.ok ? '' : ' style="color:var(--red)"') + '><b>' + (d ? pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth()+1) : '') + ' ' + (r.ok ? '&#10003;' : '&#10007;') + '</b>' + esc(r.msg || opName(r)) + '</div>'; }).join('') : '<div class="hint">Chưa có.</div>') + '</div>';
   var rjs = qRejL(); if (rjs.length) h += '<div class="box"><h3 style="color:var(--red)">&#10007; Bị từ chối (' + rjs.length + ')</h3>' + rjs.map(function(x){ return '<div class="mini"><span>' + esc(opName(x)) + '<br><span class="hint" style="color:var(--red)">' + esc(x.err || '') + '</span></span><span style="white-space:nowrap"><button class="btn sm" data-qre="' + esc(x.cid) + '">Gửi lại</button> <button class="btn sm" data-qbo="' + esc(x.cid) + '">Bỏ</button></span></div>'; }).join('') + '</div>';
-  h += '<div class="box"><h3>Đang chờ máy công ty (' + S.queue.length + ')</h3>' + (S.queue.length ? S.queue.map(function(c){ return '<div class="mini"><span>' + esc(opName(c)) + (c._local ? ' <span class="tag">chưa gửi lên' + (S.qLoi ? ' - mất sóng' : '') + '</span>' : '') + '</span><button class="btn sm" data-cancel="' + esc(c.cid) + '">Hủy</button></div>'; }).join('') : '<div class="hint">Không có.</div>') + '</div>';
+  h += '<div class="box"><h3>Đang chờ máy chủ (' + S.queue.length + ')</h3>' + (S.queue.length ? S.queue.map(function(c){ return '<div class="mini"><span>' + esc(opName(c)) + (c._local ? ' <span class="tag">chưa gửi lên' + (S.qLoi ? ' - mất sóng' : '') + '</span>' : '') + '</span><button class="btn sm" data-cancel="' + esc(c.cid) + '">Hủy</button></div>'; }).join('') : '<div class="hint">Không có.</div>') + '</div>';
   function lst(title, arr){ return arr.length ? '<div class="box"><h3>' + title + ' (' + arr.length + ')</h3>' + sortT(arr).slice(0, 30).map(function(t){ return '<div class="mini" data-id="' + esc(t.id) + '" style="cursor:pointer"><span>' + (isKhan(t) ? '<span class="tag red">KHẨN</span> ' : '') + esc(t.td) + '</span><span class="hint" style="white-space:nowrap">' + esc(remain(t) || fDue(t)) + ' · ' + esc(t.giao || 'Tôi') + '</span></div>'; }).join('') + '</div>' : ''; }
-  h += '<div class="hint">Bấm vào 1 việc để mở. Máy công ty áp dụng thay đổi trong vài giây đến 1 phút khi đang bật và có mạng.</div>';
+  h += '<div class="hint">Bấm vào 1 việc để mở. Máy chủ áp dụng thay đổi trong vài giây đến 1 phút khi đang bật và có mạng.</div>';
   openSheet(h);
 }
 function opName(c){
@@ -766,9 +766,9 @@ function opName(c){
 }
 function showMenu(){
   var h = '<div class="sh-h"><h2>Khác</h2><button class="ibtn" data-close="1">&#10005;</button></div>' +
-    '<div class="box"><div class="kv"><div>Máy công ty</div><div>' + esc($('sTxt').textContent) + '</div><div>Phiên bản</div><div>' + esc((S.snap && S.snap.v) || '') + '</div></div></div>' +
+    '<div class="box"><div class="kv"><div>Máy chủ</div><div>' + esc($('sTxt').textContent) + '</div><div>Phiên bản</div><div>' + esc((S.snap && S.snap.v) || '') + '</div></div></div>' +
     '<button class="btn" style="width:100%;margin-bottom:8px" data-act="pend">&#8987; Thay đổi đang chờ / kết quả</button>' +
-    '<button class="btn" style="width:100%;margin-bottom:8px" data-act="deskmode">&#128187; Giao diện máy tính (như trên máy công ty)</button>' +
+    '<button class="btn" style="width:100%;margin-bottom:8px" data-act="deskmode">&#128187; Giao diện máy tính (như trên máy chủ)</button>' +
     '<button class="btn red" style="width:100%" data-act="logout">Đăng xuất</button>' +
     '<div class="hint" style="margin-top:12px">Mẹo: trên điện thoại, bấm Chia sẻ / menu trình duyệt → "Thêm vào màn hình chính" để mở như một ứng dụng.</div>';
   openSheet(h);
@@ -796,7 +796,7 @@ function kGnView(){
     h += '<div style="padding:7px 0;border-top:1px solid var(--line)' + (S.xnWant === g[0] ? ';background:#fff4cc;outline:2px solid #f59e0b' : '') + '"><b>' + esc(kD(g[1])) + ' &middot; ' + esc(s[1]) + ' ' + kN(g[5]) + ' ' + esc(s[2]) + '</b> <span class="hint">' + esc(g[8] || g[2]) + ((g[3] || []).length > 1 ? ' (' + esc((g[3] || []).join(', ')) + ')' : '') + '</span><div style="margin-top:4px">';
     var hs = (((S.kho || {}).sb || {}).gnh || {})[g[0]]; if (hs) { var cn = Math.round((new Date(hs + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 86400000); h += '<div style="font-size:13px;margin:2px 0;color:' + (cn < 0 ? '#dc2626' : cn <= 7 ? '#b45309' : '#475569') + '">&#128197; Hạn dùng ' + esc(kD(hs)) + (cn < 0 ? ' - ĐÃ QUÁ HẠN' : cn <= 7 ? ' - còn ' + cn + ' ngày' : '') + '</div>'; }
     if (g[9]) h += '<div style="color:#b45309;font-size:13px;margin:2px 0 4px">&#9888; ' + esc(g[9]) + '</div>';
-    if (wait) h += '<span class="tag orange">&#8987; đã gửi xác nhận - chờ máy công ty</span>';
+    if (wait) h += '<span class="tag orange">&#8987; đã gửi xác nhận - chờ máy chủ</span>';
     else if (g[6] === 'CHO') h += '<button class="btn pri" data-kxn="' + esc(g[0]) + '" data-kxa="du">&#10003; Đã nhận đủ</button> <button class="btn" data-kxn="' + esc(g[0]) + '" data-kxa="khac">Nhận khác số</button>';
     else if (g[6] === 'LECH') h += '<span class="tag red">Đã báo nhận ' + kN(g[7]) + ' - lệch, kho đang kiểm tra</span> <button class="btn" data-kxn="' + esc(g[0]) + '" data-kxa="khac">Báo lại</button>';
     else h += '<span class="tag green">' + (g[6] === 'KHOP' ? '&#10003; đã xác nhận đủ' : (g[6] === 'TIM' ? 'kho đang tìm nguyên nhân' : 'kho đã xử lý')) + '</span>';
@@ -831,9 +831,9 @@ function sigData(){
 function kTabs(){ if (S.role) return '<div class="hint" style="margin:0 2px 6px">&#129371; Tài khoản tổ trưởng ' + esc(S.role) + ' - bánh sữa của tổ: việc cần làm, nhận hàng, số phát, đề xuất, báo tồn, đề nghị. <a href="#" onclick="logout();return false">Đăng xuất</a></div>' + ((S.kho && (S.kho.vt || []).length) ? '<div class="chips">' + [['sb','&#129371; Bánh sữa'],['ton','&#128269; Tồn kho']].map(function(x){ return '<button class="chip' + (S.ktab === x[0] ? ' on' : '') + '" data-kt="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' : ''); return '<div class="chips">' + [['ton','&#128269; Tồn kho'],['muon','&#128295; Mượn / trả'],['sb','&#129371; Bánh sữa'],['hn','&#9728; Hôm nay']].map(function(x){ return '<button class="chip' + (S.ktab === x[0] ? ' on' : '') + '" data-kt="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>'; }
 function drawKho(){
   var K = S.kho, h = kTabs();
-  if (!K) return h + '<div class="empty">Chưa có dữ liệu kho. Máy công ty cần Sổ công việc bản 9.3b và đang bật đồng bộ web.</div>';
+  if (!K) return h + '<div class="empty">Chưa có dữ liệu kho. Máy chủ cần Sổ công việc bản 9.3b và đang bật đồng bộ web.</div>';
   h += '<div class="hint" style="margin:0 2px 6px">' + esc(K.ten) + ' · số liệu lúc ' + esc(K.luc) + (K.erp ? ' · ERP nhập ' + esc(K.erp) : '') + '</div>';
-  var pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy công ty: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
+  var pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy chủ: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
   if (S.ktab === 'ton') {
     h += '<input id="kq" class="inp" placeholder="Tìm mã / tên / kệ (không dấu cũng được)" value="' + esc(S.kq) + '">';
     h += '<button class="btn" style="margin:6px 0" data-kact="scan">&#128247; Quét mã vạch bằng camera</button><div id="klist">' + kTonList() + '</div>';
@@ -885,7 +885,7 @@ function showKCC(id){
     '<div class="grid2"><div><label class="f">Từ ngày</label><input id="kTu" class="inp" type="date" value="' + today() + '"></div><div><label class="f">Đến ngày / hạn trả</label><input id="kDen" class="inp" type="date" value="' + addDays(nd) + '"></div></div>' +
     '<label class="f">Mục đích</label><input id="kMd" class="inp"><div id="kWarn" class="hint" style="color:var(--orange)"></div>' +
     '<button class="btn pri" style="width:100%;margin-top:10px" data-kact="kmuon" data-kid="' + esc(id) + '">Gửi</button>' +
-    '<div class="hint">Đặt chỗ trùng ngày người khác: máy công ty sẽ từ chối. Cho mượn ngay trùng ngày người khác đã đặt: vẫn cho, có cảnh báo.</div></div>';
+    '<div class="hint">Đặt chỗ trùng ngày người khác: máy chủ sẽ từ chối. Cho mượn ngay trùng ngày người khác đã đặt: vẫn cho, có cảnh báo.</div></div>';
   openSheet(h);
   var chk = function(){ var dat = $('kDat').checked, tu = dat ? $('kTu').value : today(), den = $('kDen').value; $('kTu').disabled = !dat; var t = kDatTrung(id, tu, den); $('kWarn').textContent = t.length ? 'Trùng ngày đã đặt: ' + t.map(function(m){ return m[7] + ' ' + kD(m[9]) + '-' + kD(m[10]); }).join('; ') : ''; };
   ['kDat','kTu','kDen'].forEach(function(i){ $(i).addEventListener('change', chk); }); chk();
@@ -899,7 +899,7 @@ function showKMU(id){
   if (m[11] === 'DAT') h += '<div class="box"><button class="btn pri" style="width:100%;margin-bottom:8px" data-kact="kgiao" data-kid="' + esc(id) + '">Giao công cụ (bắt đầu mượn)</button><button class="btn red" style="width:100%" data-kact="khuy" data-kid="' + esc(id) + '">Huỷ đặt chỗ</button></div>';
   else h += '<div class="box"><h3>Nhận trả</h3><div class="grid2"><div><label class="f">Số lượng trả</label><input id="kTsl" class="inp" type="number" min="1" value="' + kN(m[6]) + '"' + (m[6] > 1 ? '' : ' disabled') + '></div><div><label class="f">Tình trạng</label><select id="kTtt" class="inp"><option>Tốt</option><option>Hỏng</option><option>Thiếu phụ kiện</option><option>Mất</option></select></div></div>' +
     (c[9] ? '<label class="f">Phụ kiện thiếu (nếu có) - có: ' + esc(c[9]) + '</label><input id="kTpk" class="inp">' : '') +
-    '<label class="f">Ghi chú</label><input id="kTgc" class="inp"><button class="btn green" style="width:100%;margin-top:10px" data-kact="ktra" data-kid="' + esc(id) + '">Nhận trả</button><div class="hint">Hỏng / mất: máy công ty tạo việc sửa / xử lý mất; in biên bản ở máy công ty.</div></div>';
+    '<label class="f">Ghi chú</label><input id="kTgc" class="inp"><button class="btn green" style="width:100%;margin-top:10px" data-kact="ktra" data-kid="' + esc(id) + '">Nhận trả</button><div class="hint">Hỏng / mất: máy chủ tạo việc sửa / xử lý mất; in biên bản ở máy chủ.</div></div>';
   openSheet(h);
 }
 function kSendSb(){
@@ -943,7 +943,7 @@ function sbTabs(sb){
 }
 function kSbView(){
   var sb = sbOf(), h = '';
-  if (!(sb.bp || []).length && !(sb.gn || []).length) return '<div class="empty">Chưa có danh sách nhân viên thuộc diện bánh sữa trên máy công ty.</div>';
+  if (!(sb.bp || []).length && !(sb.gn || []).length) return '<div class="empty">Chưa có danh sách nhân viên thuộc diện bánh sữa trên máy chủ.</div>';
   if (!S.ksbBp && (sb.bp || []).length) S.ksbBp = sb.bp[0][0];
   if (!sbTabOn(S.sbt)) { var t0 = SBT.filter(function(x){ return sbTabOn(x[0]); })[0]; if (!t0) return '<div class="empty">Kho chưa mở mục nào cho tổ.</div>'; S.sbt = t0[0]; }
   h += sbTabs(sb) + (S.sbt === 'gt' ? '' : sbNoBanner(sb));
@@ -978,7 +978,7 @@ var sbTabOn99p = sbTabOn;
 sbTabOn = function(k){ if (k === 'gt') return !S.role && !!(S.kown && S.kown.sbgt); return sbTabOn99p(k); };
 function sbGtNum(x){ return kN(Math.round((+x || 0) * 100) / 100); }
 function sbGiaoCacTo(){
-  var o = (S.kown || {}).sbgt; if (!o || !o.d) return '<div class="empty">Máy công ty chưa gửi bảng giao các tổ (cần Sổ công việc bản 9.9p và đang bật đồng bộ web).</div>';
+  var o = (S.kown || {}).sbgt; if (!o || !o.d) return '<div class="empty">Máy chủ chưa gửi bảng giao các tổ (cần Sổ công việc bản 9.9p và đang bật đồng bộ web).</div>';
   var ky = (S.sbgtKy && o.d[S.sbgtKy]) ? S.sbgtKy : o.cur, D = o.d[ky] || { r: [], g: [], nt: [] }, sp = {}; sbSp().forEach(function(x){ sp[x[0]] = x; });
   var tk = function(k){ return k.substr(5, 2) + '/' + k.substr(0, 4); };
   var h = '<div class="chips" style="margin-bottom:6px">' + (o.kys || []).slice().reverse().map(function(k){ return '<button class="chip' + (k === ky ? ' on' : '') + '" data-sbgk="' + esc(k) + '">Kỳ ' + tk(k) + (k === o.cur ? ' (đang giao)' : '') + '</button>'; }).join('') + '</div>';
@@ -1026,7 +1026,7 @@ function sbTienDoChu(sb){
     h += '<div class="mini" style="display:block;padding:6px 0"><b>' + esc(b) + '</b> ' + v.map(function(x){ var q = !x[3] && x[4] && x[4] < td; return '<span class="tag ' + (x[3] ? 'green' : q ? 'red' : 'orange') + '" title="' + esc(x[2]) + '" style="margin:2px 2px 0 0;display:inline-block">' + (x[3] ? '&#10003; ' : q ? '&#9888; ' : '&#8987; ') + esc(ten[x[1]] || x[1]) + (x[4] && !x[3] ? ' ' + esc(kD(x[4])) : '') + '</span>'; }).join('') + '</div>';
   });
   if (!n) h += '<div class="hint">' + (loc === 'qua' ? 'Không có tổ nào quá hạn.' : loc === 'thieu' ? 'Các tổ đã làm hết việc.' : 'Không có việc nào đang mở.') + '</div>';
-  return h + '<div class="hint">Đây là việc CỦA CÁC TỔ (anh theo dõi). Sửa hạn / thu hồi: máy công ty > Bánh sữa > Tổ gửi lên > Yêu cầu đã gửi tổ.</div></div>';
+  return h + '<div class="hint">Đây là việc CỦA CÁC TỔ (anh theo dõi). Sửa hạn / thu hồi: máy chủ > Bánh sữa > Tổ gửi lên > Yêu cầu đã gửi tổ.</div></div>';
 }
 function sbViec(sb){
   if (!S.role) return sbTienDoChu(sb);
@@ -1069,9 +1069,9 @@ function sbPendVals(q){ if (!q) return null; var m = {}; (q.data.rows || []).for
 function sbHM(t){ var d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + pad(d.getDate()) + '/' + pad(d.getMonth() + 1); }
 function sbPhatTT(sb){
   var q = sbPendQ(sb);
-  if (q) return '<div class="box" style="border-left:4px solid #f59e0b">&#9203; <b>Đã gửi lúc ' + sbHM(q.luc) + '</b> - đang chờ máy công ty nhận' + (S.lastPc && S.srvNow && (S.srvNow - S.lastPc) > 5 * 60000 ? ' <span class="hint">(máy công ty đang tắt - bật lên sẽ tự nhận)</span>' : '') + '. Số đang hiện là số đã gửi; sửa và gửi lại được (số gửi sau thay số trước).</div>';
+  if (q) return '<div class="box" style="border-left:4px solid #f59e0b">&#9203; <b>Đã gửi lúc ' + sbHM(q.luc) + '</b> - đang chờ máy chủ nhận' + (S.lastPc && S.srvNow && (S.srvNow - S.lastPc) > 5 * 60000 ? ' <span class="hint">(máy chủ đang tắt - bật lên sẽ tự nhận)</span>' : '') + '. Số đang hiện là số đã gửi; sửa và gửi lại được (số gửi sau thay số trước).</div>';
   var r = null; (S.results || []).forEach(function(x){ if (x && x.op === 'ksb' && String(x.bp) === String(S.ksbBp) && (!r || (x.luc || 0) > (r.luc || 0))) r = x; });
-  if (r && (!S.srvNow || (S.srvNow - r.luc) < 7 * 86400000)) return '<div class="box" style="border-left:4px solid ' + (r.ok ? '#16a34a' : '#dc2626') + '">' + (r.ok ? '&#10003; <b>Máy công ty đã nhận lúc ' : '&#10007; <b style="color:#dc2626">Máy công ty báo lỗi lúc ') + sbHM(r.luc) + '</b>: ' + esc(r.msg || '') + '</div>';
+  if (r && (!S.srvNow || (S.srvNow - r.luc) < 7 * 86400000)) return '<div class="box" style="border-left:4px solid ' + (r.ok ? '#16a34a' : '#dc2626') + '">' + (r.ok ? '&#10003; <b>Máy chủ đã nhận lúc ' : '&#10007; <b style="color:#dc2626">Máy chủ báo lỗi lúc ') + sbHM(r.luc) + '</b>: ' + esc(r.msg || '') + '</div>';
   return '';
 }
 function sbSaiLech(sb){
@@ -1272,7 +1272,7 @@ document.addEventListener('click', function(ev){
   if (a === 'sbcc') { (S.kho.sb.nv || []).forEach(function(x){ if (x[0] === S.ksbBp && x[3] != null) S.ksbVal[S.ksbBp + '|' + x[1]] = { s: x[3], b: x[4] }; }); draw(); return; }
   if (a === 'ksb') { kSendSb(); return; }
   if (a === 'tdloc') { S.tdLoc = el.getAttribute('data-v') || 'thieu'; draw(); return; }
-  if (a === 'knhac') { if (!confirm('Nhắn tin (Zalo / LINE / Telegram) cho tổ trưởng các tổ còn việc? (qua máy công ty)')) return; send('knhac', '', {}, 'Nhắc các tổ còn việc'); return; }
+  if (a === 'knhac') { if (!confirm('Nhắn tin (Zalo / LINE / Telegram) cho tổ trưởng các tổ còn việc? (qua máy chủ)')) return; send('knhac', '', {}, 'Nhắc các tổ còn việc'); return; }
 });
 /* 9.6d: o ma NV - go ma, so cuoi hoac ten -> tu dien ten (to truong: chi nguoi trong to) */
 function webTimNguoi(q, ds){ q = String(q || '').trim(); if (!q) return []; var u = q.toUpperCase().split(' - ')[0].trim(), so = /^(VNW)?0*(\d{2,})$/.exec(u), w = bodau(q).split(/\s+/).filter(function(x){ return x; });
@@ -1316,7 +1316,7 @@ function send(op, id, data, td, cid){
   a.push(x); qSave(a); S.queue = mq(); S.fast = now; khoOpt();
   var cho = !!S.role, p = cho ? new Promise(function(res){ S.qWait = S.qWait || {}; S.qWait[x.cid] = res; }) : Promise.resolve(true);
   if (!cho) {
-    toast(navigator.onLine === false ? 'Đã lưu trên điện thoại (⏳) - có mạng tự gửi' : 'Đã lưu ⏳ - máy công ty cập nhật sau giây lát', 1800);
+    toast(navigator.onLine === false ? 'Đã lưu trên điện thoại (⏳) - có mạng tự gửi' : 'Đã lưu ⏳ - máy chủ cập nhật sau giây lát', 1800);
     if (S.desk && !S.oaOpen) closeSheet();
     draw(); if (S.open) showTask(S.open); else if (S.oaOpen) showOAMail(S.oaOpen);
   }
@@ -1333,7 +1333,7 @@ function qFlush(){
       S.queue = mq(); khoOpt(); draw(); schedule(1000); if (b.length) setTimeout(qFlush, 200); return;
     }
     S.queue = mq(r.queue || S.qSrv); S.fast = Date.now(); khoOpt();
-    if (qXong(x.cid, true)) { toast(isOnline() ? 'Đã gửi - máy công ty sẽ cập nhật trong giây lát' : 'Đã lưu - sẽ áp dụng khi máy công ty bật', 2200); if (S.desk && !S.oaOpen) closeSheet(); }
+    if (qXong(x.cid, true)) { toast(isOnline() ? 'Đã gửi - máy chủ sẽ cập nhật trong giây lát' : 'Đã lưu - sẽ áp dụng khi máy chủ bật', 2200); if (S.desk && !S.oaOpen) closeSheet(); }
     draw(); if (S.open) showTask(S.open); schedule(3000);
     if (b.length) setTimeout(qFlush, 200);
   }).catch(function(e){ S.qDang = ''; if (String(e && e.message) === 'LOGIN') return; S.qLoi = Date.now();
@@ -1379,7 +1379,7 @@ function load(){
     if (r.kown) { try { S.kown = JSON.parse(r.kown); } catch(e){} }
     S.kownErr = r.kownErr || ''; S.thay = r.thay || null;
     S.snap = snap; S.queue = mq(r.queue || []); khoOpt(); S.results = r.results || []; S.lastPc = r.lastPc || 0; S.srvNow = r.now || Date.now(); S.pcs = r.pcs || {};
-    S.results.forEach(function(x){ if (!S.seen[x.cid]) { S.seen[x.cid] = 1; if (!x.ok && (Date.now() - x.luc) < 10 * 60000 && !S.read[x.cid]) toast('Máy công ty báo: ' + (x.msg || 'lỗi') + '  (bấm để xem)', 7000); } });
+    S.results.forEach(function(x){ if (!S.seen[x.cid]) { S.seen[x.cid] = 1; if (!x.ok && (Date.now() - x.luc) < 10 * 60000 && !S.read[x.cid]) toast('Máy chủ báo: ' + (x.msg || 'lỗi') + '  (bấm để xem)', 7000); } });
     drawBell();
     drawSync(); draw();
     var sheetOpen = !$('ov').classList.contains('hidden');
@@ -1437,7 +1437,7 @@ function drawDesk(){
   setOpts('dkNguon', ngs, [['', 'Tất cả']]);
   var nhs = []; all.forEach(function(t){ (t.nhan || []).forEach(function(n){ if (nhs.indexOf(n) < 0) nhs.push(n); }); }); nhs.sort();
   setOpts('dkLocNhan', nhs, [['', 'Tất cả']]);
-  $('dkPend').innerHTML = S.queue.length ? '<div class="pend" style="margin:0">&#8987; ' + S.queue.length + ' thay đổi đang chờ máy công ty áp dụng' + (isOnline() ? '…' : ' (máy công ty đang tắt / mất mạng)') + '<button id="bPend">Xem</button></div>' : '';
+  $('dkPend').innerHTML = S.queue.length ? '<div class="pend" style="margin:0">&#8987; ' + S.queue.length + ' thay đổi đang chờ máy chủ áp dụng' + (isOnline() ? '…' : ' (máy chủ đang tắt / mất mạng)') + '<button id="bPend">Xem</button></div>' : '';
   var isOA = S.dtab === 'oa', isNV = S.dtab === 'nv', isKho = S.dtab === 'kho', isLe = S.dtab === 'le';
   $('dkList').classList.toggle('hidden', isOA || isNV || isKho || isLe); $('dkOA').classList.toggle('hidden', !(isOA || isNV || isKho || isLe));
   if (isKho) { $('dkOA').innerHTML = '<div class="kdesk">' + drawKho() + '</div>'; return; }
@@ -1487,7 +1487,7 @@ function drawDkTable(all){
       '<td class="num">' + (i + 1) + '</td><td class="num" style="color:' + (dg >= 70 ? 'var(--red)' : dg >= 40 ? 'var(--orange)' : 'var(--muted)') + ';font-weight:700">' + (dg || '') + '</td>' +
       '<td class="nw c-due">' + esc(t.han ? fDateY(t.han) + (t.gio ? ' ' + t.gio : '') : '(không hạn)') + '</td>' +
       '<td class="nw c-rem">' + esc(isDone(t) ? 'xong ' + fDate(t.xong) : (remain(t) ? remain(t).charAt(0).toUpperCase() + remain(t).slice(1) : '')) + '</td>' +
-      '<td class="c-td">' + pre + (isKhan(t) ? '<span class="tag red">KHẨN</span> ' : '') + esc(t.td) + (t._pend ? ' <span class="tag orange">&#8987; chờ máy công ty</span>' : '') + ((t.nhan || []).length ? ' <span class="hint">' + t.nhan.map(function(n){ return '#' + esc(n); }).join(' ') + '</span>' : '') + '</td>' +
+      '<td class="c-td">' + pre + (isKhan(t) ? '<span class="tag red">KHẨN</span> ' : '') + esc(t.td) + (t._pend ? ' <span class="tag orange">&#8987; chờ máy chủ</span>' : '') + ((t.nhan || []).length ? ' <span class="hint">' + t.nhan.map(function(n){ return '#' + esc(n); }).join(' ') + '</span>' : '') + '</td>' +
       '<td class="nw">' + esc(t.oaso || '') + '</td><td class="nw">' + (+t.oanhac ? t.oanhac + ' lần' : '') + '</td>' +
       '<td class="nw">' + esc(t.giao || 'Tôi') + '</td><td class="nw" style="' + (t.ut === KHAN ? 'color:var(--red);font-weight:700' : t.ut === 'Cao' ? 'color:var(--orange);font-weight:700' : '') + '">' + esc(t.ut === KHAN ? 'KHẨN' : t.ut) + '</td>' +
       '<td class="nw">' + (isDone(t) ? esc(t.tt) : esc(t.tt) + (t.p ? ' ' + t.p + '%' : '')) + '</td></tr>';
@@ -1581,7 +1581,7 @@ document.addEventListener('click', function(ev){
   if (ds.dondoc) { showDonDoc(ds.dondoc); return; }
   if (ds.dd) { send('dondoc', '', { ten: ds.dd, text: ($('ddTxt').value || '').trim() }); closeSheet(); return; }
   if (ds.cancel) { var cl = qOut(); if (cl.some(function(x){ return x.cid === ds.cancel; })) { if (S.qDang === ds.cancel) { toast('Đang gửi - thử huỷ lại sau giây lát'); return; } qSave(cl.filter(function(x){ return x.cid !== ds.cancel; })); qXong(ds.cancel, false); S.queue = mq(); khoOpt(); draw(); showPend(); toast('Đã huỷ (chưa gửi lên)'); return; }
-    call('cancel', { cid: ds.cancel }).then(function(r){ if (r.ok) { S.queue = mq(r.queue); khoOpt(); draw(); showPend(); toast(r.removed ? 'Đã hủy' : 'Máy công ty đã áp dụng rồi'); } }); return; }
+    call('cancel', { cid: ds.cancel }).then(function(r){ if (r.ok) { S.queue = mq(r.queue); khoOpt(); draw(); showPend(); toast(r.removed ? 'Đã hủy' : 'Máy chủ đã áp dụng rồi'); } }); return; }
   if (ds.qre) { var rj = qRejL(), x0 = rj.filter(function(x){ return x.cid === ds.qre; })[0]; qRejSave(rj.filter(function(x){ return x.cid !== ds.qre; })); if (x0) send(x0.op, x0.id, x0.data, x0.td); showPend(); return; }
   if (ds.qbo) { qRejSave(qRejL().filter(function(x){ return x.cid !== ds.qbo; })); showPend(); return; }
   if (ds.hoanto !== undefined && t) { send('hoan', t.id, { den: ds.hoanto }, t.td); return; }
@@ -1613,7 +1613,7 @@ document.addEventListener('click', function(ev){
     else if (a === 'edit') showEdit(t);
     else if (a === 'log') { var lt = $('logTxt'); if (lt) { lt.focus(); lt.scrollIntoView({ block:'center' }); } }
     else if (a === 'logsave') { var v = ($('logTxt').value || '').trim(); if (!v) { toast('Nhập nội dung'); return; } send('log', t.id, { nd: v }, t.td); }
-    else if (a === 'xoa') { if (confirm('Xóa việc «' + t.td + '»? (vào thùng rác trên máy công ty, khôi phục được trong 30 ngày)')) { var id = t.id, tdd = t.td; closeSheet(); if (S.desk) S.sel = null; send('xoa', id, {}, tdd); } }
+    else if (a === 'xoa') { if (confirm('Xóa việc «' + t.td + '»? (vào thùng rác trên máy chủ, khôi phục được trong 30 ngày)')) { var id = t.id, tdd = t.td; closeSheet(); if (S.desk) S.sel = null; send('xoa', id, {}, tdd); } }
     else if (a === 'editok') {
       var e = {}, nt = $('eTd').value.trim();
       if (nt && nt !== t.td) e.td = nt;
@@ -1723,8 +1723,8 @@ drawKho = function(){
   if (['dh','px','bh','duyet','ke'].indexOf(t) < 0) return drawKho93();
   var K = S.kho, h = kTabs();
   h += '<div class="hint" style="margin:0 2px 6px">' + esc(K.ten) + ' · số liệu lúc ' + esc((S.kown && S.kown.luc) || K.luc) + '</div>';
-  var pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy công ty: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
-  if (!S.kown) return h + '<div class="empty">Máy công ty chưa gửi phần dữ liệu chủ kho (cần Sổ công việc bản 9.4d và đang bật đồng bộ web).' + (S.kownErr ? '<br>Lỗi lưu trên Google: ' + esc(S.kownErr) : '') + '</div>';
+  var pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy chủ: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
+  if (!S.kown) return h + '<div class="empty">Máy chủ chưa gửi phần dữ liệu chủ kho (cần Sổ công việc bản 9.4d và đang bật đồng bộ web).' + (S.kownErr ? '<br>Lỗi lưu trên Google: ' + esc(S.kownErr) : '') + '</div>';
   return h + ({ dh: kDhView, px: kPxView, bh: kBhView, duyet: kDuyetView, ke: kKeView })[t]();
 };
 /* ---------- ton kho: bam ma -> lo / han, vi tri ke, the kho ---------- */
@@ -1816,7 +1816,7 @@ function showKPxNew(){
     h += '<div style="border-top:1px dashed var(--line);padding:6px 0"><div class="grid2"><div><input id="kpxM' + i + '" class="inp" list="kvtl" placeholder="Mã" value="' + esc(r.ma) + '"></div><div style="display:flex;gap:4px"><input id="kpxS' + i + '" class="inp" type="number" min="0" step="any" inputmode="decimal" placeholder="SL" value="' + esc(r.sl) + '"><button class="btn sm red" data-ko="pxdel" data-v="' + i + '">&#10005;</button></div></div>' +
       '<div class="hint">' + (v ? esc(v[1]) + ' · tồn <b>' + kN(v[4]) + ' ' + esc(v[2]) + '</b>' + (+r.sl > v[4] ? ' <span style="color:var(--red)">- QUÁ TỒN (máy sẽ chặn)</span>' : '') : (r.ma ? '<span style="color:var(--red)">không có mã này</span>' : '')) + '</div>' +
       kPxLoCo(i, r, v, ls) + '</div>'; });
-  h += '<div style="display:flex;gap:6px"><button class="btn pri sm" style="flex:1" data-ko="pxquet">&#128247; Quét mã thêm dòng</button><button class="btn sm" data-ko="pxrow">+ Thêm dòng</button></div></div>' + kKyBox() + '<button class="btn pri" style="width:100%" data-ko="pxsend">Gửi lập phiếu</button><div class="hint">Máy công ty lập phiếu khi đồng bộ: kiểm tra tồn, tách lô theo hạn (FEFO), không cho xuất quá tồn. Kết quả xem ở chuông thông báo.</div>';
+  h += '<div style="display:flex;gap:6px"><button class="btn pri sm" style="flex:1" data-ko="pxquet">&#128247; Quét mã thêm dòng</button><button class="btn sm" data-ko="pxrow">+ Thêm dòng</button></div></div>' + kKyBox() + '<button class="btn pri" style="width:100%" data-ko="pxsend">Gửi lập phiếu</button><div class="hint">Máy chủ lập phiếu khi đồng bộ: kiểm tra tồn, tách lô theo hạn (FEFO), không cho xuất quá tồn. Kết quả xem ở chuông thông báo.</div>';
   openSheet(h); kKyGan();
   S.kpxRows.forEach(function(r, i){ var e = $('kpxM' + i); if (e) e.addEventListener('change', function(){ kPxRead(); showKPxNew(); }); });
   if (S.kpxFocus != null) { var fe = $('kpxS' + S.kpxFocus); S.kpxFocus = null; if (fe) setTimeout(function(){ try { fe.focus(); fe.scrollIntoView({ block: 'center' }); } catch(e){} }, 120); }
@@ -1900,7 +1900,9 @@ function kLeView(){
   var CDC = { NHAC: ['#16A34A', '● Nhắc'], HIEN: ['#2563EB', '● Chỉ hiện'], AN: ['#4B5563', '● Ẩn'] };
   var h = '<div class="chips">' + [['HIEN','Đang hiện / nhắc'],['ALL','Tất cả (cả mục ẩn)']].map(function(x){ return '<button class="chip' + (f === x[0] ? ' on' : '') + '" data-ko="lef" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>';
   h += '<div class="hint" style="margin:0 2px 8px">' + LE_CD.map(function(c){ return '<span style="background:' + CDC[c[0]][0] + ';color:#fff;border-radius:6px;padding:1px 7px;font-weight:600">' + CDC[c[0]][1] + '</span>'; }).join(' ') + ' &nbsp;Nhắc = báo trước + Telegram · Chỉ hiện = chỉ xem · Ẩn = không hiện. Không tính báo cáo trễ / hoàn thành.</div>';
-  var rs = ds.filter(function(x){ return f === 'ALL' || x[4] !== 'AN'; }), th = '', body = '';
+  var kd = S.kleDays || +(lsGet('scv_kled') || 90), lim = addDays(kd);
+  h += '<div class="chips">' + [[90, '90 ngày'], [183, '6 tháng'], [366, '1 năm']].map(function(x){ return '<button class="chip' + (kd === x[0] ? ' on' : '') + '" data-kled="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>';
+  var rs = ds.filter(function(x){ return (f === 'ALL' || x[4] !== 'AN') && String(x[0]) <= lim; }), th = '', body = '';
   rs.forEach(function(x){
     var m = String(x[0]).substr(0, 7); if (m !== th) { th = m; body += '<div class="sec">Tháng ' + esc(m.substr(5, 2) + '/' + m.substr(0, 4)) + '</div>'; }
     var con = +x[2], cc = con === 0 ? 'red' : con <= 3 ? 'orange' : '', nghi = !!x[7], an = x[4] === 'AN';
@@ -1909,7 +1911,7 @@ function kLeView(){
       '<span class="tag ' + cc + '" style="white-space:nowrap">' + (con === 0 ? 'HÔM NAY' : con === 1 ? 'ngày mai' : 'còn ' + con + ' ngày') + '</span>' +
       '<select class="inp" style="width:auto;color:#fff;font-weight:600;background:' + (CDC[x[4]] || CDC.HIEN)[0] + '" data-kle="' + esc(x[5]) + '">' + LE_CD.map(function(c){ return '<option value="' + c[0] + '"' + (x[4] === c[0] ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div>';
   });
-  h += '<div class="box"><h3>90 ngày tới (' + rs.length + ')</h3>' + (rs.length ? body : '<div class="hint">Không có.</div>') + '</div>';
+  h += '<div class="box"><h3>' + (kd >= 366 ? '1 năm tới' : (kd >= 183 ? '6 tháng tới' : '90 ngày tới')) + ' (' + rs.length + ')</h3>' + (rs.length ? body : '<div class="hint">Không có.</div>') + '</div>';
   h += '<div class="box"><h3>Đặt cả nhóm</h3>' + nhs.map(function(n){ return '<div class="mini"><span>' + esc(LE_NHOM[n] || n || 'Khác') + '</span><span>' + LE_CD.map(function(c){ return '<button class="btn sm" style="color:#fff;background:' + CDC[c[0]][0] + ';border-color:' + CDC[c[0]][0] + '" data-ko="lenhom" data-v="' + esc(n + '|' + c[0]) + '">' + c[1] + '</button>'; }).join(' ') + '</span></div>'; }).join('') + '</div>';
   return h;
 }
@@ -2087,7 +2089,7 @@ function kkDon(){
 }
 function kKKView(){
   var ds = kkDots();
-  if (!ds.length) return '<div class="empty">Chưa có đợt kiểm kê đang mở.<br><br>Trên máy công ty: <b>Kho &gt; Kiểm kê &gt; "+ Phiếu kiểm kê mới"</b> (theo kệ hoặc toàn kho).<br>Đợt mới sẽ hiện ở đây sau 1-2 phút.</div>';
+  if (!ds.length) return '<div class="empty">Chưa có đợt kiểm kê đang mở.<br><br>Trên máy chủ: <b>Kho &gt; Kiểm kê &gt; "+ Phiếu kiểm kê mới"</b> (theo kệ hoặc toàn kho).<br>Đợt mới sẽ hiện ở đây sau 1-2 phút.</div>';
   kkDon();
   var d = kkDot(), rows = kkRows(d), dem = 0, lech = 0, chuaGui = 0;
   rows.forEach(function(x){ var v = kkVal(x); if (v != null) { dem++; if (kkDiff(x)) lech++; } if (x.loc && !x.loc.sent) chuaGui++; });
@@ -2113,7 +2115,7 @@ function kKKView(){
     list += '<div class="mini" data-kk="dem" data-k="' + esc(x.k) + '" style="cursor:pointer;padding:9px 2px"><span><b>' + esc(x.ma) + '</b> ' + esc(x.ten) + (x.lo || x.co ? ' <span class="hint">' + esc([x.lo ? 'lô ' + x.lo : '', x.co ? 'cỡ ' + x.co : ''].filter(Boolean).join(' · ')) + '</span>' : '') + (x.moi ? ' <span class="hint">(ngoài phiếu)</span>' : '') + '</span>' + r + (x.loc && !x.loc.sent ? ' <span title="chưa gửi về máy">&#8987;</span>' : '') + '</div>';
   });
   h += '<div class="box">' + (list || '<div class="hint">' + (loc === 'chua' ? '&#127881; Đã đếm hết các mã trong danh sách này.' : 'Không có mã nào.') + '</div>') + (f.length > 300 ? '<div class="hint">Chỉ hiện 300 dòng - lọc theo ô / gõ mã.</div>' : '') + '</div>';
-  return h + '<div class="hint" style="margin:6px 2px 20px">Số sổ sách không hiện trước khi đếm (đếm khách quan) - gõ số xong mới báo lệch. Đếm xong: bấm <b>Chênh lệch &amp; CHỐT</b> ở trên (hoặc chốt trên máy công ty).</div>';
+  return h + '<div class="hint" style="margin:6px 2px 20px">Số sổ sách không hiện trước khi đếm (đếm khách quan) - gõ số xong mới báo lệch. Đếm xong: bấm <b>Chênh lệch &amp; CHỐT</b> ở trên (hoặc chốt trên máy chủ).</div>';
 }
 /* ---------- o nhap so dem ---------- */
 function kkMo(k){
@@ -2172,7 +2174,7 @@ function kkGui(im){
     if (!r || !r.ok) { if (!im || (r && r.err)) toast('Chưa gửi được số kiểm kê: ' + ((r && r.err) || 'lỗi'), 4000); return; }
     S.queue = mq(r.queue || S.qSrv); khoOpt();
     var a2 = kkLoad(), L2 = a2[job.id] || {}; job.ks.forEach(function(k){ if (L2[k] && L[k] && L2[k].luc === L[k].luc && L2[k].sl === L[k].sl) L2[k].sent = true; }); kkSave(a2);
-    if (!im) toast('Đã gửi ' + rows.length + ' số về máy công ty' + (isOnline() ? '' : ' (máy công ty đang tắt - bật lên sẽ nhận)'), 2500);
+    if (!im) toast('Đã gửi ' + rows.length + ' số về máy chủ' + (isOnline() ? '' : ' (máy chủ đang tắt - bật lên sẽ nhận)'), 2500);
     draw(); if (Object.keys(a2).some(function(id){ return Object.keys(a2[id]).some(function(k){ return !a2[id][k].sent; }); })) setTimeout(function(){ kkGui(true); }, 1500);
   }).catch(function(){ S.kkGuiDang = false; if (!im) toast('Không gửi được (mạng yếu?) - số vẫn lưu trên điện thoại'); });
 }
@@ -2277,8 +2279,8 @@ var drawKho97 = drawKho;
 drawKho = function(){
   if (S.role || !S.kho || S.ktab !== 'kk') return drawKho97();
   var h = kTabs(); var pd = kPend().filter(function(c){ return c.op === 'kkdem'; });
-  if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' lần gửi số kiểm kê đang chờ máy công ty nhận' + (isOnline() ? '' : ' (máy công ty đang tắt)') + '</div>';
-  if (!S.kown) return h + '<div class="empty">Máy công ty chưa gửi phần dữ liệu chủ kho (cần đồng bộ web đang bật).</div>';
+  if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' lần gửi số kiểm kê đang chờ máy chủ nhận' + (isOnline() ? '' : ' (máy chủ đang tắt)') + '</div>';
+  if (!S.kown) return h + '<div class="empty">Máy chủ chưa gửi phần dữ liệu chủ kho (cần đồng bộ web đang bật).</div>';
   return h + kKKView();
 };
 /* ===================== 9.8: NHAP / XUAT KHO TREN DIEN THOAI (chu kho) ===================== */
@@ -2375,7 +2377,7 @@ function showKPnNew(){
       (S.kpnRows || (S.kpnRows = [{ ma: d[1], sl: d[4], co: '', lo: '', han: '' }])).map(function(r, i){ return '<div class="grid2" style="margin-top:6px"><div><label class="f">Số lượng lĩnh về (' + esc(d[3]) + ')</label><input id="kpnS' + i + '" class="inp" type="number" min="0" step="any" inputmode="decimal" style="font-size:22px" value="' + esc(r.sl) + '"><input id="kpnM' + i + '" type="hidden" value="' + esc(d[1]) + '"></div><div>' + (cs.length ? '<label class="f">Cỡ</label>' + kPnCoH('kpnC' + i, d[1], r.co) : '') + '</div></div>'; }).join('') +
       (cs.length ? '<button class="btn sm" style="margin-top:6px" data-kn="cothem">+ Thêm cỡ khác</button>' : '') +
       '<label class="f">Ghi chú</label><input id="kpnGc" class="inp" value="' + esc(hd.gc) + '"></div>' +
-      '<button class="btn green" style="width:100%" data-kn="gui">Gửi lập phiếu nhập</button><div class="hint">Máy công ty lập phiếu "Lĩnh từ kho chung ERP" gắn với đơn ' + esc(d[0]) + ', kiểm tra không lĩnh quá số chờ lĩnh.</div>';
+      '<button class="btn green" style="width:100%" data-kn="gui">Gửi lập phiếu nhập</button><div class="hint">Máy chủ lập phiếu "Lĩnh từ kho chung ERP" gắn với đơn ' + esc(d[0]) + ', kiểm tra không lĩnh quá số chờ lĩnh.</div>';
   } else {
     if (!S.kpnRows || !S.kpnRows.length) S.kpnRows = [{ ma: '', sl: '', co: '', lo: '', han: '' }];
     var vm = kVtMap();
@@ -2396,7 +2398,7 @@ function showKPnNew(){
 }
 function kPnDs(){
   var q = S.kpnTim || '', cl = (kOwn().cl || []).filter(function(d){ return !q || kMatch(d[0] + ' ' + d[1] + ' ' + d[2], q); });
-  if (!(kOwn().cl || []).length) return '<div class="empty">Không có đơn nào đang chờ lĩnh ở kho chung (theo số liệu máy công ty gửi lên).</div>';
+  if (!(kOwn().cl || []).length) return '<div class="empty">Không có đơn nào đang chờ lĩnh ở kho chung (theo số liệu máy chủ gửi lên).</div>';
   if (!cl.length) return '<div class="hint">Không thấy đơn nào.</div>';
   return cl.map(function(d, i){ return '<div class="mini" data-kn="don" data-v="' + esc(d[0] + '|' + d[1]) + '" style="cursor:pointer;padding:9px 2px"><span><b>' + esc(d[1]) + '</b> ' + esc(d[2]) + '<br><span class="hint">Đơn ' + esc(d[0]) + ' · kho ' + esc(d[5]) + '</span></span><span class="tag orange" style="white-space:nowrap">chờ lĩnh ' + kN(d[4]) + ' ' + esc(d[3]) + '</span></div>'; }).join('');
 }
@@ -2539,7 +2541,7 @@ function kkNewSheet(){
     '<div class="box"><h3>&#128205; Theo kệ</h3><input id="kkKe" class="inp" list="kkKeL" placeholder="Mã kệ, vd A-01" autocomplete="off"><datalist id="kkKeL">' + Object.keys(kes).sort().map(function(k){ return '<option value="' + esc(k) + '">'; }).join('') + '</datalist><button class="btn pri" style="width:100%;margin-top:6px" data-k9="kknew" data-v="KE">Tạo phiếu theo kệ</button></div>' +
     '<div class="box"><h3>&#128221; Danh sách mã</h3><textarea id="kkMas" class="inp" placeholder="Mỗi dòng / dấu phẩy 1 mã - hoặc bấm Quét để thêm"></textarea><div style="display:flex;gap:6px;margin-top:6px"><button class="btn" style="flex:1" data-k9="kkquetds">&#128247; Quét thêm mã</button><button class="btn pri" style="flex:1" data-k9="kknew" data-v="DS">Tạo phiếu</button></div></div>' +
     '<div class="box"><h3>&#127970; Toàn kho</h3><button class="btn" style="width:100%" data-k9="kknew" data-v="ALL">Tạo phiếu toàn kho</button></div>' +
-    '<div class="hint">Máy công ty tạo phiếu (lấy tồn sổ sách theo lô / cỡ), khoảng 1 phút sau hiện ở tab Kiểm kê.</div>');
+    '<div class="hint">Máy chủ tạo phiếu (lấy tồn sổ sách theo lô / cỡ), khoảng 1 phút sau hiện ở tab Kiểm kê.</div>');
 }
 function kkNewGui(kieu){
   var d = { kieu: kieu };
@@ -2666,7 +2668,7 @@ function kPnNhieuGui(){
 
 /* ---------- tab tro ly ---------- */
 function kTroView(){
-  var t = kOwn().tro; if (!t) return '<div class="empty">Máy công ty chưa gửi dữ liệu trợ lý (cần bản 9.9a).</div>';
+  var t = kOwn().tro; if (!t) return '<div class="empty">Máy chủ chưa gửi dữ liệu trợ lý (cần bản 9.9a).</div>';
   var mc = { DO: 'red', CAM: 'orange', VANG: 'blue' }, h = '<div class="box"><div style="display:flex;align-items:center;gap:12px"><div style="font-size:34px;font-weight:800;color:' + (t.diem >= 85 ? 'var(--green)' : t.diem >= 60 ? 'var(--orange)' : 'var(--red)') + '">' + (t.diem == null ? '-' : t.diem) + '</div><div><b>Sức khoẻ dữ liệu kho</b><div class="hint">/100 điểm · ' + (t.muc || []).length + ' mục cần xử lý</div></div></div>' +
     (t.muc || []).map(function(m, i){ return '<details style="border-top:1px dashed var(--line);padding:6px 0"><summary style="cursor:pointer"><span class="tag ' + mc[m[2]] + '">' + m[1] + '</span> ' + esc(m[0]) + '</summary><div class="hint">Cách sửa: ' + esc(m[3]) + '</div>' + (m[4] || []).map(function(x){ return '<div class="hint">· ' + esc(x) + '</div>'; }).join('') + '</details>'; }).join('') + '</div>';
   h += '<div class="box"><h3>&#128221; Kiểm kê xoay vòng ABC: ' + (t.xvDen || 0) + ' mã đến hạn</h3>' + (t.xv || []).slice(0, 15).map(function(x){ return '<div class="mini"><span><span class="tag ' + (x[2] === 'A' ? 'red' : x[2] === 'B' ? 'orange' : '') + '">' + esc(x[2]) + '</span> <b>' + esc(x[0]) + '</b> ' + esc(x[1]) + '<br><span class="hint">' + (x[5] ? 'đếm lần cuối ' + kD(x[5]) : 'chưa từng đếm') + (x[4] ? ' · ' + esc(x[4]) : '') + '</span></span><span class="hint">' + (x[3] < 0 ? 'trễ ' + (-x[3]) + ' ngày' : 'đến hạn') + '</span></div>'; }).join('') +
@@ -2680,7 +2682,7 @@ function kTroView(){
 }
 /* ---------- tab bao cao ---------- */
 function kBcView(){
-  var b = kOwn().bc; if (!b) return '<div class="empty">Máy công ty chưa gửi báo cáo (cần bản 9.9a).</div>';
+  var b = kOwn().bc; if (!b) return '<div class="empty">Máy chủ chưa gửi báo cáo (cần bản 9.9a).</div>';
   var tg = [0, 0, 0]; (b.to || []).forEach(function(x){ tg[0] += x[2]; tg[1] += x[3]; tg[2] += x[4]; });
   var h = '<div class="box"><h3>Tiêu hao theo tổ (giá trị)</h3><table class="dk"><tr><th>Tổ</th><th>Tháng này</th><th>Tháng trước</th><th>Năm nay</th></tr>' + (b.to || []).map(function(x){ var tang = x[3] > 0 && x[2] > x[3] * 1.5; return '<tr><td><b>' + esc(x[0]) + '</b><br><span class="hint">' + esc(x[1]) + '</span></td><td class="num"' + (tang ? ' style="color:var(--red);font-weight:700"' : '') + '>' + kN(x[2]) + '</td><td class="num">' + kN(x[3]) + '</td><td class="num">' + kN(x[4]) + '</td></tr>'; }).join('') +
     '<tr><td><b>Cộng</b></td><td class="num"><b>' + kN(tg[0]) + '</b></td><td class="num"><b>' + kN(tg[1]) + '</b></td><td class="num"><b>' + kN(tg[2]) + '</b></td></tr></table><div class="hint">Tháng ' + esc(b.t0) + ' so với ' + esc(b.t1) + '. Đỏ = tăng trên 50%.</div></div>';
@@ -2710,8 +2712,8 @@ function kNvSua(ma){
 var drawKho99a = drawKho;
 drawKho = function(){
   if (S.role || !S.kho || ['tro', 'bc', 'ql'].indexOf(S.ktab) < 0) return drawKho99a();
-  var h = kTabs(), pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy công ty: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
-  if (!S.kown) return h + '<div class="empty">Máy công ty chưa gửi phần dữ liệu chủ kho.</div>';
+  var h = kTabs(), pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy chủ: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
+  if (!S.kown) return h + '<div class="empty">Máy chủ chưa gửi phần dữ liệu chủ kho.</div>';
   h += '<div class="hint" style="margin:0 2px 6px">Số liệu lúc ' + esc(S.kown.luc || '') + '</div>';
   return h + ({ tro: kTroView, bc: kBcView, ql: kQlView })[S.ktab]();
 };
@@ -2806,8 +2808,8 @@ function kViecView(){
 var drawKho99c = drawKho;
 drawKho = function(){
   if (S.role || !S.kho || S.ktab !== 'viec') return drawKho99c();
-  var h = kTabs(), pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy công ty: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
-  if (!S.kown) return h + '<div class="empty">Máy công ty chưa gửi phần dữ liệu chủ kho.</div>';
+  var h = kTabs(), pd = kPend(); if (pd.length) h += '<div class="pend">&#8987; ' + pd.length + ' thao tác kho đang chờ máy chủ: ' + pd.map(function(c){ return esc(opName(c)); }).join('; ') + '</div>';
+  if (!S.kown) return h + '<div class="empty">Máy chủ chưa gửi phần dữ liệu chủ kho.</div>';
   return h + '<div class="hint" style="margin:0 2px 6px">Số liệu lúc ' + esc(S.kown.luc || '') + '</div>' + kViecView();
 };
 document.addEventListener('click', function(ev){ var el = ev.target.closest('[data-k9]'); if (!el || S.role) return; var a = el.dataset.k9, v = el.dataset.v;
@@ -2982,12 +2984,12 @@ function kAnhThem(){ return !S.role && (!S.thayTk || ((S.thay && S.thay.q) || []
 function kAnhXem(ma){
   var M = String(ma).toUpperCase(), v = ((S.kho || {}).vt || []).filter(function(x){ return String(x[0]).toUpperCase() === M; })[0];
   var h = '<div class="sh-h"><h2>&#128247; ' + esc(M) + (v ? ' · ' + esc(v[8] || v[1]) : '') + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box" id="kanhBox"><span class="spin"></span> Đang tải ảnh…</div>';
-  if (kAnhThem()) h += '<div class="box"><label class="btn pri" style="display:block;text-align:center">&#128247; Chụp / chọn ảnh mới<input id="kanhF" data-ma="' + esc(M) + '" type="file" accept="image/*" capture="environment" style="display:none"></label><div class="hint">Ảnh tự thu nhỏ, lưu vào Google Drive và gửi về máy công ty gắn vào mã ' + esc(M) + '.</div></div>';
+  if (kAnhThem()) h += '<div class="box"><label class="btn pri" style="display:block;text-align:center">&#128247; Chụp / chọn ảnh mới<input id="kanhF" data-ma="' + esc(M) + '" type="file" accept="image/*" capture="environment" style="display:none"></label><div class="hint">Ảnh tự thu nhỏ, lưu vào Google Drive và gửi về máy chủ gắn vào mã ' + esc(M) + '.</div></div>';
   openSheet(h);
   call('anh', { ma: M }).then(function(r){ var b = $('kanhBox'); if (!b) return;
     if (!r || !r.ok) { b.innerHTML = '<div class="hint">' + esc((r && r.err) || 'Không tải được ảnh') + '</div>'; return; }
     var a = r.anh || []; b.innerHTML = a.length ? a.map(function(x, i){ return '<img src="' + x.data + '" alt="' + esc(M) + '" style="width:100%;border-radius:8px;margin-bottom:6px' + (i ? '' : ';border:2px solid var(--blue,#2563eb)') + '">'; }).join('') + '<div class="hint">' + a.length + ' ảnh' + (a.length >= 6 ? ' (hiện 6 ảnh đầu)' : '') + '</div>'
-      : '<div class="hint">Mã này chưa có ảnh trên Drive (ảnh mới thêm trên máy công ty sẽ lên sau vài phút).</div>';
+      : '<div class="hint">Mã này chưa có ảnh trên Drive (ảnh mới thêm trên máy chủ sẽ lên sau vài phút).</div>';
   }).catch(function(e){ var b = $('kanhBox'); if (b) b.innerHTML = '<div class="hint">Lỗi tải ảnh: ' + esc(e && e.message || e) + '</div>'; });
 }
 function kAnhGui(ma, file){
@@ -2998,7 +3000,7 @@ function kAnhGui(ma, file){
       var g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(im, 0, 0, cv.width, cv.height);
       call('anhmoi', { ma: ma, img: cv.toDataURL('image/jpeg', 0.82) }).then(function(x){
         if (!x || !x.ok) { toast((x && x.err) || 'Không gửi được ảnh', 8000); return; }
-        toast('Đã lưu ảnh ' + ma + ' - máy công ty sẽ gắn vào mã ở lần đồng bộ tới', 5000); kAnhXem(ma);
+        toast('Đã lưu ảnh ' + ma + ' - máy chủ sẽ gắn vào mã ở lần đồng bộ tới', 5000); kAnhXem(ma);
       }).catch(function(e){ toast('Lỗi gửi ảnh: ' + (e && e.message || e), 6000); });
     }; im.onerror = function(){ toast('Không đọc được ảnh này', 5000); }; im.src = rd.result; };
   rd.readAsDataURL(file);
@@ -3078,7 +3080,7 @@ function kKpMoiSheet(){
 function kXeView(){
   var ds = (S.kho.xe || []), h = '<button class="btn pri" style="width:100%;margin-bottom:8px" data-xea="moi">+ Ghi chuyến xe</button>';
   h += '<div class="box"><h3>Chuyến gần đây</h3>' + (ds.length ? ds.map(function(x){ return '<div class="mini"><span><b>' + esc(x[0]) + '</b> ' + esc(String(x[1]).substr(5)) + ' → ' + esc(String(x[2]).substr(11)) + ' · ' + (x[4] - x[3]) + ' km<br><span class="hint">' + esc(x[5] || '') + ' · ' + esc(x[6] || '') + '</span></span></div>'; }).join('') : '<div class="hint">Chưa có.</div>') + '</div>';
-  h += '<div class="hint">Máy công ty kiểm tra: ≤ 20 km/chuyến, tốc độ TB ≤ 40 km/h, km nối chuyến trước, mượn ≤ 5 phút trước giờ đi, né 11:30-13:00, trong 06:30-18:00. Cuối tháng xuất file mỗi xe 1 bảng.</div>';
+  h += '<div class="hint">Máy chủ kiểm tra: ≤ 20 km/chuyến, tốc độ TB ≤ 40 km/h, km nối chuyến trước, mượn ≤ 5 phút trước giờ đi, né 11:30-13:00, trong 06:30-18:00. Cuối tháng xuất file mỗi xe 1 bảng.</div>';
   return h;
 }
 function kXeSheet(){
@@ -3119,6 +3121,8 @@ document.addEventListener('click', function(e){
     send('xe', '', dx, 'Sổ xe ' + dx.xe + ' ' + (dx.km1 - dx.km0) + ' km').then(function(ok){ if (ok) { (S.kho.xe = S.kho.xe || []).unshift([dx.xe, dx.tu, dx.den, +dx.km0, +dx.km1, dx.nguoi2, dx.md, dx.loai]); closeSheet(); draw(); } });
   }
 }, true);
+
+document.addEventListener('click', function(e){ var el = e.target && e.target.closest ? e.target.closest('[data-kled]') : null; if (!el) return; e.preventDefault(); e.stopPropagation(); S.kleDays = +el.dataset.kled; lsSet('scv_kled', String(S.kleDays)); draw(); }, true);
 })();
 
 
