@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.9-202611090921';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.9-202611091041';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -1889,6 +1889,10 @@ function kDuyetOk(v){
   send('kduyet', '', { loai: loai, cach: cach, ids: ids, ghi: ghi }, ({ DX: 'Đề xuất', TON: 'Báo tồn', DN: 'Đề nghị' })[loai] + ' ' + ids.length + ' dòng').then(function(ok){ if (ok) { ids.forEach(function(i){ delete sel[loai + '|' + i]; }); draw(); } });
 }
 /* ---------- le & ngay nho ---------- */
+// 10.9a: thu trong tuan cho lich le (CN do, T7 cam)
+function kThuHtml(d){ var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(d || '')); if (!m) return ''; var w = new Date(+m[1], +m[2] - 1, +m[3]).getDay();
+  var t = ['Chủ nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'][w];
+  return '<b style="color:' + (w === 0 ? '#DC2626' : (w === 6 ? '#D97706' : 'inherit')) + '">' + t + '</b>, '; }
 function kLeView(){
   if (S.role) return '';
   var ds = (S.snap && S.snap.le) || kOwn().le || [], f = S.klef || 'HIEN', nhs = [];
@@ -1901,7 +1905,7 @@ function kLeView(){
     var m = String(x[0]).substr(0, 7); if (m !== th) { th = m; body += '<div class="sec">Tháng ' + esc(m.substr(5, 2) + '/' + m.substr(0, 4)) + '</div>'; }
     var con = +x[2], cc = con === 0 ? 'red' : con <= 3 ? 'orange' : '', nghi = !!x[7], an = x[4] === 'AN';
     body += '<div class="mini" style="align-items:center;' + (nghi ? 'background:rgba(250,204,21,.18);border-radius:8px;padding:6px;' : '') + (an ? 'opacity:.55;' : '') + '"><span><b' + (x[4] === 'NHAC' ? ' style="color:var(--green)"' : '') + '>' + esc(x[1]) + '</b>' + (nghi ? ' <span class="tag orange">nghỉ</span>' : '') +
-      '<br><span class="hint">' + kD(x[0]) + (x[6] ? ' · âm ' + esc(x[6]) : '') + ' · ' + esc(LE_NHOM[x[3]] || x[3] || '') + '</span></span>' +
+      '<br><span class="hint">' + kThuHtml(x[0]) + kD(x[0]) + (x[6] ? ' · âm ' + esc(x[6]) : '') + ' · ' + esc(LE_NHOM[x[3]] || x[3] || '') + '</span></span>' +
       '<span class="tag ' + cc + '" style="white-space:nowrap">' + (con === 0 ? 'HÔM NAY' : con === 1 ? 'ngày mai' : 'còn ' + con + ' ngày') + '</span>' +
       '<select class="inp" style="width:auto;color:#fff;font-weight:600;background:' + (CDC[x[4]] || CDC.HIEN)[0] + '" data-kle="' + esc(x[5]) + '">' + LE_CD.map(function(c){ return '<option value="' + c[0] + '"' + (x[4] === c[0] ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div>';
   });
