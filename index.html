@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.6a-202611071147';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.9-202611090921';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -1858,15 +1858,16 @@ function showKBhForm(kind){
   if (kind === 'cap') h += '<label class="f">Ngày phiếu</label><input id="kbhNgay" class="inp" type="date" value="' + today() + '"><label class="f">Lý do' + (som ? ' (bắt buộc nếu quy tắc "cấp trước hạn" là Cảnh báo - có ' + som + ' dòng chưa đến hạn)' : ' (nếu có)') + '</label><input id="kbhLd" class="inp" maxlength="200"><div class="hint">Mỗi tổ 1 phiếu, lấy lô / cỡ theo hạn. Quy tắc Chặn / Cảnh báo áp dụng như trên máy.</div>';
   if (kind === 'hoan') h += '<label class="f">Hoãn đến ngày</label><input id="kbhDen" class="inp" type="date" value="' + addDays(14) + '">';
   if (kind === 'hoan' || kind === 'khong') h += '<label class="f">Lý do</label><input id="kbhLd" class="inp" maxlength="200">';
+  if (kind === 'cap') { S.kpxKy = null; h += kKyBox(); }
   h += '<button class="btn pri" style="width:100%;margin-top:10px" data-ko="bhok" data-v="' + kind + '">Gửi</button></div>';
-  openSheet(h);
+  openSheet(h); if (kind === 'cap') setTimeout(kKyGan, 30);
 }
 function kBhOk(kind){
   var r = kBhSelRows(), rows = r.map(function(x){ return { nv: x[1], ma: x[3], bp: x[0], ten: x[2] }; }), ld = $('kbhLd') ? $('kbhLd').value.trim() : '';
   if ((kind === 'hoan' || kind === 'khong') && !ld) { toast('Ghi lý do'); return; }
-  var p = kind === 'cap' ? send('kbhcap', '', { rows: rows, ngay: $('kbhNgay').value, ld: ld }, 'Cấp BHLĐ ' + rows.length + ' dòng') :
+  var p = kind === 'cap' ? send('kbhcap', '', { rows: rows, ngay: $('kbhNgay').value, ld: ld, ky: S.kpxKy || '' }, 'Cấp BHLĐ ' + rows.length + ' dòng' + (S.kpxKy ? ' (có chữ ký)' : '')) :
     send('kbhhoan', '', { rows: rows, loai: kind === 'hoan' ? 'HOAN' : (kind === 'khong' ? 'KHONG' : 'BO'), den: $('kbhDen') ? $('kbhDen').value : '', ld: ld }, ({ hoan: 'Hoãn', khong: 'Không cấp', bo: 'Bỏ hoãn' })[kind] + ' BHLĐ ' + rows.length + ' dòng');
-  p.then(function(ok){ if (ok) { S.kbhSel = {}; closeSheet(); draw(); } });
+  p.then(function(ok){ if (ok) { S.kbhSel = {}; S.kpxKy = null; closeSheet(); draw(); } });
 }
 /* ---------- banh sua cho duyet ---------- */
 function kDuyetView(){
@@ -2998,6 +2999,122 @@ function kAnhGui(ma, file){
     }; im.onerror = function(){ toast('Không đọc được ảnh này', 5000); }; im.src = rd.result; };
   rd.readAsDataURL(file);
 }
+
+/* ===== 10.9: THEO DOI KHAC PHUC (to truong bao xong + anh) · SO XE CONG VU (chu kho) ===== */
+var KPLOAI = { HOBUN: 'Hố lắng bùn', MUONG: 'Mương nước', '5S': '5S', ANTOAN: 'An toàn', KHAC: 'Khác' };
+var KPTT = { MO: 'Chưa xong', XONG: 'Đã xong - chờ nghiệm thu', NGHIEMTHU: 'Đã nghiệm thu' };
+try { if (typeof KOT !== 'undefined' && !KOT.some(function(x){ return x[0] === 'kp'; })) { KOT.push(['kp', '&#128736; Khắc phục']); KOT.push(['xe', '&#128663; Sổ xe']); } } catch(e) {}
+var kTabs109 = kTabs;
+kTabs = function(){
+  var h = kTabs109();
+  if (S.role && S.kho && (S.kho.kp || []).length) {
+    var n = (S.kho.kp || []).filter(function(x){ return x[6] === 'MO'; }).length;
+    var chip = '<button class="chip' + (S.ktab === 'kp' ? ' on' : '') + '" data-kt="kp">&#128736; Khắc phục' + (n ? ' <span class="tag red">' + n + '</span>' : '') + '</button>';
+    if (h.indexOf('<div class="chips">') >= 0) h = h.replace('<div class="chips">', '<div class="chips">' + chip);
+    else h += '<div class="chips"><button class="chip' + (S.ktab === 'sb' ? ' on' : '') + '" data-kt="sb">&#129371; Bánh sữa</button>' + chip + '</div>';
+  }
+  return h;
+};
+var drawKho109 = drawKho;
+drawKho = function(){
+  if (S.kho && S.ktab === 'kp') return kTabs() + kKpView();
+  if (S.kho && S.ktab === 'xe' && !S.role) return kTabs() + kXeView();
+  return drawKho109();
+};
+function kKpView(){
+  var K = S.kho, ds = (K.kp || []).slice(), f = S.kpLoc || 'MO', h = '';
+  var dem = { MO: 0, XONG: 0, NGHIEMTHU: 0 }; ds.forEach(function(x){ dem[x[6]] = (dem[x[6]] || 0) + 1; });
+  h += '<div class="chips">' + [['MO', 'Chưa xong'], ['XONG', 'Chờ nghiệm thu'], ['NGHIEMTHU', 'Đã nghiệm thu'], ['*', 'Tất cả']].map(function(x){ return '<button class="chip' + (f === x[0] ? ' on' : '') + '" data-kpf="' + x[0] + '">' + x[1] + (x[0] !== '*' ? ' (' + (dem[x[0]] || 0) + ')' : '') + '</button>'; }).join('') + '</div>';
+  if (!S.role) h += '<button class="btn pri" style="width:100%;margin:4px 0 8px" data-kpa="moi">+ Thêm hạng mục (chụp ảnh hiện trường)</button>';
+  var td = today(), n = 0;
+  ds.filter(function(x){ return f === '*' || x[6] === f; }).forEach(function(x){
+    n++; var qua = x[6] === 'MO' && x[5] && x[5] < td;
+    h += '<div class="mini"' + (qua ? ' style="border-left:4px solid #DC2626"' : '') + '><span><b>' + esc(x[1] || '') + '</b> ' + esc(x[4]) + '<br><span class="hint">Tổ ' + esc(x[2]) + (x[3] ? ' · ' + esc(x[3]) : '') + ' · ' + esc(KPLOAI[x[10]] || '') + (x[5] ? ' · hạn ' + esc(kD(x[5])) : '') + (qua ? ' <b style="color:#DC2626">QUÁ HẠN</b>' : '') +
+      (x[7] ? ' · xong ' + esc(kD(x[7])) : '') + ' · ' + esc(KPTT[x[6]] || x[6]) + (x[9] ? ' · <a href="' + esc(x[9]) + '" target="_blank">ảnh sau</a>' : '') + '</span></span>' +
+      (x[6] === 'MO' ? '<button class="btn sm pri" data-kpa="xong" data-kpid="' + esc(x[0]) + '">Báo xong</button>' : (!S.role && x[6] === 'XONG' ? '<button class="btn sm" data-kpa="nt" data-kpid="' + esc(x[0]) + '">Nghiệm thu</button>' : '')) + '</div>';
+  });
+  if (!n) h += '<div class="empty">Không có hạng mục nào.</div>';
+  return h;
+}
+function kKpAnh(file, id, cb){
+  toast('Đang gửi ảnh…', 15000);
+  var rd = new FileReader();
+  rd.onload = function(){ var im = new Image(); im.onload = function(){
+      var k = Math.min(1, 1280 / Math.max(im.width, im.height)), cv = document.createElement('canvas'); cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k);
+      var g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(im, 0, 0, cv.width, cv.height);
+      call('kpanh', { id: id, img: cv.toDataURL('image/jpeg', 0.8) }).then(function(x){ if (!x || !x.ok) { toast((x && x.err) || 'Không gửi được ảnh', 8000); cb(''); return; } toast('Đã lưu ảnh', 2500); cb(x.url || ''); }).catch(function(e){ toast('Lỗi gửi ảnh: ' + (e && e.message || e), 6000); cb(''); });
+    }; im.onerror = function(){ toast('Không đọc được ảnh', 5000); cb(''); }; im.src = rd.result; };
+  rd.readAsDataURL(file);
+}
+function kKpXongSheet(id, nt){
+  var x = ((S.kho || {}).kp || []).filter(function(r){ return r[0] === id; })[0]; if (!x) return;
+  S.kpAnhUrl = '';
+  openSheet('<div class="sh-h"><h2>' + (nt ? 'Nghiệm thu' : 'Báo đã khắc phục xong') + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><b>' + esc(x[1] || '') + '</b> ' + esc(x[4]) + '<div class="hint">Tổ ' + esc(x[2]) + (x[3] ? ' · ' + esc(x[3]) : '') + '</div>' +
+    '<label class="f">Ngày xong</label><input id="kpNg" class="inp" type="date" value="' + today() + '">' +
+    '<label class="f">Ảnh sau khi xong (chụp ngay)</label><input id="kpF" class="inp" type="file" accept="image/*" capture="environment"><div id="kpFs" class="hint"></div>' +
+    (x[10] === 'HOBUN' ? '<label class="f">Lượng bùn (kg, nếu có)</label><input id="kpKg" class="inp" type="number" min="0" inputmode="decimal">' : '') +
+    '<label class="f">Ghi chú</label><input id="kpGc" class="inp" maxlength="300">' +
+    '<button class="btn pri" style="width:100%;margin-top:10px" data-kpa="gui" data-kpid="' + esc(id) + '" data-kpnt="' + (nt ? 1 : 0) + '">Gửi</button></div>');
+  $('kpF').addEventListener('change', function(){ var f = this.files && this.files[0]; if (!f) return; $('kpFs').textContent = 'Đang gửi ảnh…'; kKpAnh(f, id, function(u){ S.kpAnhUrl = u; $('kpFs').textContent = u ? '✓ Đã có ảnh' : 'Chưa gửi được ảnh - thử lại'; }); });
+}
+function kKpMoiSheet(){
+  S.kpAnhUrl = '';
+  var bps = []; try { (S.kho.sb.bp || []).forEach(function(b){ bps.push(b[0]); }); } catch(e) {}
+  openSheet('<div class="sh-h"><h2>Thêm hạng mục khắc phục</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box">' +
+    '<label class="f">Loại</label><select id="kpLo" class="inp">' + Object.keys(KPLOAI).map(function(k){ return '<option value="' + k + '">' + KPLOAI[k] + '</option>'; }).join('') + '</select>' +
+    '<label class="f">Tổ phụ trách</label><input id="kpBp" class="inp" list="kpBpL" placeholder="vd 2210"><datalist id="kpBpL">' + bps.map(function(b){ return '<option value="' + esc(b) + '">'; }).join('') + '</datalist>' +
+    '<label class="f">Mã (không bắt buộc, vd 2210-T01-05)</label><input id="kpMa" class="inp" maxlength="40">' +
+    '<label class="f">Khu vực / tuyến</label><input id="kpKhu" class="inp" maxlength="120">' +
+    '<label class="f">Nội dung cần khắc phục</label><textarea id="kpNd" class="inp" rows="3" maxlength="400"></textarea>' +
+    '<label class="f">Hạn</label><input id="kpHan" class="inp" type="date" value="' + addDays(7) + '">' +
+    '<label class="f">Ảnh hiện trạng (trước)</label><input id="kpF" class="inp" type="file" accept="image/*" capture="environment"><div id="kpFs" class="hint"></div>' +
+    '<button class="btn pri" style="width:100%;margin-top:10px" data-kpa="guimoi">Thêm</button></div>');
+  $('kpF').addEventListener('change', function(){ var f = this.files && this.files[0]; if (!f) return; $('kpFs').textContent = 'Đang gửi ảnh…'; kKpAnh(f, '', function(u){ S.kpAnhUrl = u; $('kpFs').textContent = u ? '✓ Đã có ảnh' : 'Chưa gửi được ảnh'; }); });
+}
+function kXeView(){
+  var ds = (S.kho.xe || []), h = '<button class="btn pri" style="width:100%;margin-bottom:8px" data-xea="moi">+ Ghi chuyến xe</button>';
+  h += '<div class="box"><h3>Chuyến gần đây</h3>' + (ds.length ? ds.map(function(x){ return '<div class="mini"><span><b>' + esc(x[0]) + '</b> ' + esc(String(x[1]).substr(5)) + ' → ' + esc(String(x[2]).substr(11)) + ' · ' + (x[4] - x[3]) + ' km<br><span class="hint">' + esc(x[5] || '') + ' · ' + esc(x[6] || '') + '</span></span></div>'; }).join('') : '<div class="hint">Chưa có.</div>') + '</div>';
+  h += '<div class="hint">Máy công ty kiểm tra: ≤ 20 km/chuyến, tốc độ TB ≤ 40 km/h, km nối chuyến trước, mượn ≤ 5 phút trước giờ đi, né 11:30-13:00, trong 06:30-18:00. Cuối tháng xuất file mỗi xe 1 bảng.</div>';
+  return h;
+}
+function kXeSheet(){
+  var last = (S.kho.xe || [])[0] || [], nd = today(), gio = new Date(); var hm = pad(gio.getHours()) + ':' + pad(gio.getMinutes());
+  var f = function(id, lb, tp, v, ex){ return '<label class="f">' + lb + '</label><input id="' + id + '" class="inp" type="' + tp + '" value="' + esc(v == null ? '' : v) + '"' + (ex || '') + '>'; };
+  openSheet('<div class="sh-h"><h2>Ghi chuyến xe</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box">' +
+    f('xeSo', 'Biển số / mã xe', 'text', last[0] || '') + '<label class="f">Loại</label><select id="xeLo" class="inp"><option value="OTO"' + (last[7] === 'MOTO' ? '' : ' selected') + '>Ô tô 公務車</option><option value="MOTO"' + (last[7] === 'MOTO' ? ' selected' : '') + '>Xe máy 公務機車</option></select>' +
+    f('xeNg', 'Người sử dụng', 'text', '') + f('xeNgay', 'Ngày', 'date', nd) + f('xeMuon', 'Giờ mượn', 'time', hm) + f('xeTu', 'Giờ đi', 'time', hm) + f('xeDen', 'Giờ về', 'time', '') +
+    f('xeK0', 'Km đầu', 'number', last[4] || '', ' inputmode="decimal"') + f('xeK1', 'Km cuối', 'number', '', ' inputmode="decimal"') + f('xeDi', 'Đi từ', 'text', '') + f('xeToi', 'Đến', 'text', '') + f('xeMd', 'Mục đích', 'text', '') +
+    '<label class="mini"><input type="checkbox" id="xeKt" checked> <span>Kiểm tra trước & sau xe: đạt (Y)</span></label>' +
+    '<button class="btn pri" style="width:100%;margin-top:10px" data-xea="gui">Gửi</button></div>');
+}
+document.addEventListener('click', function(e){
+  var el = e.target && e.target.closest ? e.target.closest('[data-kpf],[data-kpa],[data-xea]') : null; if (!el) return;
+  e.preventDefault(); e.stopPropagation();
+  if (el.dataset.kpf) { S.kpLoc = el.dataset.kpf; draw(); return; }
+  var a = el.dataset.kpa;
+  if (a === 'moi') { kKpMoiSheet(); return; }
+  if (a === 'xong' || a === 'nt') { kKpXongSheet(el.dataset.kpid, a === 'nt'); return; }
+  if (a === 'gui') {
+    var id = el.dataset.kpid, x = (S.kho.kp || []).filter(function(r){ return r[0] === id; })[0] || [], nt = el.dataset.kpnt === '1';
+    var d = { id: id, bp: x[2] || '', tt: nt ? 'NGHIEMTHU' : 'XONG', ngay: $('kpNg').value, gc: $('kpGc').value.trim(), anh: S.kpAnhUrl || '', kg: $('kpKg') ? $('kpKg').value : '' };
+    send('kkp', '', d, (nt ? 'Nghiệm thu ' : 'Khắc phục xong ') + (x[1] || String(x[4] || '').substr(0, 30))).then(function(ok){ if (ok) { x[6] = d.tt; x[7] = d.ngay; if (d.anh) x[9] = d.anh; closeSheet(); draw(); } });
+    return;
+  }
+  if (a === 'guimoi') {
+    var dm = { loai: $('kpLo').value, bp: $('kpBp').value.trim().toUpperCase(), ma: $('kpMa').value.trim(), khu: $('kpKhu').value.trim(), nd: $('kpNd').value.trim(), han: $('kpHan').value, anh: S.kpAnhUrl || '' };
+    if (!dm.bp || !dm.nd) { toast('Ghi tổ và nội dung'); return; }
+    send('kpmoi', '', dm, 'Khắc phục mới tổ ' + dm.bp).then(function(ok){ if (ok) closeSheet(); });
+    return;
+  }
+  var b = el.dataset.xea;
+  if (b === 'moi') { kXeSheet(); return; }
+  if (b === 'gui') {
+    var ng = $('xeNgay').value, kt = $('xeKt').checked ? 'Y' : 'N';
+    var dx = { xe: $('xeSo').value.trim().toUpperCase(), loai: $('xeLo').value, nguoi2: $('xeNg').value.trim(), muon: $('xeMuon').value ? ng + ' ' + $('xeMuon').value : '', tu: ng + ' ' + $('xeTu').value, den: $('xeDen').value ? ng + ' ' + $('xeDen').value : '', km0: $('xeK0').value, km1: $('xeK1').value, di: $('xeDi').value.trim(), toi: $('xeToi').value.trim(), md: $('xeMd').value.trim(), k0: kt, k1: kt };
+    if (!dx.xe || !$('xeTu').value || !$('xeDen').value || !dx.km1) { toast('Ghi xe, giờ đi, giờ về, km cuối'); return; }
+    send('xe', '', dx, 'Sổ xe ' + dx.xe + ' ' + (dx.km1 - dx.km0) + ' km').then(function(ok){ if (ok) { (S.kho.xe = S.kho.xe || []).unshift([dx.xe, dx.tu, dx.den, +dx.km0, +dx.km1, dx.nguoi2, dx.md, dx.loai]); closeSheet(); draw(); } });
+  }
+}, true);
 })();
 
 
