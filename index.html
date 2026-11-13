@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.11-202611131317';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.12-202611131659';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -3827,6 +3827,93 @@ ttLuu = function(c, td){ if (S.snap) { S.snap.ti = S.snap.ti || {}; S.snap.ti.tt
 /* dong tom tat o tab Hom nay: cau tra loi nhanh */
 var ttDong1011 = ttDong;
 ttDong = function(){ var h0 = ttDong1011(); if (!h0) return h0; try { return h0.replace(/<br><span style="opacity:\.9;font-size:13px">[\s\S]*?<\/span><\/div><\/div><\/div>$/, '<br><span style="opacity:.92;font-size:13px">' + ttCauChinh() + '</span></div></div></div>'); } catch(e){ return h0; } };
+
+/* ===== 10.12: kieu xem Mua, bam ngay xem chi tiet, 10 ngay ===== */
+function ttM(){ return S.ttM === 'm' ? 'm' : 'c'; }
+function ttNut(){ var m = ttM(); return '<span style="float:right;display:inline-flex;gap:4px;margin-top:-5px;text-transform:none;letter-spacing:0">' + [['c', '&#9729; Chung'], ['m', '&#128167; Mưa']].map(function(x){ return '<button class="ttp' + (m === x[0] ? ' on' : '') + '" style="padding:3px 10px;font-size:12px" data-tta="tm" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</span>'; }
+function ttGioNgay(n){ return (n && n.g || []).filter(function(x){ return x; }).map(function(x){ return { d: n.d, x: x }; }); }
+/* bieu do theo gio. L = [{d,x}], mode 'c' | 'm', nay = chi so gio hien tai (-1 neu khong co) */
+function ttBieuDo2(L, mode, nay){
+  if (L.length < 3) return '';
+  var W = 40, n = L.length, w = n * W, mua = mode === 'm', H = mua ? 172 : 196, lo = 99, hi = -99, mx = 0;
+  L.forEach(function(o){ if (o.x[4] < lo) lo = o.x[4]; if (o.x[4] > hi) hi = o.x[4]; if (o.x[1] > mx) mx = o.x[1]; }); if (hi - lo < 4) { hi += 2; lo -= 2; }
+  var qua = function(i){ return nay >= 0 && i < nay; }, yT = function(t){ return 102 - 36 * (t - lo) / (hi - lo); }, h = '', sc = mua ? Math.max(4, Math.ceil(mx)) : Math.max(mx, 1);
+  L.forEach(function(o, i){ var x = o.x, X = i * W; if (x[7] === 0) h += '<rect x="' + X + '" y="0" width="' + W + '" height="' + H + '" fill="rgba(0,0,20,.22)"/>'; if (!mua && ttGioKho(x) && x[7] !== 0) h += '<rect x="' + X + '" y="158" width="' + W + '" height="6" fill="rgba(134,239,172,.55)"/>'; });
+  if (nay > 0) h += '<rect x="0" y="0" width="' + (nay * W) + '" height="' + H + '" fill="rgba(255,255,255,.08)"/>';
+  L.forEach(function(o, i){ var X = i * W; if (o.x[0] === 0 && i) h += '<line x1="' + X + '" y1="0" x2="' + X + '" y2="' + H + '" stroke="rgba(255,255,255,.6)" stroke-dasharray="3 3"/><text x="' + (X + 3) + '" y="' + (H - 4) + '" fill="#fff" font-size="10" font-weight="700">' + esc(ttTenNgay(o.d)) + '</text>';
+    var nn = ttNgay(o.d); if (nn) [['moc', '↑', '#FDE68A'], ['lan', '↓', '#FDBA74']].forEach(function(m){ var v = String(nn[m[0]] || ''), mm = /^(\d{1,2}):(\d{2})$/.exec(v); if (mm && +mm[1] === o.x[0]) { var xx = X + W * (+mm[2]) / 60; h += '<line x1="' + xx + '" y1="' + (mua ? 50 : 108) + '" x2="' + xx + '" y2="' + (mua ? 142 : 156) + '" stroke="' + m[2] + '" stroke-width="1.5"/><text x="' + (xx + 2) + '" y="' + (mua ? 60 : 118) + '" fill="' + m[2] + '" font-size="9.5" font-weight="700">☀' + m[1] + v + '</text>'; } }); });
+  if (mua) {
+    L.forEach(function(o, i){ var x = o.x, X = i * W, bh = x[1] >= 0.1 ? Math.max(3, 86 * Math.min(1, x[1] / sc)) : 0, op = qua(i) ? ' opacity=".5"' : '';
+      h += '<rect x="' + (X + 9) + '" y="54" width="' + (W - 18) + '" height="88" rx="5" fill="rgba(255,255,255,.12)"' + op + '/>';
+      if (bh) h += '<rect x="' + (X + 9) + '" y="' + (142 - bh) + '" width="' + (W - 18) + '" height="' + bh + '" rx="4" fill="' + (x[1] >= 5 ? '#3B82F6' : x[1] >= 1 ? '#60A5FA' : '#93C5FD') + '"' + op + '/>' + '<text x="' + (X + W / 2) + '" y="' + (138 - bh) + '" fill="#fff" font-size="9.5" font-weight="700" text-anchor="middle"' + op + '>' + x[1] + '</text>';
+      h += '<text x="' + (X + W / 2) + '" y="158" fill="' + (x[2] >= 50 ? '#BAE6FD' : 'rgba(255,255,255,.7)') + '" font-size="10.5" font-weight="' + (x[2] >= 50 ? 700 : 400) + '" text-anchor="middle"' + op + '>' + x[2] + '%</text>'; });
+  } else {
+    L.forEach(function(o, i){ var x = o.x, X = i * W, bh = x[1] > 0 ? Math.max(2, 30 * x[1] / sc) : 0, op = qua(i) ? ' opacity=".5"' : ''; if (bh) h += '<rect x="' + (X + 10) + '" y="' + (156 - bh) + '" width="' + (W - 20) + '" height="' + bh + '" rx="3" fill="#7DD3FC"' + op + '/>'; if (x[2] >= 30) h += '<text x="' + (X + W / 2) + '" y="' + (152 - bh) + '" fill="#BAE6FD" font-size="9.5" text-anchor="middle"' + op + '>' + x[2] + '%</text>'; });
+    var pt = function(o, i){ return (i * W + W / 2).toFixed(1) + ',' + yT(o.x[4]).toFixed(1); };
+    if (nay > 0) h += '<polyline points="' + L.slice(0, nay + 1).map(pt).join(' ') + '" fill="none" stroke="#FDE047" stroke-width="2.5" stroke-dasharray="5 4" opacity=".7"/>';
+    h += '<polyline points="' + L.map(pt).slice(Math.max(0, nay)).join(' ') + '" fill="none" stroke="#FDE047" stroke-width="2.5" stroke-linejoin="round"/>';
+    L.forEach(function(o, i){ var x = o.x, X = i * W + W / 2; h += '<circle cx="' + X + '" cy="' + yT(x[4]).toFixed(1) + '" r="' + (i === nay ? 4.5 : 3) + '" fill="#fff"' + (qua(i) ? ' opacity=".5"' : '') + '/><text x="' + X + '" y="' + (yT(x[4]) - 8).toFixed(1) + '" fill="#fff" font-size="12" font-weight="700" text-anchor="middle"' + (qua(i) ? ' opacity=".55"' : '') + '>' + x[4] + '°</text>'; });
+  }
+  L.forEach(function(o, i){ var x = o.x, X = i * W + W / 2, op = qua(i) ? ' opacity=".55"' : '';
+    h += '<text x="' + X + '" y="14" fill="#fff" font-size="11" text-anchor="middle"' + (i === nay ? ' font-weight="800"' : (qua(i) ? ' opacity=".55"' : ' opacity=".85"')) + '>' + (i === nay ? 'Bây giờ' : x[0] + 'h') + '</text>';
+    h += '<g' + op + '>' + ttSvg(ttMucGio(x), x[3], 26, x[7] === 0).replace('<svg ', '<svg x="' + (X - 13) + '" y="18" ') + '</g>';
+    if (!mua) h += '<g transform="translate(' + (X - 9) + ',176) rotate(' + (((x[6] || 0) + 180) % 360) + ' 6 6)"' + op + '><path d="M6 0l4 6H7.5v6h-3V6H2z" fill="#fff" opacity=".85"/></g><text x="' + (X + 5) + '" y="187" fill="#fff" font-size="10" opacity=".85">' + (x[5] || 0) + '</text>'; });
+  return '<div class="ttsx" style="overflow-x:auto;padding-bottom:4px"><svg width="' + w + '" height="' + H + '" viewBox="0 0 ' + w + ' ' + H + '" style="display:block">' + h + '</svg></div>' +
+    '<div class="tth" style="font-size:11.5px;margin-top:4px">' + (mua ? 'Cột xanh: lượng mưa từng giờ (số trên cột = mm) · số dưới: khả năng mưa · cột cao hết khung = từ ' + sc + ' mm/giờ trở lên · nền tối: ban đêm' : '— vàng: nhiệt độ · cột xanh: mưa (mm, %) · vạch xanh lá: giờ khô ban ngày · nền tối: ban đêm · ☀↑↓ mặt trời mọc / lặn · mũi tên: chiều gió thổi đi, số = km/h') + (nay > 0 ? ' · phần mờ / nét đứt: giờ đã qua' : '') + '</div>';
+}
+/* 12 cot nho (moi cot 2 gio) cho 1 ngay; ngay khong co theo gio -> 3 cot sang / chieu / toi */
+function ttCotNgay(x){
+  var g = (x.g || []).filter(function(z){ return z; }), h = '', W = 108, HH = 28;
+  if (g.length >= 12) { var bin = []; for (var k = 0; k < 12; k++) bin.push([0, 0, 0]); g.forEach(function(z){ var b = bin[Math.min(11, Math.floor(z[0] / 2))]; b[0] += z[1]; if (z[2] > b[1]) b[1] = z[2]; if (z[7] === 0) b[2]++; });
+    var mx = Math.max(3, Math.max.apply(null, bin.map(function(b){ return b[0]; })));
+    bin.forEach(function(b, k){ var X = k * 9, bh = b[0] >= 0.1 ? Math.max(3, HH * Math.min(1, b[0] / mx)) : (b[1] >= 50 ? 2 : 0); h += '<rect x="' + X + '" y="0" width="6" height="' + HH + '" rx="3" fill="' + (b[2] >= 2 ? 'rgba(0,0,0,.28)' : 'rgba(255,255,255,.16)') + '"/>' + (bh ? '<rect x="' + X + '" y="' + (HH - bh) + '" width="6" height="' + bh + '" rx="2" fill="' + (b[0] >= 4 ? '#3B82F6' : '#7DD3FC') + '"/>' : ''); });
+  } else { (x.b || []).forEach(function(b, k){ var X = k * 37, bh = b[0] >= 0.1 ? Math.max(3, HH * Math.min(1, b[0] / 10)) : 0; h += '<rect x="' + X + '" y="0" width="34" height="' + HH + '" rx="4" fill="rgba(255,255,255,.16)"/>' + (bh ? '<rect x="' + X + '" y="' + (HH - bh) + '" width="34" height="' + bh + '" rx="3" fill="' + (b[0] >= 2 ? '#3B82F6' : '#7DD3FC') + '"/>' : ''); }); }
+  return '<svg width="' + W + '" height="' + HH + '" viewBox="0 0 ' + W + ' ' + HH + '" style="flex:none;display:block">' + h + '</svg>';
+}
+function ttThuNgan(d){ var x = pDate(d); return x ? ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'][x.getDay()] : d; }
+/* bang chi tiet 1 ngay */
+function ttNgaySheet(d){
+  var D = (S.tt && S.tt.ngay) || [], i = -1; D.forEach(function(x, k){ if (x.d === d) i = k; }); if (i < 0) return; var x = D[i], g = ttDanhGia(x), m = ttMucNgay(x), L = ttGioNgay(x), td = today(), h0 = new Date().getHours(), nay = -1; S.ttNg = d;
+  if (d === td) L.forEach(function(o, k){ if (o.x[0] === h0) nay = k; });
+  var h = '<div class="ttw" style="margin:0;border-radius:16px;background:' + ttNen(m, x.code, false) + '"><div class="ttsx" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:6px">' + D.map(function(z, k){ var on = z.d === d; return '<button data-tta="ngay" data-v="' + esc(z.d) + '" style="flex:none;border:0;border-radius:12px;padding:5px 8px;min-width:42px;text-align:center;color:' + (on ? '#1c2330' : '#fff') + ';background:' + (on ? '#fff' : 'rgba(255,255,255,.14)') + (k >= 7 ? ';opacity:.65' : '') + '"><div style="font-size:11px;font-weight:700">' + ttThuNgan(z.d) + '</div><div style="font-size:16px;font-weight:700">' + (+z.d.slice(8)) + '</div><div style="font-size:9.5px;font-weight:800;color:' + (on ? TTDGC[ttDanhGia(z).m][1] : TTDGC[ttDanhGia(z).m][0]) + '">' + TTDG[ttDanhGia(z).m] + '</div></button>'; }).join('') + '</div>';
+  h += '<div style="display:flex;align-items:center;gap:10px;margin-top:6px">' + ttSvg(m, x.code, 52, false) + '<div style="flex:1"><div style="font-size:18px;font-weight:800">' + (d === td || d === addDays(1) ? esc(d === td ? 'Hôm nay' : 'Ngày mai') + ' <span style="font-weight:400;font-size:14px;opacity:.85">' + esc(ttThu(d)) + '</span>' : esc(ttThu(d))) + '</div><div style="font-size:15px">' + x.tmin + '° - ' + x.tmax + '° · ' + ttDGChip(g, true) + '</div></div></div>';
+  h += '<div style="background:rgba(15,23,42,.38);border-radius:12px;padding:9px 11px;margin-top:8px;font-size:14px;line-height:1.45">' + esc(g.ly.charAt(0).toUpperCase() + g.ly.slice(1)) + '.<br><b>' + esc(ttKhuyen(x)) + '</b> ' + esc(ttLamNgoai(x)) + (ttGioMua(x) ? '<br>Giờ có mưa: <b>' + esc(ttGioMua(x)) + '</b>' : '') + '</div>';
+  if (i >= 7) h += '<div class="tth" style="margin-top:6px;font-size:12.5px">&#9888; Ngày thứ ' + (i + 1) + ': độ chính xác thấp, chỉ để tham khảo xu hướng.</div>';
+  h += '<div class="ttc"><div class="ttl">Theo giờ' + ttNut() + '</div>' + (L.length >= 12 ? ttBieuDo2(L, ttM(), nay) : '<div style="font-size:13.5px">Ngày xa chưa có dự báo theo giờ, chỉ có theo buổi:</div><div style="margin-top:6px;display:flex;gap:10px;align-items:center">' + ttSeg(x, true) + ttCotNgay(x) + '</div>') + '</div>';
+  if (L.length >= 12) h += '<div class="ttc"><div class="ttl">&#9200; Khung giờ tốt trong ngày</div>' + ttHD().map(function(hd){ var k = ttKhungNgay(hd, x); return '<div style="margin:3px 0"><b>' + esc(hd[1]) + ':</b> <span class="ttkh" style="background:' + (k.length ? 'rgba(134,239,172,.9);color:#14532D' : 'rgba(254,202,202,.85);color:#7F1D1D') + '">' + (k.length ? k.join(', ') : (d === td && h0 >= hd[3] ? 'đã qua giờ' : 'không có')) + '</span></div>'; }).join('') + '</div>';
+  h += '<div class="ttc" style="font-size:13.5px;line-height:1.6">' + ['Sáng', 'Chiều', 'Tối'].map(function(t, k){ var mb = ttMucBuoi(x.b[k]); return t + ' <b>' + TTMUC[mb] + '</b>' + (x.b[k][0] >= 0.1 ? ' ' + x.b[k][0] + ' mm' : '') + ' · ' + x.b[k][1] + '%'; }).join('<br>') + '<br>Cả ngày: ' + (x.mua >= 0.1 ? '<b>' + x.mua + ' mm</b>' : 'không mưa') + ' · khả năng ' + x.pop + '%<br>Gió từ ' + esc(ttHuongTen(x.huong)) + ' ' + x.gio + ' km/h' + (x.giat ? ' · giật ' + x.giat : '') + (x.uv ? ' · UV ' + x.uv + ' ' + ttUvTen(x.uv).toLowerCase() : '') + (x.moc ? '<br>Mặt trời mọc ' + esc(x.moc) + ' · lặn ' + esc(x.lan) : '') + '</div></div>';
+  var mo = !$('ov').classList.contains('hidden') && $('sheet').querySelector('.ttw'), sx = mo ? $('sheet').scrollTop : 0;
+  openSheet('<div style="display:flex;align-items:center;margin-bottom:8px"><h2 style="flex:1;margin:0;font-size:18px">Thời tiết từng ngày</h2><button class="btn sm" onclick="closeSheet()">Đóng</button></div>' + h);
+  if (mo) $('sheet').scrollTop = sx;
+  if (nay > 1) try { var sv = $('sheet').querySelectorAll('.ttsx')[1]; if (sv) sv.scrollLeft = (nay - 1) * 40; } catch(e){}
+}
+/* ve lai trang: the 24 gio + danh sach 10 ngay */
+var ttView1012 = ttView;
+ttView = function(){
+  var h = ttView1011b();
+  return h;
+};
+function ttView1011b(){
+  S.ttMo = ''; var h = ttView1012(); if (!S.tt || h.indexOf('24 giờ tới') < 0) return h;
+  var L = ttGioList().slice(0, 25);
+  h = h.replace(/<div class="ttc"><div class="ttl">24 giờ tới<\/div>[\s\S]*?(<div class="ttc"><div class="ttl">&#129529;)/, function(a, b){ return '<div class="ttc"><div class="ttl">24 giờ tới' + ttNut() + '</div>' + ttBieuDo2(L, ttM(), 0) + '</div>' + b; });
+  var D = S.tt.ngay || [], n = D.length;
+  h = h.replace('<div class="ttl">7 ngày tới</div>', '<div class="ttl">' + n + ' ngày tới' + ttNut() + '</div>');
+  if (ttM() === 'm') {
+    var i = 0;
+    h = h.replace(/<div class="ttr" data-tta="mo" data-v="([0-9-]+)"([^>]*)>([\s\S]*?)<\/div><\/div>(?=<div class="ttr" data-tta="mo"|<div class="tth" style="margin-top:6px;font-size:12px">Bấm)/g, function(a, d){ var x = ttNgay(d); if (!x) return a; var g = ttDanhGia(x);
+      return '<div class="ttr" data-tta="ngay" data-v="' + esc(d) + '"' + (D.indexOf(x) >= 7 ? ' style="opacity:.6"' : '') + '><div style="width:68px;flex:none;white-space:nowrap"><div style="font-size:15px;font-weight:600">' + (d === today() ? 'Hôm nay' : esc(ttThu(d))) + '</div><div style="font-size:11.5px;font-weight:800;color:' + TTDGC[g.m][0] + '">' + TTDG[g.m] + '</div></div>' + ttCotNgay(x) + '<div style="flex:1;text-align:right;font-size:15px;font-weight:700;white-space:nowrap">' + (x.mua >= 0.1 ? (x.mua >= 10 ? Math.round(x.mua) : x.mua) + ' mm' : '<span style="opacity:.6">0 mm</span>') + '</div><div style="width:52px;flex:none;text-align:right;font-size:14px;' + (x.pop >= 40 ? 'color:#BAE6FD;font-weight:700' : 'opacity:.6') + '">' + (x.pop >= 40 ? '&#128167;' : '') + x.pop + '%</div></div>'; });
+  }
+  h = h.replace(/data-tta="mo" data-v="([0-9-]+)"( style="opacity:\.9")?/g, function(a, d){ var k = -1; D.forEach(function(x, j){ if (x.d === d) k = j; }); return 'data-tta="ngay" data-v="' + d + '"' + (k >= 7 ? ' style="opacity:.6"' : ''); });
+  h = h.replace('Bấm 1 ngày để xem chi tiết. 3 ngày đầu khá chắc, các ngày sau để tham khảo.', 'Bấm 1 ngày để xem theo giờ, khung giờ tốt. 3 ngày đầu khá chắc, 4-7 xem xu hướng, ngày 8 trở đi (chữ mờ) chỉ để tham khảo.');
+  return h;
+}
+document.addEventListener('click', function(ev){
+  var el = ev.target && ev.target.closest ? ev.target.closest('[data-tta="tm"],[data-tta="ngay"]') : null; if (!el || S.role || S.thayTk) return; ev.preventDefault();
+  var v = el.dataset.v || '';
+  if (el.dataset.tta === 'tm') { S.ttM = v; var mo = !$('ov').classList.contains('hidden') && $('sheet').querySelector('.ttw'); if (mo && S.ttNg) ttNgaySheet(S.ttNg); draw(); return; }
+  ttNgaySheet(v);
+}, true);
 
 })();
 
