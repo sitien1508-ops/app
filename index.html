@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.10-202611121350';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.10e-202611130850';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -429,7 +429,7 @@ function tasksView(){
 
 /* ---------- màn hình ---------- */
 var TABS = [
-  ['viec','&#9776;','Việc'], ['homnay','&#9733;','Hôm nay'], ['kho','&#128230;','Kho'], ['oa','&#9993;','Thư OA'], ['nv','&#128101;','Nhân viên'], ['nhac','&#128276;','Nhắc nhở'], ['le','&#127887;','Lễ'], ['ti','&#10024;','Tiện ích'], ['tt','&#127782;','Thời tiết'], ['xong','&#10003;','Đã xong']
+  ['viec','&#9776;','Việc'], ['homnay','&#9733;','Hôm nay'], ['tt','&#127782;','Thời tiết'], ['kho','&#128230;','Kho'], ['oa','&#9993;','Thư OA'], ['nv','&#128101;','Nhân viên'], ['nhac','&#128276;','Nhắc nhở'], ['le','&#127887;','Lễ'], ['ti','&#10024;','Tiện ích'], ['xong','&#10003;','Đã xong']
 ];
 function roleOf(tok){ var p = String(tok || '').split('.'); return p.length === 3 && p[1].indexOf('~T') !== 0 ? p[1] : ''; }
 function isThay(tok){ var p = String(tok || '').split('.'); return p.length === 3 && p[1].indexOf('~T') === 0; }
@@ -1414,7 +1414,7 @@ function start(){ $('vLogin').classList.add('hidden'); setTimeout(sbQrCheck, 900
 
 
 /* ===================== GIAO DIỆN MÁY TÍNH ===================== */
-var DKT = [['chinh','CÔNG VIỆC CHÍNH'],['nhac','NHẮC NHỞ ĐỊNH KỲ'],['le','LỄ & NGÀY NHỚ'],['oa','THƯ OA (Notes)'],['xong','ĐÃ XONG'],['nv','NHÂN VIÊN'],['ti','TIỆN ÍCH'],['tt','THỜI TIẾT'],['kho','KHO']];
+var DKT = [['chinh','CÔNG VIỆC CHÍNH'],['tt','THỜI TIẾT'],['nhac','NHẮC NHỞ ĐỊNH KỲ'],['le','LỄ & NGÀY NHỚ'],['oa','THƯ OA (Notes)'],['xong','ĐÃ XONG'],['nv','NHÂN VIÊN'],['ti','TIỆN ÍCH'],['kho','KHO']];
 function fDateY(s){ var d = pDate(s); return d ? pad(d.getDate()) + '/' + pad(d.getMonth()+1) + '/' + d.getFullYear() : ''; }
 function setOpts(id, vals, first){
   var el = $(id), cur = el.value, h = first.map(function(x){ return '<option value="' + esc(x[0]) + '">' + esc(x[1]) + '</option>'; }).join('') + vals.map(function(v){ return '<option value="' + esc(v) + '">' + esc(v) + '</option>'; }).join('');
@@ -3362,7 +3362,7 @@ function ttMucNgay(n){ var m = Math.max(ttMucBuoi(n.b[0]), ttMucBuoi(n.b[1])); i
 function ttNgay(d){ var r = null; ((S.tt && S.tt.ngay) || []).forEach(function(n){ if (n.d === d) r = n; }); return r; }
 function ttIcon(m, code){ if (m >= 3) return '&#9928;'; if (m >= 1) return '&#127783;'; return (code >= 1 && code <= 3) || code === 45 || code === 48 ? '&#9925;' : '&#9728;'; }
 function ttCodeTen(c){ c = +c || 0; if (c === 0) return 'trời quang'; if (c <= 2) return 'ít mây'; if (c === 3) return 'nhiều mây'; if (c === 45 || c === 48) return 'sương mù'; if (c >= 51 && c <= 57) return 'mưa phùn'; if (c >= 61 && c <= 67) return 'mưa'; if (c >= 80 && c <= 82) return 'mưa rào'; if (c >= 95) return 'dông'; return 'nhiều mây'; }
-function ttGioMua(n){ var r = [], bd = -1, kt = -1; (n.g || []).forEach(function(x){ var mua = x[1] >= 0.3 || x[2] >= 60; if (mua) { if (bd < 0) bd = x[0]; kt = x[0]; } else if (bd >= 0) { r.push(bd + 'h-' + (kt + 1) + 'h'); bd = -1; } }); if (bd >= 0) r.push(bd + 'h-' + (kt + 1) + 'h'); return r.join(', '); }
+function ttGioMua(n){ var r = [], bd = -1, kt = -1; (n.g || []).forEach(function(x){ if (x[0] < 5 || x[0] > 22) return; var mua = x[1] >= 0.3 || x[2] >= 60; if (mua) { if (bd < 0) bd = x[0]; kt = x[0]; } else if (bd >= 0) { r.push(bd + 'h-' + (kt + 1) + 'h'); bd = -1; } }); if (bd >= 0) r.push(bd + 'h-' + (kt + 1) + 'h'); return r.join(', '); }
 function ttKhuyen(n){ var m = Math.max(ttMucBuoi(n.b[0]), ttMucBuoi(n.b[1]), ttMucBuoi(n.b[2])); if (m >= 2 || (m >= 1 && n.gio >= 30)) return 'Nên mang ÁO MƯA.'; if (m === 1) return 'Mang theo ô / áo mưa mỏng là đủ.'; return 'Không cần áo mưa.'; }
 function ttLamNgoai(n){ var s = ttMucBuoi(n.b[0]), c = ttMucBuoi(n.b[1]); if (s <= 0 && c <= 0) return 'Cả ngày khô - làm ngoài trời được.'; if (s >= 1 && c <= 0) return 'Sáng mưa, chiều khô - việc ngoài trời nên làm từ 13h.'; if (s <= 0 && c >= 1) return 'Sáng khô, chiều mưa - việc ngoài trời nên làm buổi sáng.'; if (s >= 2 || c >= 2) return 'Mưa cả ngày - khó làm việc ngoài trời.'; return 'Mưa nhỏ rải rác - làm ngoài trời được nhưng dễ gián đoạn.'; }
 function ttThu(d){ var x = pDate(d); return x ? THU[x.getDay()] + ' ' + pad(x.getDate()) + '/' + pad(x.getMonth() + 1) : d; }
@@ -3373,7 +3373,7 @@ function ttGoiY(sau){ var kho = ttNgayKho(), g = ''; kho.forEach(function(k){ if
 function ttCanhBaoViec(){ if (!S.tt || !ttCfg().cb) return []; var r = []; tasksView().forEach(function(t){ if (isDone(t) || !t.han) return; var n = ttNgay(t.han); if (!n) return; var m = ttMucNgay(n); if (m < 2 || !ttViecNgoai(t)) return; r.push({ t: t, m: m, gy: ttGoiY(t.han) }); }); return r.sort(function(a, b){ return String(a.t.han).localeCompare(String(b.t.han)); }); }
 function ttTai(ep){
   var n = ttNoi(); if (!n || !S.tok) return;
-  if (!S.tt) { try { var c = JSON.parse(lsGet('scv_tt') || 'null'); if (c && c.lat === n[1] && c.lon === n[2]) S.tt = c; } catch(e){} }
+  if (!S.tt) { try { var c = JSON.parse(lsGet('scv_tt') || 'null'); if (c && c.lat === n[1] && c.lon === n[2] && c.cur && c.cur.am != null) S.tt = c; } catch(e){} }
   if (S.tt && (S.tt.lat !== n[1] || S.tt.lon !== n[2])) S.tt = null;
   if (S.ttDang || (!ep && S.tt && Date.now() - (S.tt.lucWeb || 0) < 30 * 60000)) return;
   S.ttDang = true; S.ttLoi = '';
@@ -3382,35 +3382,81 @@ function ttTai(ep){
 }
 function ttLuu(c, td){ if (S.snap) { S.snap.ti = S.snap.ti || {}; S.snap.ti.tt = c; } try { localStorage.setItem('scv_ttcfg', JSON.stringify(c)); } catch(e){} send('ti', '', { a: 'ttcfg', noi: c.noi, chon: c.chon, tin: c.tin, gio: c.gio, cb: c.cb, nhan: c.nhan }, td || 'Cài đặt thời tiết'); }
 function ttDong(){ var n = ttNoi(); if (!n || !S.tt) return ''; var a = ttNgay(today()), b = ttNgay(addDays(1)); if (!a) return '';
-  var m = ttMucNgay(a), gm = ttGioMua(a);
-  return '<div class="box" data-ttgo="1" style="cursor:pointer;padding:10px 12px"><b>' + ttIcon(m, a.code) + ' ' + esc(n[0]) + ': ' + (S.tt.cur ? S.tt.cur.t + '°C · ' : '') + TTMUC[m] + '</b>' + (gm ? ' <span class="hint">(mưa ' + esc(gm) + ')</span>' : '') + '<br><span class="hint">' + esc(ttKhuyen(a)) + (b ? ' Mai: ' + TTMUC[ttMucNgay(b)] + (ttMucNgay(b) ? ' - ' + esc(ttLamNgoai(b)) : '') : '') + '</span></div>'; }
+  var m = ttMucNgay(a), gm = ttGioMua(a), cur = S.tt.cur || {}, dem = cur.ngay === 0;
+  return '<div data-ttgo="1" style="cursor:pointer;padding:10px 12px;margin-bottom:10px;border-radius:14px;color:#fff;background:' + ttNen(m, cur.code != null ? cur.code : a.code, dem) + '"><div style="display:flex;gap:10px;align-items:center">' + ttSvg(m, cur.code != null ? cur.code : a.code, 46, dem) + '<div style="font-size:30px;font-weight:300;line-height:1">' + (cur.t != null ? cur.t : a.tmax) + '°</div><div style="flex:1"><b>' + esc(n[0]) + ' · ' + TTMUC[m] + '</b>' + (gm ? ' <span style="opacity:.85">(mưa ' + esc(gm) + ')</span>' : '') + '<br><span style="opacity:.9;font-size:13px">' + esc(ttKhuyen(a)) + (b ? ' Mai: ' + TTMUC[ttMucNgay(b)] + (ttMucNgay(b) ? ' - ' + esc(ttLamNgoai(b)) : '') : '') + '</span></div></div></div>'; }
 function ttBuoiChip(n){ return ['Sáng', 'Chiều', 'Tối'].map(function(t, k){ var m = ttMucBuoi(n.b[k]); return '<span class="tag ' + TTMAU[m] + '" style="white-space:nowrap">' + t + ': ' + TTMUC[m] + (m ? ' ' + n.b[k][1] + '%' : '') + '</span>'; }).join(' '); }
+/* 10.10b: giao dien thoi tiet kieu app - nen troi theo thoi tiet, bieu tuong ve, theo gio (nhiet / mua / gio), 7 ngay co thanh nhiet do, o gio - do am - UV - mat troi */
+function ttHuongTen(d){ return ['Bắc', 'Đông Bắc', 'Đông', 'Đông Nam', 'Nam', 'Tây Nam', 'Tây', 'Tây Bắc'][Math.floor((((+d || 0) % 360) + 22.5) / 45) % 8]; }
+function ttUvTen(u){ u = +u || 0; return u < 3 ? 'Thấp' : u < 6 ? 'Trung bình' : u < 8 ? 'Cao' : u < 11 ? 'Rất cao' : 'Cực cao'; }
+function ttMucGio(x){ return x[1] >= 5 ? 3 : x[1] >= 1 ? 2 : (x[1] >= 0.3 || x[2] >= 60) ? 1 : 0; }
+function ttSvg(m, code, s, dem){
+  code = +code || 0; var may = 'M19 47h27a11 11 0 0 0 1.4-21.9A15 15 0 0 0 18.6 21 13 13 0 0 0 19 47z', dong = code >= 95, mu = code === 45 || code === 48;
+  var toi = m >= 3 || dong, cm = toi ? '#8A99AD' : m >= 1 ? '#C9D3DF' : '#E9EEF4', h = '', drop = function(x, y, l){ return '<line x1="' + x + '" y1="' + y + '" x2="' + (x - 3) + '" y2="' + (y + l) + '" stroke="#5CC0FF" stroke-width="2.6" stroke-linecap="round"/>'; };
+  var sun = function(cx, cy, r){ var o = '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="#FFC531"/>'; for (var i = 0; i < 8; i++) { var a = i * Math.PI / 4; o += '<line x1="' + (cx + Math.cos(a) * (r + 3)).toFixed(1) + '" y1="' + (cy + Math.sin(a) * (r + 3)).toFixed(1) + '" x2="' + (cx + Math.cos(a) * (r + 7)).toFixed(1) + '" y2="' + (cy + Math.sin(a) * (r + 7)).toFixed(1) + '" stroke="#FFC531" stroke-width="2.6" stroke-linecap="round"/>'; } return o; };
+  var moon = function(cx, cy, r){ return '<path d="M' + (cx + r * 0.75) + ' ' + (cy + r * 0.55) + 'A' + r + ' ' + r + ' 0 1 1 ' + (cx - r * 0.2) + ' ' + (cy - r * 0.95) + 'A' + (r * 0.78) + ' ' + (r * 0.78) + ' 0 0 0 ' + (cx + r * 0.75) + ' ' + (cy + r * 0.55) + 'z" fill="#F4E3A1"/>'; };
+  var troi = function(cx, cy, r){ return dem ? moon(cx, cy, r) : sun(cx, cy, r); };
+  if (m < 1 && !dong && !mu && code === 0) h = troi(32, 32, dem ? 15 : 12);
+  else if (m < 1 && !dong && !mu && code <= 2) h = troi(23, 23, dem ? 11 : 8) + '<path d="' + may + '" fill="' + cm + '" transform="translate(4 6) scale(.9)"/>';
+  else { h = '<path d="' + may + '" fill="' + cm + '" transform="translate(0 ' + (m >= 1 || dong ? -6 : 2) + ')"/>';
+    if (mu) h += '<line x1="16" y1="52" x2="48" y2="52" stroke="#C9D3DF" stroke-width="2.6" stroke-linecap="round"/><line x1="22" y1="58" x2="42" y2="58" stroke="#C9D3DF" stroke-width="2.6" stroke-linecap="round"/>';
+    if (dong) h += '<path d="M33 40l-7 11h6l-3 9 9-12h-6l4-8z" fill="#FFC531"/>' + drop(21, 46, 8) + drop(47, 46, 8);
+    else if (m >= 3) h += drop(22, 45, 11) + drop(30, 45, 11) + drop(38, 45, 11) + drop(46, 45, 11);
+    else if (m === 2) h += drop(24, 45, 9) + drop(33, 45, 9) + drop(42, 45, 9);
+    else if (m === 1) h += drop(27, 45, 6) + drop(38, 45, 6); }
+  return '<svg viewBox="0 0 64 64" width="' + s + '" height="' + s + '" style="display:block;flex:none">' + h + '</svg>';
+}
+function ttMauNhiet(t){ return t < 12 ? '#6EC6FF' : t < 18 ? '#7BE0C3' : t < 24 ? '#C9E265' : t < 29 ? '#FFD23F' : t < 34 ? '#FF9F1C' : '#F25C3B'; }
+function ttGioDs(){ var D = (S.tt && S.tt.ngay) || [], r = [], h0 = new Date().getHours(), td = today(); D.forEach(function(n){ (n.g || []).forEach(function(x){ if (r.length >= 26) return; if (n.d < td || (n.d === td && x[0] < h0)) return; r.push({ d: n.d, x: x, nay: n.d === td && x[0] === h0 }); }); }); return r; }
+/* 10.10c: sap lai theo muc quan trong: tra loi nhanh 3 ngay (ao mua, buoi nao mua) -> cong viec ngoai troi -> theo gio -> 7 ngay (co 3 o sang / chieu / toi) -> 1 hang chi so */
+var TTSEG = ['rgba(255,255,255,.26)', '#6CC4FF', '#FFB347', '#FF6B6B'];
+function ttSeg(n, to){ return '<span style="display:inline-flex;gap:3px;flex:none">' + ['S', 'C', 'T'].map(function(t, k){ var m = ttMucBuoi(n.b[k]); return '<span title="' + ['Sáng', 'Chiều', 'Tối'][k] + ': ' + TTMUC[m] + '" style="width:' + (to ? 30 : 20) + 'px;height:' + (to ? 30 : 20) + 'px;border-radius:' + (to ? 9 : 6) + 'px;background:' + TTSEG[m] + ';color:' + (m ? '#12213a' : '#fff') + ';font-size:' + (to ? 13 : 11) + 'px;font-weight:700;display:flex;align-items:center;justify-content:center">' + t + '</span>'; }).join('') + '</span>'; }
+function ttAo(n){ var m = Math.max(ttMucBuoi(n.b[0]), ttMucBuoi(n.b[1]), ttMucBuoi(n.b[2])); if (m >= 2 || (m >= 1 && n.gio >= 30)) return ['Áo mưa', '#FF6B6B', '#fff']; if (m === 1) return ['Mang ô', '#6CC4FF', '#12213a']; return ['Không cần', 'rgba(255,255,255,.26)', '#fff']; }
+function ttNgan(n){ var s = ttMucBuoi(n.b[0]), c = ttMucBuoi(n.b[1]), t = ttMucBuoi(n.b[2]); if (s <= 0 && c <= 0) return t >= 1 ? 'Ban ngày khô, tối ' + TTMUC[t] : 'Khô cả ngày'; if (s >= 1 && c <= 0) return 'Sáng ' + TTMUC[s] + ', chiều khô: làm ngoài trời từ 13h'; if (s <= 0 && c >= 1) return 'Sáng khô, chiều ' + TTMUC[c] + ': làm ngoài trời buổi sáng'; if (s >= 2 || c >= 2) return 'Mưa cả ngày: khó làm ngoài trời'; return 'Mưa nhỏ rải rác'; }
+function ttNen(m, code, dem){ if (dem) return 'linear-gradient(180deg,#0B1730 0%,#1E3158 70%,#2C4674 100%)'; if (m >= 2 || code >= 95) return 'linear-gradient(180deg,#36445A 0%,#4F6079 60%,#66798F 100%)'; if (m === 1 || code === 3 || code === 45 || code === 48) return 'linear-gradient(180deg,#465B73 0%,#647C95 60%,#8198AE 100%)'; return 'linear-gradient(180deg,#154FA8 0%,#2E77D0 60%,#4E96E6 100%)'; }
 function ttView(){
-  var c = ttCfg(), n = ttNoi(), h = '';
-  h += '<div class="chips">' + (c.noi || []).map(function(x, i){ return '<button class="chip' + (i === (c.chon || 0) ? ' on' : '') + '" data-tta="chon" data-v="' + i + '">&#128205; ' + esc(x[0]) + '</button>'; }).join('') + '<button class="chip" data-tta="them">&#10133; Thêm nơi</button><button class="chip" data-tta="cd">&#9881; Cài đặt</button></div>';
-  if (!n) return h + '<div class="empty">Chưa chọn nơi xem thời tiết.<br>Bấm "Thêm nơi" rồi gõ tên xã / phường / tỉnh, hoặc dùng vị trí điện thoại.</div>';
-  if (!S.tt) return h + '<div class="empty">' + (S.ttLoi ? esc(S.ttLoi) : 'Đang lấy dự báo...') + '<br><button class="btn sm" style="margin-top:8px" data-tta="moi">Thử lại</button></div>';
-  var D = S.tt.ngay || [], a = ttNgay(today()) || D[0], b = ttNgay(addDays(1)), luc = S.tt.luc ? new Date(S.tt.luc) : null;
-  h += '<div class="hint" style="margin:0 2px 6px">' + esc(n[0]) + ' · cập nhật ' + (luc ? pad(luc.getHours()) + ':' + pad(luc.getMinutes()) + ' ' + pad(luc.getDate()) + '/' + pad(luc.getMonth() + 1) : '?') + (S.ttLoi ? ' · <span style="color:var(--orange)">' + esc(S.ttLoi) + '</span>' : '') + ' <a href="#" data-tta="moi">Làm mới</a></div>';
-  if (a) { var ma = ttMucNgay(a), gma = ttGioMua(a);
-    h += '<div class="box"><div style="display:flex;align-items:center;gap:12px"><div style="font-size:40px;line-height:1">' + ttIcon(ma, a.code) + '</div><div style="flex:1"><div style="font-size:26px;font-weight:800">' + (S.tt.cur ? S.tt.cur.t + '°C' : a.tmin + '-' + a.tmax + '°C') + '</div><div><b>Hôm nay: ' + TTMUC[ma] + '</b> <span class="hint">· ' + esc(ttCodeTen(S.tt.cur ? S.tt.cur.code : a.code)) + ' · ' + a.tmin + '-' + a.tmax + '°C' + (a.mua >= 0.3 ? ' · ' + a.mua + ' mm' : '') + (a.gio >= 30 ? ' · gió ' + a.gio + ' km/h' : '') + '</span></div></div></div>' +
-      '<div style="margin-top:8px">' + ttBuoiChip(a) + '</div>' + (gma ? '<div class="hint" style="margin-top:6px">Giờ có mưa: <b>' + esc(gma) + '</b></div>' : '') + '<div style="margin-top:6px"><b>' + esc(ttKhuyen(a)) + '</b> ' + esc(ttLamNgoai(a)) + '</div>' +
-      ((a.g || []).length ? '<div style="display:flex;gap:2px;overflow-x:auto;margin-top:8px;padding-bottom:4px">' + a.g.map(function(x){ var mh = x[1] >= 5 ? 3 : x[1] >= 1 ? 2 : (x[1] >= 0.3 || x[2] >= 60) ? 1 : 0, now = x[0] === new Date().getHours(); return '<div style="flex:none;width:38px;text-align:center;font-size:11px;padding:4px 0;border-radius:8px;' + (now ? 'background:var(--soft);font-weight:700' : '') + '">' + x[0] + 'h<br><span style="font-size:16px">' + ttIcon(mh, x[3]) + '</span><br>' + x[4] + '°<br><span style="color:var(--' + (mh ? 'pri' : 'muted') + ')">' + x[2] + '%</span></div>'; }).join('') + '</div>' : '') + '</div>'; }
-  if (b) { var mb = ttMucNgay(b), gmb = ttGioMua(b);
-    h += '<div class="box"><h3>Ngày mai (' + esc(ttThu(b.d)) + '): <span class="tag ' + TTMAU[mb] + '">' + TTMUC[mb].toUpperCase() + '</span></h3><div>' + ttBuoiChip(b) + '</div><div class="hint" style="margin-top:6px">' + b.tmin + '-' + b.tmax + '°C' + (b.mua >= 0.3 ? ' · ' + b.mua + ' mm' : '') + (gmb ? ' · giờ có mưa: <b>' + esc(gmb) + '</b>' : '') + '</div><div style="margin-top:6px"><b>' + esc(ttKhuyen(b)) + '</b> ' + esc(ttLamNgoai(b)) + '</div></div>'; }
-  var dk = ttDotKho(), ml = D.filter(function(x, i){ return i >= 1 && i <= 3 && ttMucNgay(x) >= 3; });
-  h += '<div class="box"><h3>&#129529; Kế hoạch vét mương / việc ngoài trời</h3>' + (dk.length ? '<div>Ngày khô: ' + dk.map(function(x){ return '<span class="tag green" style="white-space:nowrap">' + esc(ttThu(x[0])) + (x.length > 1 ? ' &rarr; ' + esc(ttThu(x[x.length - 1])) + ' (' + x.length + ' ngày)' : '') + '</span>'; }).join(' ') + '</div>' : '<div style="color:var(--orange)">7 ngày tới không có ngày nào khô hẳn.</div>') +
-    (ml.length ? '<div style="margin-top:6px;color:var(--red)"><b>&#9888; Mưa to ' + ml.map(function(x){ return esc(ttThu(x.d)); }).join(', ') + '</b> - nên vét mương / kiểm tra hố lắng bùn trước.</div>' : '') + ttKhView() + '</div>';
-  var cb = ttCanhBaoViec();
-  if (cb.length) h += '<div class="box"><h3 style="color:var(--red)">&#128204; Việc ngoài trời rơi vào ngày mưa (' + cb.length + ')</h3>' + cb.map(function(x){ return '<div class="mini" style="align-items:center"><span style="flex:1;cursor:pointer" data-id="' + esc(x.t.id) + '">' + esc(x.t.td) + '<br><span class="tag ' + TTMAU[x.m] + '">' + esc(ttThu(x.t.han)) + ': ' + TTMUC[x.m] + '</span></span>' + (x.gy && String(x.t.id).indexOf('tmp-') ? '<button class="btn sm" data-tta="doi" data-v="' + esc(x.t.id) + '" data-d="' + esc(x.gy) + '">Dời sang ' + esc(ttThu(x.gy)) + '</button>' : '') + '</div>'; }).join('') + '<div class="hint">Chương trình chỉ gợi ý - bấm nút mới đổi hạn.</div></div>';
-  h += '<div class="box"><h3>7 ngày tới</h3>' + D.map(function(x, i){ var m = ttMucNgay(x); return '<div class="mini" style="align-items:center;' + (i >= 3 ? 'opacity:.8' : '') + '"><span style="width:74px;flex:none"><b>' + esc(ttThu(x.d)) + '</b><br><span class="hint">' + x.tmin + '-' + x.tmax + '°</span></span><span style="font-size:20px;flex:none">' + ttIcon(m, x.code) + '</span><span style="flex:1">' + ttBuoiChip(x) + (x.mua >= 0.3 ? '<br><span class="hint">' + x.mua + ' mm' + (x.gio >= 30 ? ' · gió ' + x.gio + ' km/h' : '') + '</span>' : '') + '</span></div>'; }).join('') +
-    '<div class="hint">Ngày 1-3 khá chắc. Từ ngày thứ 4 chỉ để tham khảo (hiện mờ hơn). Nguồn: Open-Meteo, tự làm mới mỗi 30 phút.</div></div>';
-  return h;
+  var c = ttCfg(), n = ttNoi(), dem0 = S.tt && S.tt.cur && S.tt.cur.ngay === 0, a0 = S.tt ? (ttNgay(today()) || (S.tt.ngay || [])[0]) : null;
+  var mh = S.tt && S.tt.cur ? (S.tt.cur.mua >= 5 ? 3 : S.tt.cur.mua >= 1 ? 2 : S.tt.cur.mua >= 0.2 ? 1 : 0) : 0, codeNay = S.tt && S.tt.cur ? S.tt.cur.code : (a0 ? a0.code : 0);
+  var css = '<style>.ttw{margin:-4px -4px 0;padding:10px 10px 16px;border-radius:18px;color:#fff;background:' + ttNen(mh, codeNay, dem0) + '}.ttw .ttc{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:12px;margin-top:10px}.ttw .ttl{font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;opacity:.85;margin-bottom:8px}.ttw .tth{opacity:.85;font-size:13px}.ttw .ttp{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff;border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap}.ttw .ttp.on{background:#fff;color:#1c2330;font-weight:700}.ttw .ttr{display:flex;align-items:center;gap:8px;padding:9px 0;border-top:1px solid rgba(255,255,255,.18);cursor:pointer}.ttw .ttr0{border-top:0}.ttw a{color:#fff}.ttw .mini{border-top-color:rgba(255,255,255,.25)}.ttw .hint{color:rgba(255,255,255,.85)}.ttw .btn.sm{background:rgba(255,255,255,.92);color:#1c2330;border:0}.ttw .ttk{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center}.ttw .ttk b{display:block;font-size:17px}.ttw .ttk span{font-size:11.5px;opacity:.85}</style>';
+  var h = css + '<div class="ttw"><div class="chips" style="padding-bottom:2px">' + (c.noi || []).map(function(x, i){ return '<button class="ttp' + (i === (c.chon || 0) ? ' on' : '') + '" data-tta="chon" data-v="' + i + '">' + esc(x[0]) + '</button>'; }).join('') + '<button class="ttp" data-tta="them">&#10133; Thêm nơi</button><button class="ttp" data-tta="cd">&#9881;</button></div>';
+  if (!n) return h + '<div style="text-align:center;padding:50px 10px">Chưa chọn nơi xem thời tiết.<br><span class="tth">Bấm "Thêm nơi" rồi gõ tên xã / phường / tỉnh, hoặc dùng vị trí điện thoại.</span></div></div>';
+  if (!S.tt) return h + '<div style="text-align:center;padding:50px 10px">' + (S.ttLoi ? esc(S.ttLoi) : 'Đang lấy dự báo...') + '<br><button class="ttp" style="margin-top:10px" data-tta="moi">Thử lại</button></div></div>';
+  var D = S.tt.ngay || [], a = a0, cur = S.tt.cur || {}, luc = S.tt.luc ? new Date(S.tt.luc) : null, ten = mh ? TTMUC[mh] : ttCodeTen(codeNay);
+  /* 1) bay gio - gon */
+  h += '<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 4px 2px">' + ttSvg(mh, codeNay, 70, dem0) + '<div style="font-size:64px;font-weight:200;line-height:1">' + (cur.t != null ? cur.t : a.tmax) + '°</div><div style="text-align:left"><div style="font-size:18px;font-weight:700">' + esc(ten.charAt(0).toUpperCase() + ten.slice(1)) + '</div><div class="tth">' + a.tmin + '° - ' + a.tmax + '°' + (cur.cg != null && Math.abs(cur.cg - cur.t) >= 2 ? ' · cảm giác ' + cur.cg + '°' : '') + '</div><div class="tth">' + (cur.gio != null ? 'Gió ' + cur.gio + ' km/h' : '') + '</div></div></div>';
+  /* 2) tra loi nhanh: hom nay - mai - ngay kia */
+  h += '<div class="ttc"><div class="ttl">Có mưa không · có cần áo mưa</div>' + D.slice(0, 3).map(function(x, i){ var ao = ttAo(x), gm = ttGioMua(x), m = ttMucNgay(x);
+    return '<div class="ttr' + (i ? '' : ' ttr0') + '" style="cursor:default;align-items:flex-start"><div style="width:74px;flex:none;white-space:nowrap"><b style="font-size:15px">' + ['Hôm nay', 'Ngày mai', 'Ngày kia'][i] + '</b><div class="tth" style="font-size:12px">' + esc(ttThu(x.d)) + '</div></div>' + ttSvg(m, x.code, 34, false) +
+      '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + ttSeg(x, true) + '<span style="background:' + ao[1] + ';color:' + ao[2] + ';border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;white-space:nowrap">' + (ao[0] === 'Không cần' ? 'Không cần áo mưa' : ao[0]) + '</span></div><div style="font-size:13.5px;margin-top:5px">' + esc(ttNgan(x)) + (gm ? ' · <b>mưa ' + esc(gm) + '</b>' : '') + (x.mua >= 0.3 ? ' <span class="tth">(' + x.mua + ' mm)</span>' : '') + '</div></div></div>'; }).join('') +
+    '<div class="tth" style="margin-top:8px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">S sáng · C chiều · T tối ' + TTMUC.map(function(t, m){ return '<span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:4px;background:' + TTSEG[m] + ';display:inline-block"></span>' + t + '</span>'; }).join('') + '</div></div>';
+  /* 3) cong viec ngoai troi */
+  var dk = ttDotKho(), ml = D.filter(function(x, i){ return i >= 1 && i <= 3 && ttMucNgay(x) >= 3; }), cb = ttCanhBaoViec(), kv = ttKhView();
+  h += '<div class="ttc"><div class="ttl">&#129529; Vét mương · việc ngoài trời</div>' + (dk.length ? '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><b>Ngày khô:</b> ' + dk.map(function(x){ return '<span style="background:#fff;color:#12703f;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;white-space:nowrap">' + esc(ttThu(x[0])) + (x.length > 1 ? ' &rarr; ' + esc(ttThu(x[x.length - 1])) + ' (' + x.length + ' ngày)' : '') + '</span>'; }).join('') + '</div>' : '<div><b>7 ngày tới không có ngày nào khô hẳn.</b></div>') +
+    (ml.length ? '<div style="margin-top:8px;background:#D93636;border-radius:10px;padding:7px 10px"><b>&#9888; Mưa to ' + ml.map(function(x){ return esc(ttThu(x.d)); }).join(', ') + '</b> - nên vét mương / kiểm tra hố lắng bùn trước.</div>' : '') + kv +
+    (cb.length ? '<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.25);padding-top:6px"><b>Việc ngoài trời trúng ngày mưa (' + cb.length + '):</b>' + cb.map(function(x){ return '<div class="mini" style="align-items:center"><span style="flex:1;cursor:pointer" data-id="' + esc(x.t.id) + '">' + esc(x.t.td) + '<br><span class="tag ' + TTMAU[x.m] + '">' + esc(ttThu(x.t.han)) + ': ' + TTMUC[x.m] + '</span></span>' + (x.gy && String(x.t.id).indexOf('tmp-') ? '<button class="btn sm" data-tta="doi" data-v="' + esc(x.t.id) + '" data-d="' + esc(x.gy) + '">Dời sang ' + esc(ttThu(x.gy)) + '</button>' : '') + '</div>'; }).join('') + '</div>' : '') + '</div>';
+  /* 4) theo gio */
+  var G = ttGioDs(), md = S.ttMode || 'nd', mx = 0.5; G.forEach(function(o){ if (o.x[1] > mx) mx = o.x[1]; });
+  h += '<div class="ttc"><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"><div class="ttl" style="flex:1;margin:0">24 giờ tới</div>' + [['nd', 'Nhiệt độ'], ['mua', 'Mưa'], ['gio', 'Gió']].map(function(x){ return '<button class="ttp' + (md === x[0] ? ' on' : '') + '" style="padding:4px 11px" data-tta="mode" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+    '<div style="display:flex;gap:2px;overflow-x:auto;padding-bottom:4px">' + G.map(function(o){ var x = o.x, mg = ttMucGio(x), mid;
+      if (md === 'mua') mid = '<div style="height:44px;display:flex;align-items:flex-end;justify-content:center"><div style="width:14px;border-radius:5px 5px 2px 2px;background:#6CC4FF;height:' + Math.max(2, Math.round(42 * x[1] / mx)) + 'px;opacity:' + (x[1] > 0 ? 1 : .35) + '"></div></div><div style="font-size:12px">' + (x[1] > 0 ? x[1] : '0') + '</div><div style="font-size:11px;color:#A9E0FF">' + x[2] + '%</div>';
+      else if (md === 'gio') mid = '<div style="height:44px;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="26" height="26" style="transform:rotate(' + (((x[6] || 0) + 180) % 360) + 'deg)"><path d="M12 2l6 9h-4v11h-4V11H6z" fill="#fff"/></svg></div><div style="font-size:13px;font-weight:700">' + (x[5] || 0) + '</div><div style="font-size:10.5px;opacity:.85">từ ' + esc(ttHuongTen(x[6]).replace('Đông', 'Đ').replace('Tây', 'T').replace('Bắc', 'B').replace('Nam', 'N').replace(' ', '')) + '</div>';
+      else mid = '<div style="height:44px;display:flex;align-items:center;justify-content:center">' + ttSvg(mg, x[3], 34, x[7] === 0) + '</div><div style="font-size:11.5px;color:#A9E0FF;height:15px">' + (x[2] >= 20 ? x[2] + '%' : '') + '</div><div style="font-size:15px;font-weight:700">' + x[4] + '°</div>';
+      return '<div style="flex:none;width:50px;text-align:center;padding:5px 0;border-radius:12px;' + (o.nay ? 'background:rgba(255,255,255,.22)' : '') + '"><div style="font-size:12px;' + (o.nay ? 'font-weight:700' : 'opacity:.88') + '">' + (o.nay ? 'Bây giờ' : (x[0] === 0 ? esc(ttThu(o.d).slice(0, 2)) + ' 0h' : x[0] + 'h')) + '</div>' + mid + '</div>'; }).join('') + '</div>' + (md === 'gio' ? '<div class="tth" style="margin-top:4px">Mũi tên = chiều gió thổi đi · số = km/h · chữ = gió thổi từ hướng nào</div>' : md === 'mua' ? '<div class="tth" style="margin-top:4px">Cột = mm mưa mỗi giờ · % = khả năng mưa</div>' : '<div class="tth" style="margin-top:4px">% màu xanh = khả năng mưa</div>') + '</div>';
+  /* 5) 7 ngay: 3 o sang / chieu / toi + thanh nhiet do */
+  var lo = 99, hi = -99; D.forEach(function(x){ if (x.tmin < lo) lo = x.tmin; if (x.tmax > hi) hi = x.tmax; }); if (hi <= lo) hi = lo + 1;
+  h += '<div class="ttc"><div class="ttl">7 ngày tới</div>' + D.map(function(x, i){ var m = ttMucNgay(x), l = 100 * (x.tmin - lo) / (hi - lo), w = Math.max(8, 100 * (x.tmax - x.tmin) / (hi - lo)), mo = S.ttMo === x.d;
+    return '<div class="ttr' + (i ? '' : ' ttr0') + '" data-tta="mo" data-v="' + esc(x.d) + '"' + (i >= 3 ? ' style="opacity:.88"' : '') + '><div style="width:68px;flex:none;font-size:15px;font-weight:600;white-space:nowrap">' + (x.d === today() ? 'Hôm nay' : esc(ttThu(x.d))) + '</div>' + ttSvg(m, x.code, 28, false) + ttSeg(x, false) +
+      '<div style="width:28px;flex:none;text-align:right;opacity:.8;font-size:15px">' + x.tmin + '°</div><div style="flex:1;height:6px;border-radius:3px;background:rgba(0,0,0,.25);position:relative;min-width:30px"><div style="position:absolute;left:' + l.toFixed(1) + '%;width:' + Math.min(100 - l, w).toFixed(1) + '%;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,' + ttMauNhiet(x.tmin) + ',' + ttMauNhiet(x.tmax) + ')"></div></div><div style="width:28px;flex:none;text-align:right;font-size:15px;font-weight:700">' + x.tmax + '°</div></div>' +
+      (mo ? '<div style="padding:0 0 10px;font-size:13.5px"><b>' + esc(ttKhuyen(x)) + '</b> ' + esc(ttLamNgoai(x)) + '<div class="tth" style="margin-top:4px">' + ['Sáng', 'Chiều', 'Tối'].map(function(t, k){ var mb = ttMucBuoi(x.b[k]); return t + ' ' + TTMUC[mb] + (mb ? ' ' + x.b[k][1] + '%' : ''); }).join(' · ') + '</div><div class="tth">' + (x.mua >= 0.3 ? 'Mưa ' + x.mua + ' mm · ' : '') + 'gió từ ' + esc(ttHuongTen(x.huong)) + ' ' + x.gio + ' km/h' + (x.giat >= 40 ? ' (giật ' + x.giat + ')' : '') + (x.uv >= 6 ? ' · UV ' + x.uv + ' ' + ttUvTen(x.uv).toLowerCase() : '') + (x.moc ? ' · mặt trời ' + esc(x.moc) + ' - ' + esc(x.lan) : '') + '</div></div>' : ''); }).join('') +
+    '<div class="tth" style="margin-top:6px;font-size:12px">Bấm 1 ngày để xem chi tiết. 3 ngày đầu khá chắc, các ngày sau để tham khảo.</div></div>';
+  /* 6) 1 hang chi so hien tai */
+  var hg = cur.huong != null ? cur.huong : (a.huong || 0), uv = a.uv || 0;
+  h += '<div class="ttc"><div class="ttk"><div><b><svg viewBox="0 0 24 24" width="18" height="18" style="vertical-align:-3px;transform:rotate(' + ((hg + 180) % 360) + 'deg)"><path d="M12 2l6 9h-4v11h-4V11H6z" fill="#fff"/></svg> ' + (cur.gio != null ? cur.gio : a.gio) + '</b><span>km/h · gió từ ' + esc(ttHuongTen(hg)) + '</span></div><div><b>' + (cur.am != null ? cur.am + '%' : '-') + '</b><span>độ ẩm</span></div><div><b>' + (cur.cg != null ? cur.cg + '°' : '-') + '</b><span>cảm giác như</span></div><div><b' + (uv >= 8 ? ' style="color:#FFB3B3"' : '') + '>' + uv + '</b><span>UV ' + ttUvTen(uv).toLowerCase() + '</span></div></div></div>';
+  return h + '<div class="tth" style="text-align:center;margin-top:10px;font-size:12px">Open-Meteo · cập nhật ' + (luc ? pad(luc.getHours()) + ':' + pad(luc.getMinutes()) + ' ' + pad(luc.getDate()) + '/' + pad(luc.getMonth() + 1) : '?') + (S.ttLoi ? ' · ' + esc(S.ttLoi) : '') + ' · <a href="#" data-tta="moi">Làm mới</a></div></div>';
 }
 function ttKhView(){
   var kh = (kOwn().kpkh || []).filter(function(x){ return x[0] >= today(); }); if (!kh.length) return '';
-  return '<div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:6px"><b>Kế hoạch khắc phục đã lập:</b>' + kh.slice(0, 20).map(function(x){ var n = ttNgay(x[0]), m = n ? ttMucNgay(n) : -1, gy = m >= 2 ? ttGoiY(x[0]) : '';
-    return '<div class="mini"><span style="flex:1">' + esc(ttThu(x[0])) + ' · tổ ' + esc(x[1]) + ' · ' + x[2] + ' ' + esc((typeof KPLOAI !== 'undefined' && KPLOAI[x[3]]) || x[3]) + (m >= 2 ? '<br><span style="color:var(--red)">' + (m >= 3 ? 'Mưa to - khó làm được.' : 'Mưa vừa - ' + esc(ttLamNgoai(n))) + (gy ? ' Ngày khô gần nhất: <b>' + esc(ttThu(gy)) + '</b>' : '') + '</span>' : '') + '</span>' + (m >= 0 ? '<span class="tag ' + TTMAU[m] + '" style="white-space:nowrap">' + TTMUC[m] + '</span>' : '<span class="hint">chưa có dự báo</span>') + '</div>'; }).join('') + '</div>';
+  return '<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.25);padding-top:6px"><b>Kế hoạch khắc phục đã lập:</b>' + kh.slice(0, 20).map(function(x){ var n = ttNgay(x[0]), m = n ? ttMucNgay(n) : -1, gy = m >= 2 ? ttGoiY(x[0]) : '';
+    return '<div class="mini"><span style="flex:1">' + esc(ttThu(x[0])) + ' · tổ ' + esc(x[1]) + ' · ' + x[2] + ' ' + esc((typeof KPLOAI !== 'undefined' && KPLOAI[x[3]]) || x[3]) + (m >= 2 ? '<br><span style="color:#FFD6D6;font-weight:600">' + (m >= 3 ? 'Mưa to - khó làm được.' : 'Mưa vừa - ' + esc(ttLamNgoai(n))) + (gy ? ' Ngày khô gần nhất: <b>' + esc(ttThu(gy)) + '</b>' : '') + '</span>' : '') + '</span>' + (m >= 0 ? '<span class="tag ' + TTMAU[m] + '" style="white-space:nowrap;align-self:flex-start">' + TTMUC[m] + '</span>' : '<span class="hint">chưa có dự báo</span>') + '</div>'; }).join('') + '</div>';
 }
 function ttThemSheet(){
   openSheet('<div class="sh-h"><h2>Thêm nơi xem thời tiết</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><label class="f">Tên xã / phường / huyện / tỉnh</label><div style="display:flex;gap:6px"><input id="ttQ" class="inp" placeholder="vd: Kỳ Anh" style="flex:1" autocomplete="off"><button class="btn pri" data-tta="tim">Tìm</button></div>' +
@@ -3434,6 +3480,8 @@ document.addEventListener('click', function(ev){
   var a = el.dataset.tta, v = el.dataset.v || '', c = JSON.parse(JSON.stringify(ttCfg()));
   if (a === 'chon') { c.chon = +v; S.tt = null; ttLuu(c, 'Thời tiết: xem ' + (c.noi[c.chon] || [''])[0]); ttTai(true); draw(); return; }
   if (a === 'moi') { ttTai(true); toast('Đang lấy dự báo mới...', 1500); return; }
+  if (a === 'mode') { S.ttMode = v; draw(); return; }
+  if (a === 'mo') { S.ttMo = S.ttMo === v ? '' : v; draw(); return; }
   if (a === 'them') { ttThemSheet(); return; }
   if (a === 'cd') { ttCdSheet(); return; }
   if (a === 'tim') { var q = $('ttQ').value.trim(); if (q.length < 2) { toast('Gõ ít nhất 2 chữ'); return; } $('ttKq').innerHTML = 'Đang tìm...';
@@ -3451,7 +3499,6 @@ document.addEventListener('click', function(ev){
 var draw1010tt = draw;
 draw = function(){
   draw1010tt.apply(this, arguments);
-  try { var on9 = document.querySelector('#tabs button.on'); if (on9 && on9.scrollIntoView && !S.desk) on9.scrollIntoView({ inline: 'nearest', block: 'nearest' }); } catch(e){}
   try { if (S.role || S.thayTk || !S.tok) return; ttTai(false);
     if (!S.desk && S.tab === 'homnay') { var ln = ttDong(), m = $('main'); if (ln && m) m.insertAdjacentHTML('afterbegin', ln); }
     if (S.tt && ttCfg().cb) { var cb = {}; ttCanhBaoViec().forEach(function(x){ cb[x.t.id] = x; });
@@ -3673,6 +3720,29 @@ kQlView = function(){
 };
 var opName1010 = opName;
 opName = function(c){ if (c && (c.op === 'lenh' || c.op === 'kset')) return c.td || (c.op === 'lenh' ? 'Máy chủ làm hộ' : 'Cài đặt kho'); return opName1010(c); };
+
+/* ===== 10.10e: GIU VI TRI CUON NGANG khi trang tu ve lai (thanh tab duoi, hang nut Kho / Tien ich, bang theo gio) =====
+   Truoc day moi lan dong bo (vai giay 1 lan) trang ve lai va cac hang cuon ngang nhay ve dau -> khong keo toi duoc nut o cuoi.
+   Nay: nho vi tri cuon truoc khi ve, tra lai sau khi ve; dang cham / keo ngon tay thi hoan ve lai toi khi nha tay. */
+var SXSEL = '#main .chips, #main [style*="overflow-x:auto"], #dkOA .chips, #dkOA [style*="overflow-x:auto"]';
+function sxDs(){ try { return Array.prototype.slice.call(document.querySelectorAll(SXSEL)); } catch(e){ return []; } }
+function sxKy(e){ return (e.className || '') + '|' + e.childElementCount; }
+function sxOn(e){ var on = e.querySelector('.on'); return on ? (on.textContent || '').slice(0, 40) : ''; }
+function sxThay(e){ try { var on = e.querySelector('.on'); if (!on) return; var r = on.getBoundingClientRect(), c = e.getBoundingClientRect(); if (r.left < c.left + 4) e.scrollLeft -= (c.left - r.left) + 12; else if (r.right > c.right - 4) e.scrollLeft += (r.right - c.right) + 12; } catch(x){} }
+var draw1010e = draw;
+draw = function(){
+  if (S._cham && Date.now() - S._cham < 8000) { S._veCho = true; return; }
+  var tb = $('tabs'), tl = tb ? tb.scrollLeft : 0, cu = sxDs().map(function(e){ return [sxKy(e), e.scrollLeft, sxOn(e)]; }), tab0 = S._sxTab, tab1 = (S.desk ? 'd' + S.dtab : S.tab);
+  draw1010e.apply(this, arguments);
+  try {
+    tb = $('tabs'); if (tb) { tb.scrollLeft = tl; if (tab0 !== tab1) sxThay(tb); }
+    var moi = sxDs();
+    for (var i = 0; i < moi.length; i++) { if (tab0 === tab1 && cu[i] && cu[i][0] === sxKy(moi[i]) && cu[i][1]) moi[i].scrollLeft = cu[i][1]; if (moi[i].classList.contains('chips') && !(tab0 === tab1 && cu[i] && cu[i][0] === sxKy(moi[i]) && cu[i][2] === sxOn(moi[i]))) sxThay(moi[i]); }
+    S._sxTab = tab1;
+  } catch(e){}
+};
+document.addEventListener('touchstart', function(){ S._cham = Date.now(); }, { passive: true, capture: true });
+['touchend', 'touchcancel'].forEach(function(ev){ document.addEventListener(ev, function(e){ if (e.touches && e.touches.length) return; S._cham = 0; if (S._veCho) { S._veCho = false; setTimeout(function(){ if (!S._cham) draw(); }, 400); } }, { passive: true, capture: true }); });
 
 })();
 
