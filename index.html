@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13c-202611141448';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13g-202611141652';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -1762,7 +1762,16 @@ function showKVT(ma){
     '<div class="box"><div class="kv"><div>Tồn kho mình</div><div><b>' + kN(v[4]) + ' ' + esc(v[2]) + '</b></div><div>Kho chung</div><div>' + kcTxt(v[5]) + '</div>' + (v[6] > 0 ? '<div>Tối thiểu</div><div>' + kN(v[6]) + '</div>' : '') + '</div></div>';
   if (pos.length) h += '<div class="box"><h3>Vị trí</h3>' + pos.map(function(x){ return '<div class="mini"><span>&#128205; <b>' + esc(x[1] || 'Chờ cất') + '</b>' + (x[3] ? ' lô ' + esc(x[3]) : '') + '</span><span class="hint">' + (x[2] ? 'chính' : 'phụ') + (x[4] ? ' · ' + esc(String(x[4]).substr(0, 10)) : '') + '</span></div>'; }).join('') +
     '<button class="btn sm" style="margin-top:6px" data-ko="kefind" data-v="' + esc(v[0]) + '">Xem trên sơ đồ</button></div>';
-  if (ls.length) h += '<div class="box"><h3>Theo lô / cỡ / hạn (FEFO: lấy dòng trên trước)</h3>' + ls.map(function(l){ var qh = l[2] && l[2] < today(), sap = l[2] && l[2] <= addDays(30); return '<div class="mini"><span>' + (l[0] ? 'Lô ' + esc(l[0]) : '') + (l[1] ? ' cỡ ' + esc(l[1]) : '') + (l[2] ? ' · hạn ' + kD(l[2]) : '') + '</span><span class="tag ' + (qh ? 'red' : sap ? 'orange' : '') + '">' + kN(l[3]) + '</span></div>'; }).join('') + '</div>';
+  /* 10.13g: tong con theo co + sap lo theo co (cung co thi giu thu tu FEFO) */
+  if (ls.length) {
+    var coS = function(c){ var n = parseFloat(String(c).replace(',', '.')); return isNaN(n) ? 1e9 : n; };
+    var ls2 = ls.map(function(l, i){ return [l, i]; }).sort(function(a, b){ var d = coS(a[0][1] || '') - coS(b[0][1] || ''); if (d) return d; var t = String(a[0][1] || '').localeCompare(String(b[0][1] || '')); return t || (a[1] - b[1]); }).map(function(x){ return x[0]; });
+    var tco = {}, tcoK = [], tong = 0; ls2.forEach(function(l){ var k = String(l[1] || ''); if (!(k in tco)) { tco[k] = 0; tcoK.push(k); } tco[k] += +l[3] || 0; tong += +l[3] || 0; });
+    var coCo = tcoK.some(function(k){ return k; });
+    h += '<div class="box"><h3>Theo lô / cỡ / hạn (cùng cỡ: lấy dòng trên trước)</h3>' +
+      (coCo ? '<div class="mini" style="flex-wrap:wrap;gap:4px 10px;background:var(--bg2,rgba(127,127,127,.08));border-radius:8px;padding:6px 8px;margin-bottom:4px"><b>Tổng còn:</b>' + tcoK.map(function(k){ return '<span class="nw">' + (k ? 'cỡ ' + esc(k) : 'không cỡ') + ': <b>' + kN(tco[k]) + '</b></span>'; }).join('') + '<span class="nw">· cộng <b>' + kN(tong) + '</b></span></div>' : '') +
+      ls2.map(function(l){ var qh = l[2] && l[2] < today(), sap = l[2] && l[2] <= addDays(30); return '<div class="mini"><span>' + (l[1] ? 'cỡ <b>' + esc(l[1]) + '</b>' : '') + (l[0] ? (l[1] ? ' · ' : '') + 'lô ' + esc(l[0]) : (l[1] ? ' · <span class="hint">không lô</span>' : '')) + (l[2] ? ' · hạn ' + kD(l[2]) : '') + '</span><span class="tag ' + (qh ? 'red' : sap ? 'orange' : '') + '">' + kN(l[3]) + '</span></div>'; }).join('') + '</div>';
+  }
   h += '<div class="box"><h3>Thẻ kho 60 ngày (' + mv.length + ')</h3>' + (mv.length ? '<table class="dk"><tr><th>Ngày</th><th>Phiếu</th><th>Nhập</th><th>Xuất</th><th>Cho / từ</th></tr>' + mv.map(function(m){ return '<tr><td class="nw">' + kD(m[0]) + '</td><td class="nw">' + esc(m[1]) + '</td><td class="num">' + (m[2] === 'N' ? kN(m[3]) : '') + '</td><td class="num">' + (m[2] !== 'N' ? kN(m[3]) : '') + '</td><td>' + esc(m[4]) + (m[7] ? ' · ' + esc(m[7]) : '') + (m[5] ? ' · lô ' + esc(m[5]) : '') + (m[6] ? ' · cỡ ' + esc(m[6]) : '') + '</td></tr>'; }).join('') + '</table>' : '<div class="hint">Không có nhập / xuất 60 ngày.</div>') + '</div>';
   h += '<button class="btn pri" style="width:100%" data-ko="pxadd" data-v="' + esc(v[0]) + '">+ Thêm vào phiếu xuất</button>';
   openSheet(h);
