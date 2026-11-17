@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13i-202611171038';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13i-202611171653';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -211,7 +211,7 @@ table.dk td.nw{white-space:nowrap}
   .dk-wrap{min-height:300px;max-height:60vh}
   .dk-mobfab{display:block}
 }
-.gybox{display:none;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:4px;max-height:280px;overflow:auto;box-shadow:var(--shadow)}.gyi{padding:9px 11px;border-bottom:1px solid var(--line);cursor:pointer}.gyi:last-child{border-bottom:0}.gyi span{color:var(--muted);font-size:13px}.gyi:active{background:var(--soft)}
+.gybox{display:none;border:1px solid var(--line);border-radius:10px;background:var(--card);margin-top:4px;max-height:min(320px,45vh);overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;box-shadow:var(--shadow)}.gyi{padding:9px 11px;border-bottom:1px solid var(--line);cursor:pointer}.gyi:last-child{border-bottom:0}.gyi span{color:var(--muted);font-size:13px}.gyi:active{background:var(--soft)}
 #temIn{display:none}body.inTem #temIn{display:block;position:fixed;inset:0;overflow:auto;background:#fff;z-index:9999}@media print{body.inTem>*:not(#temIn){display:none!important}body.inTem #temIn{position:static;overflow:visible}.noin{display:none!important}}
 </style>
 </head>
@@ -2866,15 +2866,23 @@ function kVtTim(q){ q = String(q || '').trim(); if (q.length < 2) return []; var
   ((S.kho && S.kho.vt) || []).forEach(function(v){ if (r.length >= 10) return; var m = String(v[0]).toUpperCase(); if (m === u || (so && m.replace(/\D/g, '').slice(-so.length) === so) || kMatch(v[0] + ' ' + v[1] + ' ' + (v[3] || ''), q)) r.push(v); });
   return r; }
 function kVtGyVe(inp){ var id = inp.id, box = $(id + '_vg');
-  if (!box) { box = document.createElement('div'); box.id = id + '_vg'; box.className = 'gybox'; inp.parentNode.appendChild(box); }
+  if (!box) { box = document.createElement('div'); box.id = id + '_vg'; box.className = 'gybox'; var g9 = inp.closest('.grid2'); if (g9) g9.insertAdjacentElement('afterend', box); else inp.parentNode.appendChild(box); }      /* 10.13j: rong het ngang phieu */
   var r = kVtTim(inp.value); S.vgDs = S.vgDs || {}; S.vgDs[id] = r;
   if (!r.length || (r.length === 1 && String(r[0][0]).toUpperCase() === inp.value.trim().toUpperCase())) { box.style.display = 'none'; box.innerHTML = ''; return; }
   box.innerHTML = r.map(function(v, i){ return '<div class="gyi" data-vg="' + esc(id) + '" data-i="' + i + '"><b>' + esc(v[0]) + '</b> ' + esc(v[1]) + '<br><span>tồn ' + kN(v[4]) + ' ' + esc(v[2]) + (v[3] ? ' · kệ ' + esc(v[3]) : '') + '</span></div>'; }).join(''); box.style.display = 'block'; }
 document.addEventListener('focusin', function(e){ var t = e.target; if (t && /^kp[xn]M\d+$/.test(t.id || '') && t.getAttribute('list')) { t.removeAttribute('list'); } });
 document.addEventListener('input', function(e){ var t = e.target; if (t && /^kp[xn]M\d+$/.test(t.id || '')) kVtGyVe(t); });
-document.addEventListener('pointerdown', function(e){ var it = e.target && e.target.closest ? e.target.closest('[data-vg]') : null; if (!it) return; e.preventDefault(); var id = it.getAttribute('data-vg'), v = ((S.vgDs || {})[id] || [])[+it.getAttribute('data-i')], inp = $(id); if (!v || !inp) return;
+/* 10.13j: truoc chon ngay khi ngon tay CHAM (pointerdown) -> vuot de cuon cung bi chon + ve lai ca phieu -> nhay, khong keo xuong duoc.
+   Nay: vuot = chi cuon danh sach; cham roi nhac tay tai cho (lech < 8px) moi chon. May tinh: bam chuot nhu cu. */
+function kVtChon(it){ var id = it.getAttribute('data-vg'), v = ((S.vgDs || {})[id] || [])[+it.getAttribute('data-i')], inp = $(id); if (!v || !inp) return;
   inp.value = v[0]; var i = +id.replace(/\D/g, ''), px = id.indexOf('kpx') === 0; if (px) S.kpxFocus = i;
-  inp.dispatchEvent(new Event('change', { bubbles: true })); setTimeout(function(){ var s2 = $((px ? 'kpxS' : 'kpnS') + i); if (s2) { try { s2.focus(); s2.scrollIntoView({ block: 'center' }); } catch(x){} } }, 160); });
+  inp.dispatchEvent(new Event('change', { bubbles: true })); setTimeout(function(){ var s2 = $((px ? 'kpxS' : 'kpnS') + i); if (s2) { try { s2.focus(); s2.scrollIntoView({ block: 'center' }); } catch(x){} } }, 160); }
+var vgT = null;
+document.addEventListener('touchstart', function(e){ var it = e.target && e.target.closest ? e.target.closest('[data-vg]') : null; vgT = (it && e.touches && e.touches.length === 1) ? { it: it, x: e.touches[0].clientX, y: e.touches[0].clientY, mv: false } : null; }, { passive: true });
+document.addEventListener('touchmove', function(e){ if (vgT && e.touches && e.touches[0] && (Math.abs(e.touches[0].clientX - vgT.x) > 8 || Math.abs(e.touches[0].clientY - vgT.y) > 8)) vgT.mv = true; }, { passive: true });
+document.addEventListener('touchcancel', function(){ vgT = null; }, { passive: true });
+document.addEventListener('touchend', function(e){ var t = vgT; vgT = null; if (!t || t.mv) return; var it = e.target && e.target.closest ? e.target.closest('[data-vg]') : null; if (it !== t.it) return; e.preventDefault(); S._vgCham = Date.now(); kVtChon(it); }, { passive: false });
+document.addEventListener('mousedown', function(e){ if (S._vgCham && Date.now() - S._vgCham < 1000) return; var it = e.target && e.target.closest ? e.target.closest('[data-vg]') : null; if (!it) return; e.preventDefault(); kVtChon(it); });
 /* ---- chon nhieu ma (phieu xuat / nhap khac) ---- */
 function kVtNhieuSh(dich){ S.vnDich = dich; S.vnSel = S.vnSel || {}; S.vnQ = S.vnQ || '';
   openSheet('<div class="sh-h"><h2>Chọn nhiều mã → ' + (dich === 'px' ? 'phiếu xuất' : 'phiếu nhập') + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><input id="vnQ" class="inp" placeholder="Lọc: mã / tên / kệ" value="' + esc(S.vnQ) + '" autocomplete="off"><div id="vnDs" style="margin-top:6px"></div>' +
