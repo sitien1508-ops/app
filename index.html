@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13g-202611141652';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13i-202611171038';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -1373,27 +1373,48 @@ function khoOpt(){
 /* ---------- tải dữ liệu ---------- */
 var timer = null;
 function schedule(ms){ clearTimeout(timer); timer = setTimeout(load, ms); }
-function load(){
-  if (!S.tok) return;
-  return call('load', { oa: (S.desk ? S.dtab : S.tab) === 'oa', kho: (!S.desk && S.tab === 'kho') || (S.desk && S.dtab === 'kho') || !S.kho }).then(function(r){
-    if (!r.ok) { toast(r.err || 'Lỗi tải'); schedule(30000); return; }
+/* 10.13i: MO APP TUC THI - hien ngay ban tai lan truoc (luu tren dien thoai), tai ban moi ngam; nhan du lieu NEN tu Google; qua 25 giay -> bao + Thu lai */
+function idbOpen(){ return new Promise(function(res, rej){ try { var q = indexedDB.open('scv', 1); q.onupgradeneeded = function(){ q.result.createObjectStore('kv'); }; q.onsuccess = function(){ res(q.result); }; q.onerror = function(){ rej(q.error); }; } catch(e){ rej(e); } }); }
+function idbGet(k){ return idbOpen().then(function(db){ return new Promise(function(res){ try { var t = db.transaction('kv', 'readonly').objectStore('kv').get(k); t.onsuccess = function(){ res(t.result || null); }; t.onerror = function(){ res(null); }; } catch(e){ res(null); } }); }).catch(function(){ return null; }); }
+function idbSet(k, v){ return idbOpen().then(function(db){ return new Promise(function(res){ try { var tx = db.transaction('kv', 'readwrite'); if (v == null) tx.objectStore('kv').delete(k); else tx.objectStore('kv').put(v, k); tx.oncomplete = function(){ res(true); }; tx.onerror = function(){ res(false); }; } catch(e){ res(false); } }); }).catch(function(){ return false; }); }
+function unz(b64){ var bin = atob(b64), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Response(new Blob([u]).stream().pipeThrough(new DecompressionStream('gzip'))).text(); }
+function unzAll(r){ var ps = []; ['snap', 'oa', 'kho', 'kown'].forEach(function(k){ if (r[k + 'Z']) ps.push(unz(r[k + 'Z']).then(function(t){ r[k] = t; })); else if (r.z) r[k] = r[k] || ''; }); return Promise.all(ps).then(function(){ return r; }); }
+function luuLoad(r){ try { var o = {}; Object.keys(r).forEach(function(k){ if (['snap', 'oa', 'kho', 'kown'].indexOf(k) >= 0 && r[k + 'Z']) return; o[k] = r[k]; });
+  idbGet('last').then(function(c){ var cu = (c && c.tok === S.tok && c.r) || {}; ['kho', 'kown', 'oa'].forEach(function(k){ if (!o[k] && !o[k + 'Z']) { if (cu[k + 'Z']) o[k + 'Z'] = cu[k + 'Z']; else if (cu[k]) o[k] = cu[k]; } }); if (!o.z && (o.khoZ || o.kownZ || o.oaZ)) o.z = 1; idbSet('last', { tok: S.tok, luc: Date.now(), r: o }); }); } catch(e){} }
+function hienCache(){ if (S.snap) return; idbGet('last').then(function(c){ if (!c || c.tok !== S.tok || S.snap || !c.r) return; unzAll(c.r).then(function(r){ if (S.snap) return; S.tuCache = c.luc; apLoad(r, true); }).catch(function(){}); }); }
+function apLoad(r, cache){
     var snap = null; try { snap = r.snap ? JSON.parse(r.snap) : null; } catch(e){}
     if (r.oa) { try { S.oa = JSON.parse(r.oa); } catch(e){} }
-    if (r.kho) { try { S.khoRaw = JSON.parse(r.kho); } catch(e){} }
+    if (r.kho) { try { S.khoRaw = JSON.parse(r.kho); S.khoCu = !!cache; } catch(e){} }
     if (r.kown) { try { S.kown = JSON.parse(r.kown); } catch(e){} }
     S.kownErr = r.kownErr || ''; S.thay = r.thay || null;
     S.snap = snap; S.queue = mq(r.queue || []); khoOpt(); S.results = r.results || []; S.lastPc = r.lastPc || 0; S.srvNow = r.now || Date.now(); S.pcs = r.pcs || {};
-    S.results.forEach(function(x){ if (!S.seen[x.cid]) { S.seen[x.cid] = 1; if (!x.ok && (Date.now() - x.luc) < 10 * 60000 && !S.read[x.cid]) toast('Máy chủ báo: ' + (x.msg || 'lỗi') + '  (bấm để xem)', 7000); } });
+    S.results.forEach(function(x){ if (cache) { S.seen[x.cid] = 1; return; } if (!S.seen[x.cid]) { S.seen[x.cid] = 1; if (!x.ok && (Date.now() - x.luc) < 10 * 60000 && !S.read[x.cid]) toast('Máy chủ báo: ' + (x.msg || 'lỗi') + '  (bấm để xem)', 7000); } });
     drawBell();
     drawSync(); draw();
+    if (cache) { try { var dl = new Date(S.tuCache); $('sTxt').textContent = 'Dữ liệu lưu trên máy lúc ' + pad(dl.getHours()) + ':' + pad(dl.getMinutes()) + ' ' + pad(dl.getDate()) + '/' + pad(dl.getMonth() + 1) + ' · đang tải mới…'; } catch(e){} return; }
+    S.tuCache = 0;
     var sheetOpen = !$('ov').classList.contains('hidden');
     if (S.open && sheetOpen && !document.activeElement.matches('input,textarea,select')) showTask(S.open);
     else if (S.oaOpen && sheetOpen && (S.desk ? S.dtab : S.tab) === 'oa') showOAMail(S.oaOpen);
     var fast = S.queue.length && (Date.now() - S.fast) < 180000;
     schedule(document.hidden ? 120000 : (fast ? 3000 : 30000)); qFlush();
-  }).catch(function(e){ if (String(e && e.message) !== 'LOGIN') { $('sTxt').textContent = 'Mất kết nối, thử lại…'; schedule(15000); } });
+}
+function load(){
+  if (!S.tok) return;
+  var zOk = typeof DecompressionStream !== 'undefined' && typeof Response !== 'undefined';
+  var p = call('load', { oa: (S.desk ? S.dtab : S.tab) === 'oa', kho: (!S.desk && S.tab === 'kho') || (S.desk && S.dtab === 'kho') || !S.kho || S.khoCu, z: zOk ? 1 : 0 });
+  var to = new Promise(function(res, rej){ setTimeout(function(){ rej(new Error('TIMEOUT')); }, 25000); });
+  return Promise.race([p, to]).then(function(r){ return (r && r.ok && r.z) ? unzAll(r) : r; }).then(function(r){
+    if (!r.ok) { toast(r.err || 'Lỗi tải'); schedule(30000); return; }
+    if (r.kho || r.khoZ) S.khoCu = false;
+    luuLoad(r); apLoad(r, false);
+  }).catch(function(e){ var m = String(e && e.message); if (m === 'LOGIN') return;
+    var t = $('sTxt'); t.innerHTML = (m === 'TIMEOUT' ? 'Mạng chậm, chưa tải được' : 'Mất kết nối') + (S.tuCache ? ' (đang xem dữ liệu lưu trên máy)' : '') + ' · <u style="cursor:pointer">Thử lại</u>';
+    t.onclick = function(){ t.onclick = null; t.textContent = 'Đang tải…'; clearTimeout(timer); load(); }; schedule(15000); });
 }
 function logout(expired){
+  idbSet('last', null); S.tuCache = 0;
   S.tok = ''; S.kown = null; S.kho = null; S.khoRaw = null; S.qSrv = []; S.oa = null; S.snap = null; S._vtm = null; S.kpxRows = []; S.kpxHead = null; S.kbhSel = {}; S.kdSel = {}; lsSet('scv_tok', ''); clearTimeout(timer); closeSheet();
   $('vApp').classList.add('hidden'); $('vDesk').classList.add('hidden'); document.body.style.overflow = ''; $('vLogin').classList.remove('hidden');
   $('loginErr').textContent = expired ? 'Phiên đăng nhập đã hết hạn hoặc mật khẩu đã đổi - đăng nhập lại.' : '';
@@ -1410,7 +1431,7 @@ function doLogin(){
     start();
   }).catch(function(e){ $('bLogin').disabled = false; $('loginErr').textContent = 'Lỗi: ' + (e && e.message || e); });
 }
-function start(){ $('vLogin').classList.add('hidden'); setTimeout(sbQrCheck, 900); var m = lsGet('scv_mode'); try { var um = /[?&]mode=(mob|desk)/.exec(location.search); if (um) { m = um[1]; lsSet('scv_mode', m); } } catch(e){} S.desk = m ? m === 'desk' : window.innerWidth >= 1000; S.role = roleOf(S.tok); S.thayTk = isThay(S.tok); if (S.role) { S.desk = false; S.tab = 'kho'; S.ktab = 'sb'; } if (S.thayTk) { S.desk = false; S.tab = 'kho'; if (['ton', 'muon', 'px', 'dh', 'kk', 'hn'].indexOf(S.ktab) < 0) S.ktab = 'ton'; } try { $('bAdd').style.display = (S.role || S.thayTk) ? 'none' : ''; $('bSearch') && ($('bSearch').style.display = (S.role || S.thayTk) ? 'none' : ''); } catch(e){} $('vDesk').classList.toggle('hidden', !S.desk); $('vApp').classList.toggle('hidden', S.desk); document.body.style.overflow = (S.desk && window.innerWidth > 900) ? 'hidden' : ''; drawTabs(); $('main').innerHTML = '<div class="empty"><span class="spin"></span></div>'; load(); }
+function start(){ $('vLogin').classList.add('hidden'); setTimeout(sbQrCheck, 900); var m = lsGet('scv_mode'); try { var um = /[?&]mode=(mob|desk)/.exec(location.search); if (um) { m = um[1]; lsSet('scv_mode', m); } } catch(e){} S.desk = m ? m === 'desk' : window.innerWidth >= 1000; S.role = roleOf(S.tok); S.thayTk = isThay(S.tok); if (S.role) { S.desk = false; S.tab = 'kho'; S.ktab = 'sb'; } if (S.thayTk) { S.desk = false; S.tab = 'kho'; if (['ton', 'muon', 'px', 'dh', 'kk', 'hn'].indexOf(S.ktab) < 0) S.ktab = 'ton'; } try { $('bAdd').style.display = (S.role || S.thayTk) ? 'none' : ''; $('bSearch') && ($('bSearch').style.display = (S.role || S.thayTk) ? 'none' : ''); } catch(e){} $('vDesk').classList.toggle('hidden', !S.desk); $('vApp').classList.toggle('hidden', S.desk); document.body.style.overflow = (S.desk && window.innerWidth > 900) ? 'hidden' : ''; drawTabs(); $('main').innerHTML = '<div class="empty"><span class="spin"></span></div>'; hienCache(); load(); }
 
 
 /* ===================== GIAO DIỆN MÁY TÍNH ===================== */
@@ -3721,15 +3742,23 @@ function ttHD(){ var l = ttCfg().hd; return (l && l.length) ? l : TTHD0; }
 function ttCoDong(n){ var g = (n.g || []).filter(function(x){ return x[0] >= 6 && x[0] <= 18; }); return g.length ? g.some(function(x){ return x[3] >= 95; }) : n.code >= 95; }
 function ttDanhGia(n){
   var s = ttMucBuoi(n.b[0]), c = ttMucBuoi(n.b[1]), N = ttNguong(), m = 0, r = [], up = function(k, t){ if (k > m) m = k; r.push(t); }, gio = n.gio || 0, giat = n.giat || 0, tm = n.tmax;
-  if (s >= 2 && c >= 2) up(3, 'mưa ' + TTMUC[Math.max(s, c)] + ' cả ngày'); else if (s >= 2) up(2, 'sáng ' + TTMUC[s] + ', chỉ làm được buổi chiều'); else if (c >= 2) up(2, 'chiều ' + TTMUC[c] + ', chỉ làm được buổi sáng');
+  if (s >= 2 && c >= 2) up(3, TTMUC[Math.max(s, c)] + ' cả ngày'); else if (s >= 2) up(2, 'sáng ' + TTMUC[s] + ', chỉ làm được buổi chiều'); else if (c >= 2) up(2, 'chiều ' + TTMUC[c] + ', chỉ làm được buổi sáng');
   else if (s === 1 && c === 1) up(1, 'mưa nhỏ rải rác'); else if (s === 1) up(1, 'sáng mưa nhỏ'); else if (c === 1) up(1, 'chiều mưa nhỏ');
   if (ttCoDong(n)) up(3, 'có dông');
   if (giat > N.giat) up(3, 'gió giật ' + giat + ' km/h'); else if (gio >= 40) up(2, 'gió mạnh ' + gio + ' km/h'); else if (gio >= N.gio) up(1, 'gió ' + gio + ' km/h');
   if (tm > N.ratnong) up(3, 'nắng nóng ' + tm + '°C'); else if (tm >= N.nong) up(1, 'nóng ' + tm + '°C');
   if (!r.length) r.push(tm <= 20 ? 'khô, mát' : 'khô, dễ chịu');
-  return { m: m, ly: r.join(', ') };
+  /* 10.13h: chu ngan theo ly do chinh (thay Dep / Duoc / Han che / Xau) - mau van theo muc. Uu tien: dong > mua > gio > nang nong */
+  var ds = [];
+  if (ttCoDong(n)) ds.push([3, 4, 'Dông']);
+  if (s >= 2 && c >= 2) ds.push([3, 3, 'Mưa to']); else if (s >= 2) ds.push([2, 3, 'Mưa sáng']); else if (c >= 2) ds.push([2, 3, 'Mưa chiều']); else if (s >= 1 || c >= 1) ds.push([1, 3, 'Mưa nhẹ']);
+  if (giat > N.giat) ds.push([3, 2, 'Gió giật']); else if (gio >= 40) ds.push([2, 2, 'Gió mạnh']); else if (gio >= N.gio) ds.push([1, 2, 'Có gió']);
+  if (tm > N.ratnong) ds.push([3, 1, 'Nắng gắt']); else if (tm >= N.nong) ds.push([1, 1, 'Nóng']);
+  var chu = tm <= 20 ? 'Mát' : (n.code >= 3 ? 'Khô ráo' : 'Nắng ráo');
+  if (ds.length) { var b = ds[0]; ds.forEach(function(x){ if (x[0] > b[0] || (x[0] === b[0] && x[1] > b[1])) b = x; }); chu = b[2]; }
+  return { m: m, ly: r.join(', '), chu: chu };
 }
-function ttDGChip(g, to){ var c = TTDGC[g.m]; return '<span style="background:' + c[0] + ';color:' + c[1] + ';border-radius:999px;padding:' + (to ? '3px 10px' : '1px 7px') + ';font-size:' + (to ? 13 : 11) + 'px;font-weight:800;white-space:nowrap">' + TTDG[g.m] + '</span>'; }
+function ttDGChip(g, to){ var c = TTDGC[g.m]; return '<span style="background:' + c[0] + ';color:' + c[1] + ';border-radius:999px;padding:' + (to ? '3px 10px' : '1px 7px') + ';font-size:' + (to ? 13 : 11) + 'px;font-weight:800;white-space:nowrap">' + g.chu + '</span>'; }
 function ttGioList(){ var D = (S.tt && S.tt.ngay) || [], r = [], td = today(), h0 = new Date().getHours(); D.forEach(function(n){ (n.g || []).forEach(function(x){ if (n.d < td || (n.d === td && x[0] < h0)) return; r.push({ d: n.d, x: x }); }); }); return r; }
 function ttGioKho(x){ return x[1] < 0.1 && x[2] < 50; }
 function ttGioMuaH(x){ return x[1] >= 0.1 || x[2] >= 60; }
@@ -3746,8 +3775,8 @@ function ttCauChinh(){
   if (s && s.dang) p.push(s.tanh ? 'Đang mưa, <b>tạnh khoảng ' + ttGioTen(s.tanh) + '</b>' + (s.den ? ', khô tới ' + ttGioTen(s.den) : ', khô kéo dài') : 'Đang mưa, 12 giờ tới chưa thấy tạnh hẳn');
   else if (s && s.mua) p.push('Khoảng <b>' + ttGioTen(s.mua) + ' có mưa</b> (' + ttChac(s.mua.x[2]) + ', ' + s.mua.x[2] + '%)');
   else if (s) p.push('12 giờ tới không mưa');
-  if (a && new Date().getHours() < 17) { g = ttDanhGia(a); p.push('Hôm nay <b>' + TTDG[g.m].toLowerCase() + '</b> (' + esc(g.ly) + ')'); }
-  if (b) { g = ttDanhGia(b); p.push('Mai <b>' + TTDG[g.m].toLowerCase() + '</b> (' + esc(g.ly) + ')'); }
+  if (a && new Date().getHours() < 17) { g = ttDanhGia(a); p.push('Hôm nay <b>' + g.chu.toLowerCase() + '</b> (' + esc(g.ly) + ')'); }
+  if (b) { g = ttDanhGia(b); p.push('Mai <b>' + g.chu.toLowerCase() + '</b> (' + esc(g.ly) + ')'); }
   return p.join('. ') + '.';
 }
 function ttKhungNgay(hd, n){ var r = [], bd = -1, kt = -1, td = today(), h0 = new Date().getHours(), dong = function(){ if (bd >= 0 && kt - bd + 1 >= Math.max(1, hd[6])) r.push(bd + 'h-' + (kt + 1) + 'h'); bd = -1; };
@@ -3785,7 +3814,7 @@ function ttView(){
   h += '<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 4px 2px">' + ttSvg(mh, codeNay, 66, dem0) + '<div style="font-size:60px;font-weight:200;line-height:1">' + (cur.t != null ? cur.t : a.tmax) + '°</div><div style="text-align:left"><div style="font-size:18px;font-weight:700">' + esc(ten.charAt(0).toUpperCase() + ten.slice(1)) + '</div><div class="tth">' + a.tmin + '° - ' + a.tmax + '°' + (cur.cg != null && Math.abs(cur.cg - cur.t) >= 2 ? ' · cảm giác ' + cur.cg + '°' : '') + '</div></div></div>';
   h += '<div style="background:rgba(15,23,42,.38);border-radius:14px;padding:10px 12px;margin-top:8px;font-size:15px;line-height:1.45">&#128172; ' + ttCauChinh() + '</div>';
   /* 2) 3 ngay: danh gia + mua theo buoi + ao mua */
-  h += '<div class="ttc"><div class="ttl">3 ngày tới · đẹp hay xấu · có cần áo mưa</div>' + D.slice(0, 3).map(function(x, i){ var ao = ttAo(x), gm = ttGioMua(x), m = ttMucNgay(x), g = ttDanhGia(x);
+  h += '<div class="ttc"><div class="ttl">3 ngày tới · làm ngoài trời được không · có cần áo mưa</div>' + D.slice(0, 3).map(function(x, i){ var ao = ttAo(x), gm = ttGioMua(x), m = ttMucNgay(x), g = ttDanhGia(x);
     return '<div class="ttr' + (i ? '' : ' ttr0') + '" style="cursor:default;align-items:flex-start"><div style="width:74px;flex:none;white-space:nowrap"><b style="font-size:15px">' + ['Hôm nay', 'Ngày mai', 'Ngày kia'][i] + '</b><div class="tth" style="font-size:12px">' + esc(ttThu(x.d)) + '</div><div style="margin-top:4px">' + ttDGChip(g, true) + '</div></div>' + ttSvg(m, x.code, 34, false) +
       '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">' + ttSeg(x, true) + '<span style="background:' + ao[1] + ';color:' + ao[2] + ';border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;white-space:nowrap">' + (ao[0] === 'Không cần' ? 'Không cần áo mưa' : ao[0]) + '</span></div><div style="font-size:13.5px;margin-top:5px">' + esc(ttNgan(x)) + (gm ? ' · <b>mưa ' + esc(gm) + '</b>' : '') + ' · ' + x.tmin + '-' + x.tmax + '°</div><div style="font-size:12.5px;margin-top:2px;color:' + TTDGC[g.m][0] + '">' + esc(g.ly.charAt(0).toUpperCase() + g.ly.slice(1)) + '</div></div></div>'; }).join('') +
     '<div class="tth" style="margin-top:8px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">S sáng · C chiều · T tối ' + TTMUC.map(function(t, m){ return '<span style="display:inline-flex;align-items:center;gap:4px"><span style="width:12px;height:12px;border-radius:4px;background:' + TTSEG[m] + ';display:inline-block"></span>' + t + '</span>'; }).join('') + '</div></div>';
@@ -3801,8 +3830,8 @@ function ttView(){
     (cb.length ? '<div style="margin-top:8px;border-top:1px solid rgba(255,255,255,.25);padding-top:6px"><b>Việc ngoài trời trúng ngày mưa (' + cb.length + '):</b>' + cb.map(function(x){ return '<div class="mini" style="align-items:center"><span style="flex:1;cursor:pointer" data-id="' + esc(x.t.id) + '">' + esc(x.t.td) + '<br><span class="tag ' + TTMAU[x.m] + '">' + esc(ttThu(x.t.han)) + ': ' + TTMUC[x.m] + '</span></span>' + (x.gy && String(x.t.id).indexOf('tmp-') ? '<button class="btn sm" data-tta="doi" data-v="' + esc(x.t.id) + '" data-d="' + esc(x.gy) + '">Dời sang ' + esc(ttThu(x.gy)) + '</button>' : '') + '</div>'; }).join('') + '</div>' : '') + '</div>';
   /* 6) 7 ngay */
   var lo = 99, hi = -99, xau = [], dep = []; D.forEach(function(x){ if (x.tmin < lo) lo = x.tmin; if (x.tmax > hi) hi = x.tmax; var g = ttDanhGia(x); if (g.m >= 3) xau.push(x.d); if (g.m <= 1) dep.push(x.d); }); if (hi <= lo) hi = lo + 1;
-  h += '<div class="ttc"><div class="ttl">7 ngày tới</div><div style="font-size:13.5px;margin-bottom:6px">' + (dep.length ? 'Đi chơi / làm ngoài trời được: <b>' + dep.map(ttThu).join(', ') + '</b>' : 'Tuần này không có ngày đẹp.') + (xau.length ? '<br>Nên tránh: <b style="color:#FECACA">' + xau.map(ttThu).join(', ') + '</b>' : '') + '</div>' + D.map(function(x, i){ var m = ttMucNgay(x), l = 100 * (x.tmin - lo) / (hi - lo), w = Math.max(8, 100 * (x.tmax - x.tmin) / (hi - lo)), mo = S.ttMo === x.d, g = ttDanhGia(x);
-    return '<div class="ttr" data-tta="mo" data-v="' + esc(x.d) + '"' + (i >= 3 ? ' style="opacity:.9"' : '') + '><div style="width:68px;flex:none;white-space:nowrap"><div style="font-size:15px;font-weight:600">' + (x.d === today() ? 'Hôm nay' : esc(ttThu(x.d))) + '</div><div style="font-size:11.5px;font-weight:800;color:' + TTDGC[g.m][0] + '">' + TTDG[g.m] + '</div></div>' + ttSvg(m, x.code, 28, false) + ttSeg(x, false) +
+  h += '<div class="ttc"><div class="ttl">7 ngày tới</div><div style="font-size:13.5px;margin-bottom:6px">' + (dep.length ? 'Đi chơi / làm ngoài trời được: <b>' + dep.map(ttThu).join(', ') + '</b>' : 'Tuần này không có ngày thuận lợi.') + (xau.length ? '<br>Nên tránh: <b style="color:#FECACA">' + xau.map(ttThu).join(', ') + '</b>' : '') + '</div>' + D.map(function(x, i){ var m = ttMucNgay(x), l = 100 * (x.tmin - lo) / (hi - lo), w = Math.max(8, 100 * (x.tmax - x.tmin) / (hi - lo)), mo = S.ttMo === x.d, g = ttDanhGia(x);
+    return '<div class="ttr" data-tta="mo" data-v="' + esc(x.d) + '"' + (i >= 3 ? ' style="opacity:.9"' : '') + '><div style="width:68px;flex:none;white-space:nowrap"><div style="font-size:15px;font-weight:600">' + (x.d === today() ? 'Hôm nay' : esc(ttThu(x.d))) + '</div><div style="font-size:11.5px;font-weight:800;color:' + TTDGC[g.m][0] + '">' + g.chu + '</div></div>' + ttSvg(m, x.code, 28, false) + ttSeg(x, false) +
       '<div style="width:28px;flex:none;text-align:right;opacity:.8;font-size:15px">' + x.tmin + '°</div><div style="flex:1;height:6px;border-radius:3px;background:rgba(0,0,0,.25);position:relative;min-width:30px"><div style="position:absolute;left:' + l.toFixed(1) + '%;width:' + Math.min(100 - l, w).toFixed(1) + '%;top:0;bottom:0;border-radius:3px;background:linear-gradient(90deg,' + ttMauNhiet(x.tmin) + ',' + ttMauNhiet(x.tmax) + ')"></div></div><div style="width:28px;flex:none;text-align:right;font-size:15px;font-weight:700">' + x.tmax + '°</div></div>' +
       (mo ? '<div style="padding:0 0 10px;font-size:13.5px">' + ttDGChip(g, true) + ' ' + esc(g.ly) + '<div style="margin-top:4px"><b>' + esc(ttKhuyen(x)) + '</b> ' + esc(ttLamNgoai(x)) + '</div><div class="tth" style="margin-top:4px">' + ['Sáng', 'Chiều', 'Tối'].map(function(t, k){ var mb = ttMucBuoi(x.b[k]); return t + ' ' + TTMUC[mb] + (mb ? ' ' + x.b[k][1] + '%' : ''); }).join(' · ') + '</div><div class="tth">' + (x.mua >= 0.3 ? 'Mưa ' + x.mua + ' mm · ' : '') + 'gió từ ' + esc(ttHuongTen(x.huong)) + ' ' + x.gio + ' km/h' + (x.giat >= 40 ? ' (giật ' + x.giat + ')' : '') + (x.uv >= 6 ? ' · UV ' + x.uv + ' ' + ttUvTen(x.uv).toLowerCase() : '') + (x.moc ? ' · mặt trời ' + esc(x.moc) + ' - ' + esc(x.lan) : '') + '</div></div>' : ''); }).join('') +
     '<div class="tth" style="margin-top:6px;font-size:12px">Bấm 1 ngày để xem chi tiết. 3 ngày đầu khá chắc, các ngày sau để tham khảo.</div></div>';
@@ -3818,9 +3847,9 @@ var ttCdSheet1011 = ttCdSheet;
 ttCdSheet = function(){
   ttCdSheet1011(); var sh = $('sheet'), N = ttNguong(); if (!sh) return;
   var nhap = function(id, v, lo, hi){ return '<input id="' + id + '" class="inp" type="number" min="' + lo + '" max="' + hi + '" value="' + v + '" style="padding:6px">'; };
-  sh.insertAdjacentHTML('beforeend', '<div class="box"><h3>Cách chấm ngày Đẹp / Được / Hạn chế / Xấu</h3><div class="grid2"><div><label class="f">Nóng (từ °C → "Được")</label>' + nhap('ttNgN', N.nong, 20, 45) + '</div><div><label class="f">Nắng nóng (trên °C → "Xấu")</label>' + nhap('ttNgR', N.ratnong, 25, 50) + '</div></div>' +
-    '<div class="grid2"><div><label class="f">Gió (từ km/h → "Được")</label>' + nhap('ttNgG', N.gio, 5, 80) + '</div><div><label class="f">Gió giật (trên km/h → "Xấu")</label>' + nhap('ttNgJ', N.giat, 10, 150) + '</div></div>' +
-    '<div class="hint">Mưa: mưa nhỏ 1 buổi = Được · mưa vừa / to 1 buổi = Hạn chế · cả sáng lẫn chiều = Xấu · có dông = Xấu.</div></div>' +
+  sh.insertAdjacentHTML('beforeend', '<div class="box"><h3>Cách tô màu ngày (xanh / vàng / cam / đỏ)</h3><div class="grid2"><div><label class="f">Nóng (từ °C → vàng)</label>' + nhap('ttNgN', N.nong, 20, 45) + '</div><div><label class="f">Nắng nóng (trên °C → đỏ)</label>' + nhap('ttNgR', N.ratnong, 25, 50) + '</div></div>' +
+    '<div class="grid2"><div><label class="f">Gió (từ km/h → vàng)</label>' + nhap('ttNgG', N.gio, 5, 80) + '</div><div><label class="f">Gió giật (trên km/h → đỏ)</label>' + nhap('ttNgJ', N.giat, 10, 150) + '</div></div>' +
+    '<div class="hint">Mưa: mưa nhỏ 1 buổi = vàng · mưa vừa / to 1 buổi = cam · cả sáng lẫn chiều = đỏ · có dông = đỏ. Chữ trên ô ghi lý do chính (Mưa nhẹ, Mưa to, Dông, Gió giật, Nắng gắt...).</div></div>' +
     '<div class="box"><h3>Hoạt động (khung giờ tốt)</h3>' + ttHD().map(function(x, i){ return '<div style="border-top:1px dashed var(--line);padding:8px 0"><input id="ttH' + i + 't" class="inp" value="' + esc(x[1]) + '" placeholder="Tên hoạt động"><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px;font-size:11.5px"><label>Từ giờ' + nhap('ttH' + i + 'a', x[2], 0, 23) + '</label><label>Đến giờ' + nhap('ttH' + i + 'b', x[3], 1, 24) + '</label><label>Gió tối đa' + nhap('ttH' + i + 'g', x[4], 5, 100) + '</label><label>Nhiệt tối đa' + nhap('ttH' + i + 'n', x[5], 15, 50) + '</label><label>Ít nhất (giờ)' + nhap('ttH' + i + 'm', x[6], 1, 12) + '</label></div></div>'; }).join('') +
     '<button class="btn green" style="width:100%;margin-top:8px" data-tta="ngluu">Lưu cách chấm + hoạt động</button><div class="hint">Xoá tên 1 hoạt động để bỏ nó. Khung giờ: giờ khô, gió và nhiệt độ không quá mức đặt, kéo dài ít nhất số giờ đặt.</div></div>');
 };
@@ -3884,9 +3913,10 @@ function ttThuNgan(d){ var x = pDate(d); return x ? ['CN', 'T2', 'T3', 'T4', 'T5
 function ttNgaySheet(d){
   var D = (S.tt && S.tt.ngay) || [], i = -1; D.forEach(function(x, k){ if (x.d === d) i = k; }); if (i < 0) return; var x = D[i], g = ttDanhGia(x), m = ttMucNgay(x), L = ttGioNgay(x), td = today(), h0 = new Date().getHours(), nay = -1; S.ttNg = d;
   if (d === td) L.forEach(function(o, k){ if (o.x[0] === h0) nay = k; });
-  var h = '<div class="ttw" style="margin:0;border-radius:16px;background:' + ttNen(m, x.code, false) + '"><div class="ttsx" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:6px">' + D.map(function(z, k){ var on = z.d === d; return '<button data-tta="ngay" data-v="' + esc(z.d) + '" style="flex:none;border:0;border-radius:12px;padding:5px 8px;min-width:42px;text-align:center;color:' + (on ? '#1c2330' : '#fff') + ';background:' + (on ? '#fff' : 'rgba(255,255,255,.14)') + (k >= 7 ? ';opacity:.65' : '') + '"><div style="font-size:11px;font-weight:700">' + ttThuNgan(z.d) + '</div><div style="font-size:16px;font-weight:700">' + (+z.d.slice(8)) + '</div><div style="font-size:9.5px;font-weight:800;color:' + (on ? TTDGC[ttDanhGia(z).m][1] : TTDGC[ttDanhGia(z).m][0]) + '">' + TTDG[ttDanhGia(z).m] + '</div></button>'; }).join('') + '</div>';
+  var h = '<div class="ttw" style="margin:0;border-radius:16px;background:' + ttNen(m, x.code, false) + '"><div class="ttsx" style="display:flex;gap:4px;overflow-x:auto;padding-bottom:6px">' + D.map(function(z, k){ var on = z.d === d; return '<button data-tta="ngay" data-v="' + esc(z.d) + '" style="flex:none;border:0;border-radius:12px;padding:5px 8px;min-width:42px;text-align:center;color:' + (on ? '#1c2330' : '#fff') + ';background:' + (on ? '#fff' : 'rgba(255,255,255,.14)') + (k >= 7 ? ';opacity:.65' : '') + '"><div style="font-size:11px;font-weight:700">' + ttThuNgan(z.d) + '</div><div style="font-size:16px;font-weight:700">' + (+z.d.slice(8)) + '</div><div style="font-size:9.5px;font-weight:800;color:' + (on ? TTDGC[ttDanhGia(z).m][1] : TTDGC[ttDanhGia(z).m][0]) + ';white-space:nowrap">' + ttDanhGia(z).chu + '</div></button>'; }).join('') + '</div>';
   h += '<div style="display:flex;align-items:center;gap:10px;margin-top:6px">' + ttSvg(m, x.code, 52, false) + '<div style="flex:1"><div style="font-size:18px;font-weight:800">' + (d === td || d === addDays(1) ? esc(d === td ? 'Hôm nay' : 'Ngày mai') + ' <span style="font-weight:400;font-size:14px;opacity:.85">' + esc(ttThu(d)) + '</span>' : esc(ttThu(d))) + '</div><div style="font-size:15px">' + x.tmin + '° - ' + x.tmax + '° · ' + ttDGChip(g, true) + '</div></div></div>';
   h += '<div style="background:rgba(15,23,42,.38);border-radius:12px;padding:9px 11px;margin-top:8px;font-size:14px;line-height:1.45">' + esc(g.ly.charAt(0).toUpperCase() + g.ly.slice(1)) + '.<br><b>' + esc(ttKhuyen(x)) + '</b> ' + esc(ttLamNgoai(x)) + (ttGioMua(x) ? '<br>Giờ có mưa: <b>' + esc(ttGioMua(x)) + '</b>' : '') + '</div>';
+  var th13 = ttThemNgay(x); if (th13) h += '<div style="background:rgba(254,243,199,.95);color:#78350F;border-radius:12px;padding:9px 11px;margin-top:8px;font-size:13.5px;line-height:1.5">' + th13.split('\n').map(esc).join('<br>') + '</div>';
   if (i >= 7) h += '<div class="tth" style="margin-top:6px;font-size:12.5px">&#9888; Ngày thứ ' + (i + 1) + ': độ chính xác thấp, chỉ để tham khảo xu hướng.</div>';
   h += '<div class="ttc"><div class="ttl">Theo giờ' + ttNut() + '</div>' + (L.length >= 12 ? ttBieuDo2(L, ttM(), nay) : '<div style="font-size:13.5px">Ngày xa chưa có dự báo theo giờ, chỉ có theo buổi:</div><div style="margin-top:6px;display:flex;gap:10px;align-items:center">' + ttSeg(x, true) + ttCotNgay(x) + '</div>') + '</div>';
   if (L.length >= 12) h += '<div class="ttc"><div class="ttl">&#9200; Khung giờ tốt trong ngày</div>' + ttHD().map(function(hd){ var k = ttKhungNgay(hd, x); return '<div style="margin:3px 0"><b>' + esc(hd[1]) + ':</b> <span class="ttkh" style="background:' + (k.length ? 'rgba(134,239,172,.9);color:#14532D' : 'rgba(254,202,202,.85);color:#7F1D1D') + '">' + (k.length ? k.join(', ') : (d === td && h0 >= hd[3] ? 'đã qua giờ' : 'không có')) + '</span></div>'; }).join('') + '</div>';
@@ -3896,6 +3926,36 @@ function ttNgaySheet(d){
   if (mo) $('sheet').scrollTop = sx;
   if (nay > 1) try { var sv = $('sheet').querySelectorAll('.ttsx')[1]; if (sv) sv.scrollLeft = (nay - 1) * 40; } catch(e){}
 }
+/* 10.13h: dong theo gio, nang nong / UV, mua lon keo dai, do tin cay (2 nguon), khong khi - giong ban may tinh */
+function ttKhoangGio(hs){ var a = hs.map(Number).sort(function(x, y){ return x - y; }).filter(function(v, i, z){ return i === 0 || v !== z[i - 1]; }); if (!a.length) return ''; var r = [], tu = a[0], tr = a[0];
+  for (var i = 1; i <= a.length; i++) { if (i < a.length && a[i] === tr + 1) { tr = a[i]; continue; } r.push(tu === tr ? tu + 'h' : tu + 'h-' + (tr + 1) + 'h'); if (i < a.length) { tu = a[i]; tr = a[i]; } } return r.join(', '); }
+function ttGioDong(n, tu){ return ((n && n.g) || []).filter(function(x){ return x && x[3] >= 95 && x[0] >= (tu || 0); }).map(function(x){ return x[0]; }); }
+function ttNangNong(n, ngan){ if (!n) return ''; var cg = +n.cg || 0, uv = +n.uv || 0, p = [];
+  if (cg >= 35) { var kg = ttKhoangGio((n.g || []).filter(function(x){ return x && x.length >= 9 && x[0] >= 8 && x[0] <= 17 && x[8] >= Math.max(35, cg - 2); }).map(function(x){ return x[0]; }));
+    if (ngan) p.push('cảm giác tới ' + cg + '°C' + (kg ? ', nóng nhất ' + kg : ''));
+    else if (cg >= 39) p.push('🥵 Nắng nóng gắt: cảm giác tới ' + cg + '°C' + (kg ? ' (nóng nhất ' + kg + ')' : '') + '. Việc nặng ngoài trời nên làm sáng sớm / chiều muộn, tránh 11h-15h; nghỉ giải lao trong bóng mát, uống nước 15-20 phút / lần.');
+    else p.push('🌡 Oi nóng: cảm giác tới ' + cg + '°C' + (kg ? ' (' + kg + ')' : '') + '. Nhắc anh em uống đủ nước, nghỉ giải lao.'); }
+  if (uv >= 8) p.push(ngan ? 'UV ' + uv : '☀ Tia UV ' + uv + ' (' + ttUvTen(uv).toLowerCase() + '): đội mũ rộng vành, áo dài tay, hạn chế phơi nắng 10h-14h.');
+  return p.join(ngan ? ', ' : '\n'); }
+function ttMuaKeoDai(){ var D = ((S.tt && S.tt.ngay) || []).filter(function(n){ return n.d >= today(); }).slice(0, 7), i = 0;
+  while (i < D.length) { if ((+D[i].mua || 0) >= 10) { var j = i; while (j + 1 < D.length && (+D[j + 1].mua || 0) >= 10) j++; var ds = D.slice(i, j + 1), tong = 0, mx = 0; ds.forEach(function(x){ tong += +x.mua || 0; mx = Math.max(mx, +x.mua || 0); });
+      if (ds.length >= 3 || mx >= 50) return { tu: ds[0].d, den: ds[ds.length - 1].d, tong: Math.round(tong), max: Math.round(mx), so: ds.length }; i = j + 1; } else i++; } return null; }
+function ttMuaKeoDaiTxt(k, ngan){ if (!k) return ''; var kh = k.tu === k.den ? ttThu(k.tu) : ttThu(k.tu) + ' → ' + ttThu(k.den);
+  return ngan ? 'Mưa lớn ' + (k.so >= 3 ? 'kéo dài ' : '') + kh + ' (~' + k.tong + ' mm)' : '⚠️ Mưa lớn ' + (k.so >= 3 ? 'kéo dài ' : '') + kh + ', tổng khoảng ' + k.tong + ' mm. Trước khi mưa: khơi thông mương, hố ga, hố lắng bùn; kiểm tra bơm; kê cao hàng trong kho; dời việc ngoài trời / trên cao.'; }
+function ttTinCay(n){ if (!n || !n.m2) return null; var a = +n.m2[0], b = +n.m2[1], hi = Math.max(a, b), lo = Math.min(a, b); return { chua: (hi >= 5 && lo < 1) || (hi >= 15 && hi >= 3 * Math.max(lo, 0.1)), txt: 'nguồn châu Âu ' + a + ' mm, nguồn Mỹ ' + b + ' mm' }; }
+function ttAqiTen(v){ return v <= 50 ? 'tốt' : v <= 100 ? 'trung bình' : v <= 150 ? 'kém (người nhạy cảm nên hạn chế)' : v <= 200 ? 'xấu' : v <= 300 ? 'rất xấu' : 'nguy hại'; }
+function ttKhongKhi(ngan){ var k = S.tt && S.tt.kk; if (!k) return ''; var v = +k.aqi || 0, mx = +k.max || 0, c = Math.max(v, mx);
+  if (ngan) return c > 100 ? 'Không khí ' + ttAqiTen(c).split(' ')[0] + ' (AQI ' + c + ')' : '';
+  return 'Không khí: AQI ' + v + ' - ' + ttAqiTen(v) + (k.pm ? ', bụi mịn PM2.5 ' + k.pm + ' µg/m³' : '') + (mx > v && k.gio >= 0 ? '; hôm nay cao nhất ~' + mx + ' lúc ' + k.gio + 'h' : '') + '.' + (c > 100 ? ' Làm ngoài trời nên đeo khẩu trang chống bụi.' : ''); }
+function ttThemNgay(n){ var p = [], gd = ttGioDong(n); if (gd.length) p.push('⛈ Dông, sét khoảng ' + ttKhoangGio(gd) + ' - dừng việc trên cao, ngoài trời; không trú dưới cây, cột điện');
+  var nn = ttNangNong(n); if (nn) p.push(nn); if (n.d === today()) { var kk = ttKhongKhi(); if (kk) p.push('😷 ' + kk); } return p.join('\n'); }
+var ttDanhGia13h = ttDanhGia;
+ttDanhGia = function(n){ var r = ttDanhGia13h(n), tc = ttTinCay(n); if (tc && tc.chua) { r.chu += '?'; r.ly += '; dự báo chưa chắc (' + tc.txt + ')'; r.chua = true; } return r; };
+var ttCauChinh13h = ttCauChinh;
+ttCauChinh = function(){ var s = ttCauChinh13h(), p = [], a = ttNgay(today()), h0 = new Date().getHours();
+  if (a) { var gd = ttGioDong(a, h0); if (gd.length) p.push('<b>Dông khoảng ' + ttKhoangGio(gd) + '</b>'); if (h0 < 16) { var nn = ttNangNong(a, true); if (nn) p.push(esc(nn.charAt(0).toUpperCase() + nn.slice(1))); } }
+  var kk = ttKhongKhi(true); if (kk) p.push(esc(kk)); var md = ttMuaKeoDaiTxt(ttMuaKeoDai(), true); if (md) p.push('<b>' + esc(md) + '</b>');
+  return p.length ? s.replace(/\.\s*$/, '') + '. ' + p.join('. ') + '.' : s; };
 /* ve lai trang: the 24 gio + danh sach 10 ngay */
 var ttView1012 = ttView;
 ttView = function(){
@@ -3911,7 +3971,7 @@ function ttView1011b(){
   if (ttM() === 'm') {
     var i = 0;
     h = h.replace(/<div class="ttr" data-tta="mo" data-v="([0-9-]+)"([^>]*)>([\s\S]*?)<\/div><\/div>(?=<div class="ttr" data-tta="mo"|<div class="tth" style="margin-top:6px;font-size:12px">Bấm)/g, function(a, d){ var x = ttNgay(d); if (!x) return a; var g = ttDanhGia(x);
-      return '<div class="ttr" data-tta="ngay" data-v="' + esc(d) + '"' + (D.indexOf(x) >= 7 ? ' style="opacity:.6"' : '') + '><div style="width:68px;flex:none;white-space:nowrap"><div style="font-size:15px;font-weight:600">' + (d === today() ? 'Hôm nay' : esc(ttThu(d))) + '</div><div style="font-size:11.5px;font-weight:800;color:' + TTDGC[g.m][0] + '">' + TTDG[g.m] + '</div></div>' + ttCotNgay(x) + '<div style="flex:1;text-align:right;font-size:15px;font-weight:700;white-space:nowrap">' + (x.mua >= 0.1 ? (x.mua >= 10 ? Math.round(x.mua) : x.mua) + ' mm' : '<span style="opacity:.6">0 mm</span>') + '</div><div style="width:52px;flex:none;text-align:right;font-size:14px;' + (x.pop >= 40 ? 'color:#BAE6FD;font-weight:700' : 'opacity:.6') + '">' + (x.pop >= 40 ? '&#128167;' : '') + x.pop + '%</div></div>'; });
+      return '<div class="ttr" data-tta="ngay" data-v="' + esc(d) + '"' + (D.indexOf(x) >= 7 ? ' style="opacity:.6"' : '') + '><div style="width:68px;flex:none;white-space:nowrap"><div style="font-size:15px;font-weight:600">' + (d === today() ? 'Hôm nay' : esc(ttThu(d))) + '</div><div style="font-size:11.5px;font-weight:800;color:' + TTDGC[g.m][0] + '">' + g.chu + '</div></div>' + ttCotNgay(x) + '<div style="flex:1;text-align:right;font-size:15px;font-weight:700;white-space:nowrap">' + (x.mua >= 0.1 ? (x.mua >= 10 ? Math.round(x.mua) : x.mua) + ' mm' : '<span style="opacity:.6">0 mm</span>') + '</div><div style="width:52px;flex:none;text-align:right;font-size:14px;' + (x.pop >= 40 ? 'color:#BAE6FD;font-weight:700' : 'opacity:.6') + '">' + (x.pop >= 40 ? '&#128167;' : '') + x.pop + '%</div></div>'; });
   }
   h = h.replace(/data-tta="mo" data-v="([0-9-]+)"( style="opacity:\.9")?/g, function(a, d){ var k = -1; D.forEach(function(x, j){ if (x.d === d) k = j; }); return 'data-tta="ngay" data-v="' + d + '"' + (k >= 7 ? ' style="opacity:.6"' : ''); });
   h = h.replace('Bấm 1 ngày để xem chi tiết. 3 ngày đầu khá chắc, các ngày sau để tham khảo.', 'Bấm 1 ngày để xem theo giờ, khung giờ tốt. 3 ngày đầu khá chắc, 4-7 xem xu hướng, ngày 8 trở đi (chữ mờ) chỉ để tham khảo.');
