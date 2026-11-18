@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13i-202611171653';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13k-202611181617';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -1382,6 +1382,15 @@ function unzAll(r){ var ps = []; ['snap', 'oa', 'kho', 'kown'].forEach(function(
 function luuLoad(r){ try { var o = {}; Object.keys(r).forEach(function(k){ if (['snap', 'oa', 'kho', 'kown'].indexOf(k) >= 0 && r[k + 'Z']) return; o[k] = r[k]; });
   idbGet('last').then(function(c){ var cu = (c && c.tok === S.tok && c.r) || {}; ['kho', 'kown', 'oa'].forEach(function(k){ if (!o[k] && !o[k + 'Z']) { if (cu[k + 'Z']) o[k + 'Z'] = cu[k + 'Z']; else if (cu[k]) o[k] = cu[k]; } }); if (!o.z && (o.khoZ || o.kownZ || o.oaZ)) o.z = 1; idbSet('last', { tok: S.tok, luc: Date.now(), r: o }); }); } catch(e){} }
 function hienCache(){ if (S.snap) return; idbGet('last').then(function(c){ if (!c || c.tok !== S.tok || S.snap || !c.r) return; unzAll(c.r).then(function(r){ if (S.snap) return; S.tuCache = c.luc; apLoad(r, true); }).catch(function(){}); }); }
+// 10.13k: cai dat thoi tiet - lay ban Google vua luu + cac lenh doi dang cho, de len so cu (khong bi giat ve noi cu khi may chu chua chay)
+function ttGop(t, d){ t = Object.assign({}, t || {}); ['noi', 'chon', 'tin', 'gio', 'cb', 'nhan', 'ng', 'hd'].forEach(function(k){ if (d && d[k] !== undefined && d[k] !== null) t[k] = d[k]; }); if (!Array.isArray(t.noi) || !(t.chon >= 0 && t.chon < t.noi.length)) t.chon = 0; return t; }
+function ttApWeb(g){
+  if (S.role || !S.snap) return;
+  var cho = (S.queue || []).filter(function(c){ return c.op === 'ti' && c.data && c.data.a === 'ttcfg'; });
+  if (!g && !cho.length) return;
+  var t = (S.snap.ti && S.snap.ti.tt) || null; if (g) t = ttGop(t, g); cho.forEach(function(c){ t = ttGop(t, c.data); });
+  S.snap.ti = S.snap.ti || {}; S.snap.ti.tt = t; try { localStorage.setItem('scv_ttcfg', JSON.stringify(t)); } catch(e){}
+}
 function apLoad(r, cache){
     var snap = null; try { snap = r.snap ? JSON.parse(r.snap) : null; } catch(e){}
     if (r.oa) { try { S.oa = JSON.parse(r.oa); } catch(e){} }
@@ -1389,6 +1398,7 @@ function apLoad(r, cache){
     if (r.kown) { try { S.kown = JSON.parse(r.kown); } catch(e){} }
     S.kownErr = r.kownErr || ''; S.thay = r.thay || null;
     S.snap = snap; S.queue = mq(r.queue || []); khoOpt(); S.results = r.results || []; S.lastPc = r.lastPc || 0; S.srvNow = r.now || Date.now(); S.pcs = r.pcs || {};
+    try { ttApWeb(r.ttcfg); } catch(e){}
     S.results.forEach(function(x){ if (cache) { S.seen[x.cid] = 1; return; } if (!S.seen[x.cid]) { S.seen[x.cid] = 1; if (!x.ok && (Date.now() - x.luc) < 10 * 60000 && !S.read[x.cid]) toast('Máy chủ báo: ' + (x.msg || 'lỗi') + '  (bấm để xem)', 7000); } });
     drawBell();
     drawSync(); draw();
