@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13k-202611181617';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13n-202611211006';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -855,7 +855,7 @@ function kTonList(){
   (K.vt || []).forEach(function(v){
     if (n >= 150 || !kMatch(v[0] + ' ' + v[1] + ' ' + v[3] + ' ' + (v[8] || '') + ' ' + (v[7] || ''), q)) return; n++;
     var het = v[4] <= 0, it = v[6] > 0 && v[4] < v[6];
-    h += '<div class="mini"><span><b>' + esc(v[0]) + '</b> ' + esc(v[1]) + '<br><span class="hint">' + (v[3] ? 'kệ ' + esc(v[3]) + ' · ' : '') + (S.role ? (v[8] ? esc(v[8]) + ' · ' : '') + esc(v[7] || '') : 'kho chung ' + kcTxt(v[5]) + (v[6] > 0 ? ' · tối thiểu ' + kN(v[6]) : '')) + '</span></span><span class="tag ' + (het ? 'red' : it ? 'orange' : 'green') + '" style="white-space:nowrap">' + kN(v[4]) + ' ' + esc(v[2]) + '</span></div>';
+    h += '<div class="mini"><span><b>' + esc(v[0]) + '</b> ' + esc(v[1]) + '<br><span class="hint">' + (v[3] ? 'kệ ' + esc(v[3]) + ' · ' : '') + (S.role ? (v[8] ? esc(v[8]) + ' · ' : '') + esc(v[7] || '') : 'kho chung ' + kcTxt(v[5]) + (v[6] > 0 ? ' · tối thiểu ' + kN(v[6]) : '') + kMvTxt(v[0])) + '</span></span><span class="tag ' + (het ? 'red' : it ? 'orange' : 'green') + '" style="white-space:nowrap">' + kN(v[4]) + ' ' + esc(v[2]) + '</span></div>';
   });
   if (!n) h = '<div class="empty">Không có mã nào' + (q ? ' khớp "' + esc(q) + '"' : '') + '.</div>';
   else if (n >= 150) h += '<div class="hint">Chỉ hiện 150 mã đầu - gõ thêm để lọc.</div>';
@@ -1777,7 +1777,7 @@ kTonList = function(){
     var het = v[4] <= 0, it = v[6] > 0 && v[4] < v[6], ls = tl[v[0]] || [], gan = '';
     ls.forEach(function(l){ if (l[2] && (!gan || l[2] < gan)) gan = l[2]; });
     var sap = gan && gan <= addDays(30);
-    h += '<div class="mini" data-kvt="' + esc(v[0]) + '" style="cursor:pointer"><span><b>' + esc(v[0]) + '</b> ' + esc(v[1]) + '<br><span class="hint">' + (vk ? '&#128205; ' + esc(vk) + ' · ' : (v[3] ? 'kệ ' + esc(v[3]) + ' · ' : '')) + 'kho chung ' + kcTxt(v[5]) + (ls.length ? ' · ' + ls.length + ' lô/cỡ' : '') + (gan ? ' · hạn gần ' + kD(gan) : '') + '</span></span>' +
+    h += '<div class="mini" data-kvt="' + esc(v[0]) + '" style="cursor:pointer"><span><b>' + esc(v[0]) + '</b> ' + esc(v[1]) + '<br><span class="hint">' + (vk ? '&#128205; ' + esc(vk) + ' · ' : (v[3] ? 'kệ ' + esc(v[3]) + ' · ' : '')) + 'kho chung ' + kcTxt(v[5]) + (ls.length ? ' · ' + ls.length + ' lô/cỡ' : '') + (gan ? ' · hạn gần ' + kD(gan) : '') + kMvTxt(v[0]) + '</span></span>' +
       (sap ? '<span class="tag orange">hạn</span>' : '') + '<span class="tag ' + (het ? 'red' : it ? 'orange' : 'green') + '" style="white-space:nowrap">' + kN(v[4]) + ' ' + esc(v[2]) + '</span></div>';
   });
   if (!n) h = '<div class="empty">Không có mã nào' + (q ? ' khớp "' + esc(q) + '"' : '') + '.</div>';
@@ -4008,6 +4008,178 @@ function kcTxt(n){ var c = kcCu(); if (!n) return kN(n); if (c > 14) return '? <
 
 /* 10.12b: cac link cu dung onclick="logout()" / "closeSheet()" goi ham nam trong khoi nay -> dua ra ngoai cho goi duoc */
 window.logout = function(x){ return logout(x); }; window.closeSheet = function(){ return closeSheet(); };
+/* ===================== 10.13n: CHO MUON VAT TU (chu kho / nguoi thay quyen MUON) ===================== */
+KOWN_OPS.kmv = 'Cho mượn vật tư'; KOWN_OPS.kmvtra = 'Nhận trả vật tư mượn'; KOWN_OPS.kmvlinh = 'Chuyển mượn thành lĩnh'; KOWN_OPS.kmvden = 'Đền / biên bản vật tư mượn'; KOWN_OPS.kmvhan = 'Gia hạn mượn'; KOWN_OPS.kmvhuy = 'Huỷ phiếu mượn';
+var kPend13n = kPend; kPend = function(){ return kPend13n().concat(S.queue.filter(function(c){ return /^kmv/.test(c.op); })); };
+function kMVDs(){ return kOwn().mv || []; }
+function kMV(id){ return kMVDs().filter(function(m){ return m[0] === id; })[0]; }
+function kMvTxt(ma){ var n = (kOwn().mvn || {})[String(ma || '').toUpperCase()]; return n ? ' · <b style="color:#c2410c">cho mượn ' + kN(n) + '</b>' : ''; }
+function kMVCon(m){ var s = 0; (m[11] || []).forEach(function(d){ s += +d[5] || 0; }); return s; }
+function kMVCho(id){ return S.queue.some(function(c){ return /^kmv/.test(c.op) && c.data && c.data.id === id; }); }
+function kMVLoai(l){ return { TRA: 'Trả', LINH: 'Chuyển lĩnh', DEN: 'Đền / biên bản', GIAHAN: 'Gia hạn' }[l] || l; }
+function kMVItem(m){
+  var qh = m[10] > 0, mo = m[9] === 'MUON', con = kMVCon(m);
+  var hang = (m[11] || []).filter(function(d){ return !mo || d[5] > 0; }).map(function(d){ return d[0] + (d[3] ? ' c' + d[3] : '') + ' ×' + kN(mo ? d[5] : d[4]); }).join(', ');
+  return '<div class="mini" data-kmv="xem" data-v="' + esc(m[0]) + '" style="cursor:pointer"><span><b>' + esc(m[6]) + '</b> <span class="hint">' + esc(m[1]) + '</span><br><span class="hint">' + esc(m[7] ? m[7] + ' · ' : '') + kD(m[2]) + ' → ' + kD(m[3]) + ' · ' + esc(hang) + (kMVCho(m[0]) ? ' · <b>đang chờ máy chủ</b>' : '') + '</span></span>' +
+    '<span class="tag ' + (!mo ? 'green' : qh ? 'red' : 'blue') + '" style="white-space:nowrap">' + (!mo ? 'xong' : qh ? 'quá hạn ' + m[10] + ' ngày' : 'còn nợ ' + kN(con)) + '</span></div>';
+}
+function kMVList(){
+  var q = S.kq, a = kMVDs().filter(function(m){ return kMatch(m[1] + ' ' + m[6] + ' ' + m[7] + ' ' + m[5] + ' ' + (m[11] || []).map(function(d){ return d[0] + ' ' + d[1]; }).join(' ') + ' ' + m[12] + ' ' + m[13], q); });
+  var mo = a.filter(function(m){ return m[9] === 'MUON'; }), xo = a.filter(function(m){ return m[9] !== 'MUON'; }), nq = mo.filter(function(m){ return m[10] > 0; }).length;
+  var h = '<div class="sec">Đang cho mượn <span class="n">' + mo.length + '</span>' + (nq ? ' <span class="tag red">' + nq + ' quá hạn</span>' : '') + '</div>' + (mo.length ? mo.map(kMVItem).join('') : '<div class="hint">Không có phiếu nào đang mượn' + (q ? ' khớp "' + esc(q) + '"' : '') + '.</div>');
+  if (xo.length) h += '<div class="sec">Đã xong (60 ngày) <span class="n">' + xo.length + '</span></div>' + xo.slice(0, 40).map(kMVItem).join('');
+  return h;
+}
+var kMuonList13n = kMuonList;
+kMuonList = function(){ if (!S.role && S.kown && S.kmuT === 'vt') return kMVList(); return kMuonList13n(); };
+var drawKho13n = drawKho;
+drawKho = function(){
+  var h = drawKho13n();
+  if (S.role || !S.kho || S.ktab !== 'muon' || !S.kown) return h;
+  var vt = S.kmuT === 'vt', nq = kMVDs().filter(function(m){ return m[9] === 'MUON' && m[10] > 0; }).length;
+  if (vt) h = h.replace('<button class="btn pri" data-kact="scan">&#128247; Quét mã công cụ</button>', '<button class="btn pri" data-kmv="moi">+ Cho mượn vật tư</button>').replace('placeholder="Tìm công cụ / người mượn"', 'placeholder="Tìm người mượn / mã / số phiếu"');
+  var i = h.indexOf('<div style="display:flex;gap:6px;margin-bottom:6px">'); if (i < 0) return h;
+  var tg = '<div class="chips" style="padding-top:0"><button class="chip' + (vt ? '' : ' on') + '" data-kmv="tab" data-v="cc">&#128295; Công cụ / máy đo</button><button class="chip' + (vt ? ' on' : '') + '" data-kmv="tab" data-v="vt">&#128230; Vật tư cho mượn' + (nq ? ' <span class="tag red">' + nq + '</span>' : '') + '</button></div>';
+  return h.slice(0, i) + tg + h.slice(i);
+};
+/* ---- lap phieu muon ---- */
+function kMVRead(){
+  if (!$('kmvNgay')) return;
+  S.kmvH = { dv: $('kmvDv').checked, nv: $('kmvNv').value.trim().toUpperCase(), ten: $('kmvTen').value.trim(), bp: ($('kmvBp') || {}).value || '', dvn: ($('kmvDvn') || {}).value || '', dd: ($('kmvDd') || {}).value || '', dt: $('kmvDt').value.trim(), ngay: $('kmvNgay').value, han: $('kmvHan').value, md: $('kmvMd').value.trim(), linh: $('kmvLinh').checked };
+  S.kmvRows = (S.kmvRows || []).map(function(r, i){ return { ma: $('kmvM' + i) ? $('kmvM' + i).value.trim().toUpperCase() : r.ma, sl: $('kmvS' + i) ? $('kmvS' + i).value : r.sl, co: $('kmvC' + i) ? $('kmvC' + i).value.trim() : r.co }; });
+}
+function showKMVNew(moi){
+  if (moi || !S.kmvRows || !S.kmvRows.length) { if (moi || !S.kmvH) { S.kmvH = null; S.kpxKy = null; } if (!S.kmvRows || !S.kmvRows.length || moi) S.kmvRows = [{ ma: '', sl: '', co: '' }]; }
+  var hd = S.kmvH || { dv: false, nv: '', ten: '', bp: '', dvn: '', dd: '', dt: '', ngay: today(), han: addDays(7), md: '', linh: false }, vm = kVtMap();
+  var h = '<div class="sh-h"><h2>Cho mượn vật tư</h2><button class="ibtn" data-close="1">&#10005;</button></div>' +
+    '<datalist id="kmvdvl">' + (kOwn().mvdv || []).map(function(x){ return '<option value="' + esc(x) + '">'; }).join('') + '</datalist>' +
+    '<div class="box"><label class="chk"><input id="kmvDv" type="checkbox"' + (hd.dv ? ' checked' : '') + '> Cho đơn vị ngoài mượn (xưởng khác)</label>' +
+    (hd.dv ? '<div class="grid2"><div><label class="f">Đơn vị / xưởng</label><input id="kmvDvn" class="inp" list="kmvdvl" value="' + esc(hd.dvn) + '" placeholder="vd Lò cao 高爐"></div><div><label class="f">Người đại diện</label><input id="kmvDd" class="inp" value="' + esc(hd.dd) + '"></div></div>' : '') +
+    '<div class="grid2"><div><label class="f">' + (hd.dv ? 'VNW người nhận (nếu có)' : 'Người mượn (gõ tên / 4 số cuối / VNW)') + '</label><input id="kmvNv" class="inp" autocomplete="off" value="' + esc(hd.nv) + '"></div><div><label class="f">Họ tên</label><input id="kmvTen" class="inp" value="' + esc(hd.ten) + '"></div></div>' +
+    '<div class="grid2">' + (hd.dv ? '' : '<div><label class="f">Tổ</label><input id="kmvBp" class="inp" value="' + esc(hd.bp) + '"></div>') + '<div><label class="f">Điện thoại</label><input id="kmvDt" class="inp" type="tel" value="' + esc(hd.dt) + '"></div></div>' +
+    '<div class="grid2"><div><label class="f">Ngày mượn</label><input id="kmvNgay" class="inp" type="date" value="' + esc(hd.ngay) + '"></div><div><label class="f">Hạn trả</label><input id="kmvHan" class="inp" type="date" value="' + esc(hd.han) + '"' + (hd.linh ? ' disabled' : '') + '></div></div>' +
+    '<label class="f">Mục đích</label><input id="kmvMd" class="inp" value="' + esc(hd.md) + '">' +
+    '<label class="chk"><input id="kmvLinh" type="checkbox"' + (hd.linh ? ' checked' : '') + '> Cho lĩnh luôn (không phải trả)</label></div>' +
+    '<div class="box"><h3>Hàng mượn</h3>';
+  S.kmvRows.forEach(function(r, i){ var v = vm[String(r.ma || '').toUpperCase()], cs = v ? kCoDs(v[0]) : [], tc = cs.length ? kTonCo(v[0]) : {};
+    h += '<div style="border-top:1px dashed var(--line);padding:6px 0"><div class="grid2"><div><input id="kmvM' + i + '" class="inp" placeholder="Mã / tên hàng" autocomplete="off" value="' + esc(r.ma) + '"></div><div style="display:flex;gap:4px"><input id="kmvS' + i + '" class="inp" type="number" min="0" step="any" inputmode="decimal" placeholder="SL" value="' + esc(r.sl) + '"><button class="btn sm red" data-kmv="del" data-v="' + i + '">&#10005;</button></div></div>' +
+      '<div class="hint">' + (v ? esc(v[1]) + ' · tồn <b>' + kN(v[4]) + ' ' + esc(v[2]) + '</b>' + (+r.sl > v[4] ? ' <span style="color:var(--red)">- QUÁ TỒN</span>' : '') : (r.ma ? '<span style="color:var(--red)">không có mã này</span>' : '')) + '</div>' +
+      (cs.length ? '<select id="kmvC' + i + '" class="inp"><option value="">Cỡ…</option>' + cs.map(function(c){ return '<option value="' + esc(c) + '"' + (String(r.co) === c ? ' selected' : '') + '>' + esc(c) + (tc[c] != null ? ' · còn ' + kN(tc[c]) : '') + '</option>'; }).join('') + '</select>' : '') + '</div>'; });
+  h += '<div style="display:flex;gap:6px"><button class="btn pri sm" style="flex:1" data-kmv="quet">&#128247; Quét mã thêm dòng</button><button class="btn sm" data-kmv="row">+ Thêm dòng</button></div></div>' + kKyBox().replace('Chữ ký người nhận', 'Chữ ký người mượn').replace('Người nhận ký', 'Người mượn ký') +
+    '<button class="btn pri" style="width:100%" data-kmv="gui">' + (hd.linh ? 'Gửi xuất cho lĩnh' : 'Gửi cho mượn') + '</button><div class="hint">Máy chủ lập phiếu khi đồng bộ: trừ tồn ngay, theo dõi nợ đến khi trả hàng thật. Kết quả xem ở chuông thông báo.</div>';
+  openSheet(h); kKyGan(); kGyOk($('kmvNv'));
+  if (S.kmvFocus != null) { var fe = $('kmvS' + S.kmvFocus); S.kmvFocus = null; if (fe) setTimeout(function(){ try { fe.focus(); fe.scrollIntoView({ block: 'center' }); } catch(e){} }, 120); }
+}
+function kMVGui(){
+  kMVRead(); var hd = S.kmvH, vm = kVtMap(), rows = [], bad = [];
+  (S.kmvRows || []).forEach(function(r){ if (!r.ma && !r.sl) return; var v = vm[r.ma], sl = +String(r.sl).replace(',', '.'); if (!v) bad.push('không có mã ' + r.ma); else if (!(sl > 0)) bad.push(r.ma + ': số lượng'); else { if (sl > v[4]) bad.push(r.ma + ' quá tồn (' + kN(v[4]) + ')'); if (kCoDs(r.ma).length && !r.co) bad.push(r.ma + ': chọn cỡ'); rows.push({ ma: r.ma, sl: sl, co: r.co || '' }); } });
+  if (hd.dv) { if (!hd.dvn.trim()) bad.push('ghi tên đơn vị / xưởng'); if (!hd.dd.trim() && !hd.ten) bad.push('ghi người đại diện'); }
+  else if (!hd.nv && !hd.ten) bad.push('ghi người mượn');
+  if (!hd.linh && hd.han < hd.ngay) bad.push('hạn trả trước ngày mượn');
+  if (bad.length) { toast(bad.join('; '), 5000); return; }
+  if (!rows.length) { toast('Chưa có hàng nào'); return; }
+  var data = { kieu: hd.dv ? 'DV' : 'NGUOI', nv: hd.nv, ten: hd.ten, bp: hd.bp, dv: hd.dvn.trim(), dd: hd.dd.trim(), dt: hd.dt, ngay: hd.ngay, han: hd.han, md: hd.md, linh: !!hd.linh, rows: rows };
+  if (S.kpxKy) data.ky = S.kpxKy;
+  if (S.kBusy13n) return; S.kBusy13n = true;
+  var td = (hd.linh ? 'Cho lĩnh ' : 'Cho mượn ') + (hd.dv ? hd.dvn : (hd.ten || hd.nv)) + ' ' + rows.length + ' dòng';
+  kOutQ('kmv', data, td).then(function(ok){ S.kBusy13n = false; if (ok) { S.kmvRows = []; S.kmvH = null; S.kpxKy = null; closeSheet(); draw(); } });
+}
+function kMVScan(code){
+  var u = String(code || '').trim().toUpperCase(); if (!u) { showKMVNew(); return; }
+  var v = kVtMap()[u]; if (!v) { toast('Không có mã ' + u + ' trong danh mục', 3000); showKMVNew(); return; }
+  S.kmvRows = (S.kmvRows || []).filter(function(r){ return r.ma || r.sl; });
+  var ix = -1; S.kmvRows.forEach(function(r, i){ if (r.ma === u && !r.sl) ix = i; });
+  if (ix < 0) { S.kmvRows.push({ ma: u, sl: '', co: '' }); ix = S.kmvRows.length - 1; }
+  S.kmvFocus = ix; showKMVNew(); toast(u + ' - gõ số lượng', 1500);
+}
+/* ---- xem phieu + nhan tra / chuyen linh / den / gia han / huy ---- */
+function showKMV(id){
+  var m = kMV(id); if (!m) { toast('Không thấy phiếu (tải lại)'); return; }
+  var mo = m[9] === 'MUON', cho = kMVCho(id);
+  var h = '<div class="sh-h"><h2>Phiếu mượn ' + esc(m[1]) + '</h2><button class="ibtn" data-close="1">&#10005;</button></div>' +
+    '<div class="box"><div class="kv"><div>Bên mượn</div><div><b>' + esc(m[6]) + '</b> ' + esc(m[7]) + '</div>' + (m[8] ? '<div>Điện thoại</div><div><a href="tel:' + esc(m[8]) + '">' + esc(m[8]) + '</a></div>' : '') +
+    '<div>Mượn - hạn trả</div><div>' + kD(m[2]) + ' → <b' + (m[10] > 0 ? ' style="color:var(--red)"' : '') + '>' + kD(m[3]) + (m[10] > 0 ? ' (quá hạn ' + m[10] + ' ngày)' : '') + '</b></div>' +
+    (m[13] ? '<div>Mục đích</div><div>' + esc(m[13]) + '</div>' : '') + (m[12] ? '<div>Số phiếu ERP</div><div>' + esc(m[12]) + '</div>' : '') +
+    '<div>Chữ ký</div><div>' + (m[14] ? '&#10003; có (xem / in trên máy công ty)' : 'không') + '</div><div>Trạng thái</div><div>' + (mo ? 'Đang mượn - còn nợ ' + kN(kMVCon(m)) : 'Đã xong') + '</div></div></div>' +
+    '<div class="box"><h3>Hàng</h3>' + (m[11] || []).map(function(d){ return '<div class="mini"><span><b>' + esc(d[0]) + '</b> ' + esc(d[1]) + (d[3] ? ' · cỡ ' + esc(d[3]) : '') + '<br><span class="hint">mượn ' + kN(d[4]) + (d[6] ? ' · trả ' + kN(d[6]) : '') + (d[7] ? ' · lĩnh ' + kN(d[7]) : '') + (d[8] ? ' · đền ' + kN(d[8]) : '') + ' ' + esc(d[2]) + '</span></span><span class="tag ' + (d[5] > 0 ? 'orange' : 'green') + '">' + (d[5] > 0 ? 'nợ ' + kN(d[5]) : 'đủ') + '</span></div>'; }).join('') + '</div>';
+  if ((m[15] || []).length) h += '<div class="box"><h3>Lịch sử</h3>' + m[15].map(function(x){ return '<div class="hint">' + kD(x[0]) + ' · <b>' + esc(kMVLoai(x[1])) + '</b>' + (x[1] !== 'GIAHAN' ? ' ' + kN(x[2]) : '') + ' · ' + esc(x[3]) + (x[4] ? ' · ' + esc(x[4]) : '') + '</div>'; }).join('') + '</div>';
+  if (cho) h += '<div class="pend">&#8987; Phiếu này đang có thao tác chờ máy chủ - đợi máy chủ xử lý xong rồi làm tiếp.</div>';
+  else if (mo) h += '<div class="box"><button class="btn green" style="width:100%;margin-bottom:8px" data-kmv="tra" data-v="' + esc(id) + '">Nhận trả (hàng đã về tay)</button>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" style="flex:1" data-kmv="linh" data-v="' + esc(id) + '">Chuyển thành lĩnh</button><button class="btn sm" style="flex:1" data-kmv="den" data-v="' + esc(id) + '">Đền / biên bản</button><button class="btn sm" style="flex:1" data-kmv="han" data-v="' + esc(id) + '">Gia hạn</button><button class="btn sm red" style="flex:1" data-kmv="huy" data-v="' + esc(id) + '">Huỷ (nhập nhầm)</button></div></div>';
+  openSheet(h);
+}
+function kMVDongHtml(m, kieu){
+  return (m[11] || []).map(function(d, i){ if (!(d[5] > 0)) return '';
+    var cs = kieu === 'tra' ? kCoDs(d[0]) : [];
+    return '<div style="border-top:1px dashed var(--line);padding:6px 0"><div class="hint"><b>' + esc(d[0]) + '</b> ' + esc(d[1]) + (d[3] ? ' · cỡ ' + esc(d[3]) : '') + ' · còn nợ ' + kN(d[5]) + ' ' + esc(d[2]) + '</div>' +
+      '<div class="grid2"><input id="kmvT' + i + '" class="inp" type="number" min="0" step="any" inputmode="decimal" value="' + (Math.round(d[5] * 1000) / 1000) + '" placeholder="SL">' +
+      (kieu === 'tra' ? (cs.length ? '<select id="kmvTc' + i + '" class="inp">' + cs.map(function(c){ return '<option value="' + esc(c) + '"' + (c === d[3] ? ' selected' : '') + '>cỡ trả ' + esc(c) + '</option>'; }).join('') + '</select>' : '<input id="kmvTm' + i + '" class="inp" placeholder="Mã trả thay (nếu khác)">') : '<span></span>') + '</div>' +
+      (kieu === 'tra' && cs.length ? '<input id="kmvTm' + i + '" class="inp" placeholder="Mã trả thay (nếu khác mã)" style="margin-top:4px">' : '') + '</div>'; }).join('');
+}
+function kMVDongDoc(m, kieu){
+  var r = [], bad = [];
+  (m[11] || []).forEach(function(d, i){ var e = $('kmvT' + i); if (!e) return; var sl = +String(e.value).replace(',', '.'); if (!(sl > 0)) return; if (sl > d[5] + 1e-7) bad.push(d[0] + ': quá số còn nợ ' + kN(d[5]));
+    var x = { i: i, sl: sl }; if (kieu === 'tra') { x.co = ($('kmvTc' + i) || {}).value || ''; x.mt = String(($('kmvTm' + i) || {}).value || '').trim().toUpperCase(); if (x.mt && !kVtMap()[x.mt]) bad.push('mã trả thay ' + x.mt + ' không có trong danh mục'); } r.push(x); });
+  if (bad.length) { toast(bad.join('; '), 5000); return null; }
+  if (!r.length) { toast('Chưa ghi số lượng'); return null; }
+  return r;
+}
+function showKMVTra(id){
+  var m = kMV(id); if (!m) return; S.kpxKy = null;
+  openSheet('<div class="sh-h"><h2>Nhận trả ' + esc(m[1]) + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><div class="hint">' + esc(m[6]) + ' · chỉ nhận khi HÀNG THẬT đã về tay</div>' + kMVDongHtml(m, 'tra') +
+    '<label class="f">Số phiếu ERP (nếu bên kia làm lĩnh / chuyển kho)</label><input id="kmvErp" class="inp"><label class="f">Ghi chú</label><input id="kmvGc" class="inp"></div>' + kKyBox().replace('Chữ ký người nhận', 'Chữ ký người trả').replace('Người nhận ký', 'Người trả ký') +
+    '<button class="btn green" style="width:100%" data-kmv="tragui" data-v="' + esc(id) + '">Gửi nhận trả</button>');
+  kKyGan();
+}
+function showKMVLinh(id){
+  var m = kMV(id); if (!m) return;
+  openSheet('<div class="sh-h"><h2>Chuyển thành lĩnh ' + esc(m[1]) + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><div class="hint">Bên mượn báo không trả được và anh đồng ý: phần chọn thôi tính nợ, tính là ' + esc(m[6]) + ' đã lĩnh (vào mức dùng từ hôm nay). Tồn kho không đổi.</div>' + kMVDongHtml(m, 'linh') +
+    '<label class="f">Lý do</label><input id="kmvLy" class="inp"><label class="f">Người đồng ý</label><input id="kmvDy" class="inp" placeholder="bỏ trống = chủ kho">' +
+    (m[4] !== 'DV' && m[5] ? '<label class="chk"><input id="kmvBh" type="checkbox"> Tính vào cấp phát BHLĐ cá nhân (chỉ khi tất cả các dòng là hàng BHLĐ cá nhân)</label>' : '') + '</div>' +
+    '<button class="btn pri" style="width:100%" data-kmv="linhgui" data-v="' + esc(id) + '">Gửi chuyển thành lĩnh</button>');
+}
+function showKMVDen(id){
+  var m = kMV(id); if (!m) return;
+  openSheet('<div class="sh-h"><h2>Đền / biên bản ' + esc(m[1]) + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><div class="hint">Không trả được, phải đền: phần chọn đóng nợ ở kho, máy chủ tạo việc xử lý trong Sổ; in biên bản ở máy công ty (trang Mượn vật tư). Đền bằng hàng thật: dùng Nhận trả (mã trả thay).</div>' + kMVDongHtml(m, 'den') +
+    '<label class="f">Cách xử lý</label><select id="kmvXl" class="inp"><option>Lập biên bản, chờ xử lý</option><option>Bồi thường tiền</option></select><label class="f">Số tiền bồi thường (đ)</label><input id="kmvTien" class="inp" type="number" min="0" inputmode="numeric"><label class="f">Ghi chú (hoàn cảnh)</label><input id="kmvGc2" class="inp"></div>' +
+    '<button class="btn red" style="width:100%" data-kmv="dengui" data-v="' + esc(id) + '">Gửi ghi nhận</button>');
+}
+function showKMVHan(id){
+  var m = kMV(id); if (!m) return;
+  openSheet('<div class="sh-h"><h2>Gia hạn ' + esc(m[1]) + '</h2><button class="ibtn" data-close="1">&#10005;</button></div><div class="box"><div class="hint">Hạn hiện tại: ' + kD(m[3]) + '</div><label class="f">Hạn mới</label><input id="kmvHanMoi" class="inp" type="date" value="' + addDays(7) + '"></div><button class="btn pri" style="width:100%" data-kmv="hangui" data-v="' + esc(id) + '">Gửi gia hạn</button>');
+}
+document.addEventListener('click', function(e){
+  var el = e.target && e.target.closest ? e.target.closest('[data-kmv]') : null; if (!el) return;
+  var a = el.getAttribute('data-kmv'), v = el.getAttribute('data-v'), m;
+  if (a === 'tab') { S.kmuT = v; draw(); return; }
+  if (a === 'moi') { showKMVNew(true); return; }
+  if (a === 'xem') { showKMV(v); return; }
+  if (a === 'row') { kMVRead(); S.kmvRows.push({ ma: '', sl: '', co: '' }); showKMVNew(); return; }
+  if (a === 'del') { kMVRead(); S.kmvRows.splice(+v, 1); showKMVNew(); return; }
+  if (a === 'quet') { kMVRead(); kkQuet(kMVScan); return; }
+  if (a === 'gui') { kMVGui(); return; }
+  if (a === 'tra') { showKMVTra(v); return; }
+  if (a === 'linh') { showKMVLinh(v); return; }
+  if (a === 'den') { showKMVDen(v); return; }
+  if (a === 'han') { showKMVHan(v); return; }
+  if (a === 'huy') { m = kMV(v); if (!m) return; var ly = prompt('Huỷ phiếu mượn ' + m[1] + ' (nhập nhầm) - hàng về lại kho. Lý do:', 'Nhập nhầm'); if (ly == null) return; send('kmvhuy', '', { id: v, ly: ly }, 'Huỷ phiếu mượn ' + m[1]).then(function(ok){ if (ok) { closeSheet(); draw(); } }); return; }
+  m = kMV(v); if (!m || S.kBusy13n) return;
+  var fin = function(ok){ S.kBusy13n = false; if (ok) { S.kpxKy = null; closeSheet(); draw(); } };
+  if (a === 'tragui') { var r = kMVDongDoc(m, 'tra'); if (!r) return; var d = { id: v, rows: r, erp: $('kmvErp').value.trim(), gc: $('kmvGc').value.trim() }; if (S.kpxKy) d.ky = S.kpxKy; S.kBusy13n = true; kOutQ('kmvtra', d, 'Nhận trả ' + m[1] + ' - ' + m[6]).then(fin); return; }
+  if (a === 'linhgui') { var r2 = kMVDongDoc(m, 'linh'); if (!r2) return; var ly2 = $('kmvLy').value.trim(); if (!ly2) { toast('Ghi lý do'); return; } S.kBusy13n = true; kOutQ('kmvlinh', { id: v, rows: r2, ly: ly2, dy: $('kmvDy').value.trim(), bh: !!($('kmvBh') && $('kmvBh').checked) }, 'Chuyển thành lĩnh ' + m[1]).then(fin); return; }
+  if (a === 'dengui') { var r3 = kMVDongDoc(m, 'den'); if (!r3) return; S.kBusy13n = true; kOutQ('kmvden', { id: v, rows: r3, xl: $('kmvXl').value, tien: +($('kmvTien').value || 0), gc: $('kmvGc2').value.trim() }, 'Đền / biên bản ' + m[1]).then(fin); return; }
+  if (a === 'hangui') { var hm = $('kmvHanMoi').value; if (!hm || hm < m[2]) { toast('Hạn mới không đúng'); return; } S.kBusy13n = true; send('kmvhan', '', { id: v, han: hm }, 'Gia hạn ' + m[1] + ' đến ' + kD(hm)).then(fin); return; }
+});
+document.addEventListener('input', function(e){ var t = e.target; if (!t) return; if (/^kmvM\d+$/.test(t.id || '')) kVtGyVe(t); else if (t.id === 'kmvNv') kGyVe(t); });
+document.addEventListener('change', function(e){ var t = e.target; if (!t) return;
+  if (/^kmvM\d+$/.test(t.id || '')) { kMVRead(); S.kmvFocus = +t.id.replace(/\D/g, ''); showKMVNew(); return; }
+  if (t.id === 'kmvDv' || t.id === 'kmvLinh') { kMVRead(); showKMVNew(); return; }
+  if (t.id === 'kmvNv') { var x = ((S.kho && S.kho.ng) || []).filter(function(n){ return String(n[0]).toUpperCase() === t.value.trim().toUpperCase(); })[0]; if (x) kGyChon('kmvNv', x); }
+});
+document.addEventListener('focusin', function(e){ var t = e.target; if (!t || t.id !== 'kmvNv') kGyAn('kmvNv'); });
+var kGyChon13n = kGyChon;
+kGyChon = function(id, x){ kGyChon13n(id, x); if (id !== 'kmvNv' || !x) return; var tn = $('kmvTen'); if (tn && (!tn.value || tn.dataset.auto)) { tn.value = x[1]; tn.dataset.auto = '1'; } var bp = $('kmvBp'); if (bp && !bp.value) bp.value = x[2] || ''; var dt = $('kmvDt'); if (dt && !dt.value) dt.value = x[3] || ''; var dd = $('kmvDd'); if (dd && !dd.value) dd.value = x[1]; };
+
 })();
 
 
