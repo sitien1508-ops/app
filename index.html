@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13q-202611211327';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.13r-202611231430';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -4040,7 +4040,7 @@ drawKho = function(){
   var h = drawKho13n();
   if (S.role || !S.kho || S.ktab !== 'muon' || !S.kown) return h;
   var di = S.kmuT === 'di', vt = S.kmuT === 'vt' || di, nq = kMVDs().filter(function(m){ return m[9] === 'MUON' && m[10] > 0; }).length, nd = (kOwn().md || []).filter(function(m){ return m[9] === 'MUON' && m[10] > 0; }).length;
-  if (vt) h = h.replace('<button class="btn pri" data-kact="scan">&#128247; Quét mã công cụ</button>', di ? '<button class="btn pri" data-kmv="moidi">+ Nhập hàng đi mượn</button>' : '<button class="btn pri" data-kmv="moi">+ Cho mượn vật tư</button>').replace('placeholder="Tìm công cụ / người mượn"', 'placeholder="Tìm người mượn / mã / số phiếu"');
+  if (vt) h = h.replace('<button class="btn pri" data-kact="scan">&#128247; Quét mã công cụ</button>', (di ? '<button class="btn pri" data-kmv="moidi">+ Nhập hàng đi mượn</button>' : '<button class="btn pri" data-kmv="moi">+ Cho mượn vật tư</button>') + '<button class="btn" data-kmv="quetqr" title="Quét QR trên phiếu mượn">&#128247; QR</button>').replace('placeholder="Tìm công cụ / người mượn"', 'placeholder="Tìm người mượn / mã / số phiếu"');
   var i = h.indexOf('<div style="display:flex;gap:6px;margin-bottom:6px">'); if (i < 0) return h;
   var tg = '<div class="chips" style="padding-top:0"><button class="chip' + (vt ? '' : ' on') + '" data-kmv="tab" data-v="cc">&#128295; Công cụ / máy đo</button><button class="chip' + (vt && !di ? ' on' : '') + '" data-kmv="tab" data-v="vt">&#128230; Vật tư cho mượn' + (nq ? ' <span class="tag red">' + nq + '</span>' : '') + '</button><button class="chip' + (di ? ' on' : '') + '" data-kmv="tab" data-v="di">&#128229; Đi mượn (mình nợ)' + (nd ? ' <span class="tag red">' + nd + '</span>' : '') + '</button></div>';
   return h.slice(0, i) + tg + h.slice(i);
@@ -4106,6 +4106,7 @@ function showKMV(id){
     '<div>Chữ ký</div><div>' + (m[14] ? '&#10003; có (xem / in trên máy công ty)' : 'không') + '</div><div>Trạng thái</div><div>' + (mo ? 'Đang mượn - còn nợ ' + kN(kMVCon(m)) : 'Đã xong') + '</div></div></div>' +
     '<div class="box"><h3>Hàng</h3>' + (m[11] || []).map(function(d){ return '<div class="mini"><span><b>' + esc(d[0]) + '</b> ' + esc(d[1]) + (d[3] ? ' · cỡ ' + esc(d[3]) : '') + '<br><span class="hint">mượn ' + kN(d[4]) + (d[6] ? ' · trả ' + kN(d[6]) : '') + (d[7] ? ' · lĩnh ' + kN(d[7]) : '') + (d[8] ? ' · đền ' + kN(d[8]) : '') + ' ' + esc(d[2]) + '</span></span><span class="tag ' + (d[5] > 0 ? 'orange' : 'green') + '">' + (d[5] > 0 ? 'nợ ' + kN(d[5]) : 'đủ') + '</span></div>'; }).join('') + '</div>';
   if ((m[15] || []).length) h += '<div class="box"><h3>Lịch sử</h3>' + m[15].map(function(x){ return '<div class="hint">' + kD(x[0]) + ' · <b>' + esc(kMVLoai(x[1])) + '</b>' + (x[1] !== 'GIAHAN' ? ' ' + kN(x[2]) : '') + ' · ' + esc(x[3]) + (x[4] ? ' · ' + esc(x[4]) : '') + '</div>'; }).join('') + '</div>';
+  if (mo) h += '<button class="btn" style="width:100%;margin-bottom:8px" data-kmv="tin" data-v="' + esc(id) + '">&#128203; ' + (m[4] === 'DI' ? 'Tin báo cho bên cho mượn' : 'Tin nhắc trả (gửi Zalo / LINE)') + '</button>';
   if (cho) h += '<div class="pend">&#8987; Phiếu này đang có thao tác chờ máy chủ - đợi máy chủ xử lý xong rồi làm tiếp.</div>';
   else if (mo && m[4] === 'DI') h += '<div class="box"><button class="btn green" style="width:100%;margin-bottom:8px" data-kmd="tra" data-v="' + esc(id) + '">Trả hàng (xuất trả từ kho mình)</button>' +
     '<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" style="flex:1" data-kmd="erp" data-v="' + esc(id) + '">Đã hoàn trả qua ERP</button><button class="btn sm" style="flex:1" data-kmd="nhan" data-v="' + esc(id) + '">Bên kia cho luôn</button><button class="btn sm" style="flex:1" data-kmd="han" data-v="' + esc(id) + '">Đổi ngày trả</button><button class="btn sm red" style="flex:1" data-kmd="huy" data-v="' + esc(id) + '">Huỷ (nhập nhầm)</button></div></div>';
@@ -4158,6 +4159,8 @@ document.addEventListener('click', function(e){
   var a = el.getAttribute('data-kmv'), v = el.getAttribute('data-v'), m;
   if (a === 'tab') { S.kmuT = v; draw(); return; }
   if (a === 'moi') { showKMVNew(true); return; }
+  if (a === 'quetqr') { kkQuet(kMVQr); return; }
+  if (a === 'tin') { m = kMV(v); if (m) kMVTin(m); return; }
   if (a === 'xem') { showKMV(v); return; }
   if (a === 'row') { kMVRead(); S.kmvRows.push({ ma: '', sl: '', co: '' }); showKMVNew(); return; }
   if (a === 'del') { kMVRead(); S.kmvRows.splice(+v, 1); showKMVNew(); return; }
@@ -4291,6 +4294,27 @@ document.addEventListener('change', function(e){ var t = e.target; if (!t) retur
     S.kmdH = { dvn: '', dd: '', nv: '', dt: '', ngay: hn.ngay || today(), han: addDays(7), md: hn.gc || '', erp: '' };
     S.kpnRows = []; S.kpnHead = null; showKMDNew(); toast('Đi mượn: ghi xưởng cho mượn + ngày dự định trả rồi gửi', 3000); return; }
 });
+
+
+/* ===================== 10.13r: QR tren phieu muon + tin nhac tra ===================== */
+function kMVTimSo(so){ so = String(so || '').trim().toUpperCase(); return kMVDs().concat(kOwn().md || []).filter(function(m){ return String(m[1]).toUpperCase() === so; })[0]; }
+function kMVQr(code){
+  var c = String(code || '').trim(), x = /mv=([A-Za-z0-9\-]+)/i.exec(c) || /^M[VD]:?\s*([A-Za-z0-9\-]+)$/i.exec(c), so = x ? x[1] : c;
+  if (/^M[VD]\d/i.test(c)) so = c;
+  var m = kMVTimSo(so); if (!m) { toast('Không thấy phiếu mượn ' + so + ' (đã xong / chưa đồng bộ?)', 4000); draw(); return; }
+  S.ktab = 'muon'; S.kmuT = m[4] === 'DI' ? 'di' : 'vt'; draw(); showKMV(m[0]);
+}
+function kMVHash(){ if (S._mvHash || !S.kown || S.role) return; var x = /mv=([A-Za-z0-9\-]+)/i.exec(location.hash || ''); if (!x) return; S._mvHash = 1; try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
+  if (S.desk) { S.dtab = 'kho'; } else { S.tab = 'kho'; } kMVQr('MV:' + x[1]); }
+(function(){ var o = apLoad; apLoad = function(){ var r = o.apply(this, arguments); try { kMVHash(); } catch(e){} return r; }; })();
+function kMVTin(m){
+  var kho = (S.kho && S.kho.ten) || 'kho', hang = (m[11] || []).filter(function(d){ return d[5] > 0; }).map(function(d){ return kN(d[5]) + ' ' + d[2] + ' ' + d[1] + (d[3] ? ' cỡ ' + d[3] : ''); }).join(', ');
+  var t;
+  if (m[4] === 'DI') t = 'Chào anh/chị ' + m[6] + ', ' + kho + ' đang mượn của bên mình: ' + hang + ' (phiếu ' + m[1] + ', ngày ' + kD(m[2]) + '), dự định trả ngày ' + kD(m[3]) + '. Bên em sẽ trả đúng hẹn; nếu bên mình cần sớm hơn xin báo lại giúp. Cảm ơn anh/chị!';
+  else t = 'Chào anh/chị ' + String(m[6]).replace(/\s+VNW\d+$/i, '') + ', ' + kho + ' nhắc: anh/chị đang mượn ' + hang + ' (phiếu ' + m[1] + ', ngày ' + kD(m[2]) + '), hạn trả ' + kD(m[3]) + (m[10] > 0 ? ' - đã quá hạn ' + m[10] + ' ngày' : '') + '. Nhờ anh/chị mang trả giúp, hoặc báo lại nếu cần gia hạn / không trả được. Cảm ơn!';
+  if (navigator.share) { navigator.share({ text: t }).catch(function(){}); return; }
+  try { navigator.clipboard.writeText(t).then(function(){ toast('Đã chép tin nhắn - dán vào Zalo / LINE', 3000); }, function(){ prompt('Chép tin nhắn này:', t); }); } catch(e){ prompt('Chép tin nhắn này:', t); }
+}
 
 })();
 
