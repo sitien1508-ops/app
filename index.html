@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.36-202611281408';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.37-202611281440';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -930,7 +930,7 @@ function sbTabOn(k){ if (k === 'dn') return Object.keys(DNT).some(function(t){ r
 var DNT = { NL: 'Đề nghị ngoại lệ (người ngoài diện được nhận)', HONG: 'Báo hàng hỏng / móp / hết hạn', BHLD: 'Đề nghị cấp / đổi BHLĐ', NS: 'Báo thay đổi nhân sự (trường hợp đặc biệt)', DD: 'Người đại diện nhận hàng' };
 var DNTT = { CHO: '&#8987; chờ duyệt', DUYET: '&#10003; đã duyệt', TUCHOI: '&#10007; không duyệt', XONG: '&#10003; đã ghi' };
 var TPL = { KHOP: '&#10003; khớp', THIEU: '&#11015; phát thiếu', DU: '&#11014; phát dư', KHONG: '&#10007; không có trong biểu', NGOAI: '&#9888; không có chấm công / ngoài diện', NL: '&#10003; ngoại lệ' };
-S.sbt = S.sbt || 'viec'; S.sbGt = {}; S.sbDx = {}; S.sbTon = {};
+S.sbt = S.sbt || 'tq'; S.sbGt = {}; S.sbDx = {}; S.sbTon = {};
 function sbOf(){ return (S.kho && S.kho.sb) || {}; }
 function sbSp(){ return sbOf().sp || []; }
 // 9.4f: don vi nhan - nhan hien thi (CWQ-2210, CDQ-2213...) + don vi theo doi TONG (1 nguoi nhan): ton / de xuat gui 1 so tong
@@ -1063,11 +1063,11 @@ function sbPhat(sb){
   if (daNop && !sb.khoa) h += '<div class="box" style="border-left:4px solid #f59e0b"><b>Tổ đã nộp biểu lúc ' + esc(nop[1]) + '.</b> Số đã nộp được giữ lại để đối chiếu. Xem chênh lệch với chấm công và lý do ở mục <b>&#9888; Sai lệch</b>.<br>Muốn sửa số: sửa ô bên dưới, ghi lý do rồi bấm <b>Gửi đề nghị sửa</b> - kho duyệt mới có hiệu lực.<label class="f">Lý do sửa</label><input id="sbLdSua" class="inp" maxlength="300" placeholder="vd: nhập nhầm, đã phát thêm..."></div>';
   var TTS = { CHO: '<span class="tag orange">chờ kho duyệt</span>', DUYET: '<span class="tag green">kho đã duyệt</span>', TUCHOI: '<span class="tag red">kho từ chối</span>' };
   if (dsS.length) h += '<div class="box"><b>Đề nghị sửa số phát</b>' + dsS.map(function(x){ return '<div class="mini"><span>' + esc(x[1]) + ' · ' + esc(x[5]) + ' người · ' + esc(x[3]) + (x[4] ? ' <span class="hint">(kho: ' + esc(x[4]) + ')</span>' : '') + '</span><span>' + (TTS[x[2]] || esc(x[2])) + '</span></div>'; }).join('') + '</div>';
-  var rows = (sb.nv || []).filter(function(x){ return x[0] === S.ksbBp; }), cc = sbMucOn('cc', S.ksbBp);
+  var rows = (sb.nv || []).filter(function(x){ return x[0] === S.ksbBp; }), cc = !S.role || sbMucOn('cc', S.ksbBp);
   h += '<div class="box" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px"><tr><th style="text-align:left">Người</th>' + (cc ? '<th>Chấm công<br>sữa / bánh</th>' : '') + '<th>Sữa</th><th>Bánh</th></tr>';
   rows.forEach(function(x){
     var k = S.ksbBp + '|' + x[1], v = S.ksbVal[k] || (pv && pv[String(x[1]).toUpperCase()]) || { s: x[5] != null ? x[5] : '', b: x[6] != null ? x[6] : '' };
-    h += '<tr style="border-top:1px solid var(--line)"><td>' + esc(x[2]) + '<br><span class="hint">' + esc(x[1]) + '</span></td>' + (cc ? '<td style="text-align:center">' + (x[3] == null ? '<span class="hint">-</span>' : kN(x[3]) + ' / ' + kN(x[4])) + '</td>' : '') +
+    h += '<tr style="border-top:1px solid var(--line)"><td>' + esc(x[2]) + '<br><span class="hint">' + esc(x[1]) + '</span></td>' + (cc ? '<td style="text-align:center">' + (x[3] == null ? '<span class="hint">-</span>' : kN(x[3]) + ' / ' + kN(x[4]) + (!S.role && (v.s !== '' || v.b !== '') ? sbLechTxt((+v.s || 0) - (+x[3] || 0), (+v.b || 0) - (+x[4] || 0)) : '')) + '</td>' : '') +
       '<td><input class="inp ksbi" data-k="' + esc(k) + '" data-sp="s" type="number" min="0" inputmode="decimal" style="width:70px" value="' + esc(v.s) + '"' + (sb.khoa ? ' disabled' : '') + '></td>' +
       '<td><input class="inp ksbi" data-k="' + esc(k) + '" data-sp="b" type="number" min="0" inputmode="decimal" style="width:70px" value="' + esc(v.b) + '"' + (sb.khoa ? ' disabled' : '') + '></td></tr>';
   });
@@ -1094,7 +1094,7 @@ function sbSaiLech(sb){
   var tp = sb.tp || {}; if (!tp.giao) return '<div class="empty">Kho chưa giao biểu thực phát.</div>';
   var nop = (tp.nop || []).some(function(x){ return x[0] === S.ksbBp; }); if (!nop) return '<div class="empty">Tổ ' + esc(S.ksbBp) + ' chưa nộp biểu thực phát - nộp ở mục "Số phát / biểu" trước.</div>';
   var rows = sbIn(tp.sl); if (!rows.length) return '<div class="box"><span class="tag green">&#10003;</span> Số phát của tổ khớp với chấm công - không có sai lệch.</div>';
-  var h = '<div class="hint" style="margin:0 2px 6px">Kỳ ' + esc(tp.ky) + ': số chuẩn là chấm công. Ghi lý do cho từng người lệch rồi bấm Gửi giải thích.</div><div class="box" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><tr><th style="text-align:left">Người</th><th>Chấm công<br>sữa/bánh</th><th>Tổ báo<br>sữa/bánh</th><th style="text-align:left">Giải thích</th></tr>';
+  var h = '<div class="hint" style="margin:0 2px 6px">Kỳ ' + esc(tp.ky) + ': <b>Lệch phát</b> = tổ phát − chấm công trong kỳ. Dòng &#9432; là lý do máy tính ra. Ghi lý do của tổ cho từng người lệch rồi bấm Gửi giải thích.</div><div class="box" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><tr><th style="text-align:left">Người</th><th>Chấm công<br>sữa/bánh</th><th>Tổ báo<br>sữa/bánh</th><th style="text-align:left">Giải thích</th></tr>';
   rows.forEach(function(x){ var k = x[1], v = S.sbGt[k] != null ? S.sbGt[k] : (x[8] || '');
     h += '<tr style="border-top:1px solid var(--line)"><td>' + esc(x[2]) + '<br><span class="hint">' + esc(x[1]) + '</span><br>' + TPL[x[7]] + (x[10] ? '<br><span class="hint" style="color:#b45309">&#9432; ' + esc(x[10]) + '</span>' : '') + (x[9] ? '<br><span class="tag green">kho: ' + esc(x[9]) + '</span>' : '') + '</td><td style="text-align:center">' + kN(x[3]) + ' / ' + kN(x[4]) + '</td><td style="text-align:center">' + kN(x[5]) + ' / ' + kN(x[6]) + '</td><td><input class="inp sbgt" data-k="' + esc(k) + '" maxlength="300" value="' + esc(v) + '" placeholder="lý do"></td></tr>'; });
   var t = [0, 0, 0, 0]; rows.forEach(function(x){ t[0] += +x[3] || 0; t[1] += +x[4] || 0; t[2] += +x[5] || 0; t[3] += +x[6] || 0; });
@@ -1127,7 +1127,7 @@ function sbThieuDu(sb){
   var sp = sbSp(), dvS = (sp[0] || [])[2] || '', dvB = (sp[1] || [])[2] || '';
   var t = [0, 0, 0, 0]; rows.forEach(function(x){ var a = +x[3] || 0, b = +x[4] || 0; if (a > 0) t[0] += a; else t[1] -= a; if (b > 0) t[2] += b; else t[3] -= b; });
   var tg = '<div class="mini" style="border-top:2px solid var(--line);font-weight:bold;background:#EEF2FF"><span>TỔNG (' + rows.length + ' người)</span><span>' + (sp[0] ? esc(sp[0][1]) + ': thiếu ' + kN(t[0]) + ' · dư ' + kN(t[1]) + ' ' + esc(dvS) : '') + (sp[1] ? '<br>' + esc(sp[1][1]) + ': thiếu ' + kN(t[2]) + ' · dư ' + kN(t[3]) + ' ' + esc(dvB) : '') + '</span></div>';
-  return '<div class="hint" style="margin:0 2px 6px">So số được nhận theo chấm công với số đã phát (cộng dồn đến kỳ hiện tại). Còn thiếu = tổ cần phát bù; nhận dư = trừ kỳ sau.</div><div class="box">' + rows.map(function(x){ return '<div class="mini"><span>' + esc(x[2]) + ' <span class="hint">' + esc(x[1]) + '</span></span><span>' + f(x[3], dvS) + ' ' + f(x[4], dvB) + '</span></div>'; }).join('') + tg + '</div>';
+  return '<div class="hint" style="margin:0 2px 6px"><b>Thiếu/dư người</b> = được hưởng theo chấm công − đã phát, CỘNG DỒN các kỳ. Còn thiếu = tổ cần phát bù; nhận dư = trừ kỳ sau.</div><div class="box">' + rows.map(function(x){ return '<div class="mini"><span>' + esc(x[2]) + ' <span class="hint">' + esc(x[1]) + '</span></span><span>' + f(x[3], dvS) + ' ' + f(x[4], dvB) + '</span></div>'; }).join('') + tg + '</div>';
 }
 function sbDeNghi(sb){
   S.sbDnLoai = S.sbDnLoai || 'NL';
@@ -1374,7 +1374,7 @@ function khoOpt(){
   if (!S.kown) return;
   S.queue.forEach(function(c){ var d = c.data || {};
     if (c.op === 'kvkhoan' && S.kown.viec) { var n = +d.ngay || 0; S.kown.viec.forEach(function(v){ if (v[0] === d.loai) { var t = new Date(); t.setDate(t.getDate() + n); v[4] = n ? t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-' + pad(t.getDate()) : ''; } }); }
-    else if (c.op === 'kduyet' && S.kown.sbd) { var key = { DX: 'dx', TON: 'ton', DN: 'dn' }[d.loai], ids = {}; (d.ids || []).forEach(function(i){ ids[String(i)] = 1; }); if (key && S.kown.sbd[key]) S.kown.sbd[key] = S.kown.sbd[key].filter(function(x){ return !ids[String(x[0])]; }); }
+    else if (c.op === 'kduyet' && S.kown.sbd) { var key = { DX: 'dx', TON: 'ton', DN: 'dn', TPS: 'tps' }[d.loai], ids = {}; (d.ids || []).forEach(function(i){ ids[String(i)] = 1; }); if (key && S.kown.sbd[key]) S.kown.sbd[key] = S.kown.sbd[key].filter(function(x){ return !ids[String(x[0])]; }); }
     else if (c.op === 'kcat' && S.kown.ke && S.kown.ke.hg) { var hg = S.kown.ke.hg, ma = String(d.ma || '').toUpperCase(), to = String(d.vitri || '').toUpperCase(), tu = String(d.tu || '').toUpperCase();
       if (hg.some(function(x){ return String(x[0]).toUpperCase() === ma && String(x[1] || '').toUpperCase() === to; })) return;
       var r0 = hg.filter(function(x){ return String(x[0]).toUpperCase() === ma && (tu ? String(x[1] || '').toUpperCase() === tu : !x[1]); })[0];
@@ -1748,7 +1748,7 @@ var LE_NHOM = { LE: 'Lễ / Tết', NGHI: 'Nghỉ công ty', RAM: 'Mùng 1 / R�
 var LE_CD = [['NHAC','Nhắc'],['HIEN','Chỉ hiện'],['AN','Ẩn']];
 function kOwn(){ return S.kown || {}; }
 function kVtMap(){ if (S._vtm && S._vtmSrc === S.kho) return S._vtm; var m = {}; ((S.kho && S.kho.vt) || []).forEach(function(v){ m[String(v[0]).toUpperCase()] = v; }); S._vtm = m; S._vtmSrc = S.kho; return m; }
-function kDuyetN(){ var d = kOwn().sbd || {}; return (d.dx || []).length + (d.ton || []).length + (d.dn || []).length; }
+function kDuyetN(){ var d = kOwn().sbd || {}; return (d.dx || []).length + (d.ton || []).length + (d.dn || []).length + (d.tps || []).length; }
 function kBhQua(){ return (kOwn().bh || []).filter(function(x){ return x[8] < 0 && !x[11]; }).length; }
 var kPend93 = kPend;
 kPend = function(){ return S.queue.filter(function(c){ return /^k(muon|tra|giao|huy|sb|sbxn|sbdx|sbton|sbnl|sbhong|bhdn|nvdn|sbdd|sbgt|px|bhcap|bhhoan|duyet|le)$/.test(c.op); }); };
@@ -1941,14 +1941,16 @@ function kDuyetView(){
     '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm pri" data-ko="dok" data-v="TON|CHAP">Chấp nhận (thiếu → ghi hao hụt)</button><button class="btn sm" data-ko="dok" data-v="TON|KIEMLAI">Yêu cầu tổ kiểm lại</button></div>' : '<div class="hint">Không có.</div>') + '</div>';
   h += '<div class="box"><h3>Đề nghị của tổ (' + (d.dn || []).length + ')</h3>' + ((d.dn || []).length ? (d.dn || []).map(function(x){ return '<label class="mini">' + ck('DN|' + x[0]) + '<span><span class="tag violet">' + esc(({ NL: 'Ngoại lệ', HONG: 'Hàng hỏng', BHLD: 'BHLĐ', NS: 'Nhân sự' })[x[1]] || x[1]) + '</span> Tổ <b>' + esc(x[2]) + '</b>: ' + esc(x[3]) + '<br><span class="hint">' + esc(x[5]) + ' · ' + esc(String(x[4]).substr(0, 16)) + '</span></span></label>'; }).join('') +
     '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm pri" data-ko="dok" data-v="DN|DUYET">Duyệt</button><button class="btn sm" data-ko="dok" data-v="DN|TUCHOI">Không duyệt...</button></div>' : '<div class="hint">Không có.</div>') + '</div>';
-  return h + '<div class="hint">Thực phát / sai lệch từng người xử lý trên máy (Bánh sữa > Thực phát).</div>';
+  h += '<div class="box"><h3>Đề nghị sửa số phát (' + (d.tps || []).length + ')</h3>' + ((d.tps || []).length ? (d.tps || []).map(function(x){ return '<label class="mini">' + ck('TPS|' + x[0]) + '<span>Tổ <b>' + esc(x[2]) + '</b> · kỳ ' + esc(x[1]) + ' · ' + esc(x[3]) + ' · ' + esc(x[4]) + '<br><span class="hint">' + esc(x[6]) + '</span><br>Lý do: ' + esc(x[5]) + '</span></label>'; }).join('') +
+    '<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm pri" data-ko="dok" data-v="TPS|DUYET">Duyệt (ghi số mới)</button><button class="btn sm" data-ko="dok" data-v="TPS|TUCHOI">Từ chối...</button></div>' : '<div class="hint">Không có.</div>') + '</div>';
+  return h + '<div class="hint">Thực phát / sai lệch từng người: xem ở Bánh sữa > Tổng quan / Số phát (chủ kho thấy cả chấm công và lệch).</div>';
 }
 function kDuyetOk(v){
   var p = v.split('|'), loai = p[0], cach = p[1], sel = S.kdSel || {}, ids = Object.keys(sel).filter(function(k){ return sel[k] && k.indexOf(loai + '|') === 0; }).map(function(k){ return k.substr(loai.length + 1); });
   if (!ids.length) { toast('Tick dòng cần xử lý'); return; }
-  var ghi = ''; if (loai === 'DN' && cach === 'TUCHOI') { ghi = prompt('Lý do không duyệt (tổ thấy trên web):', ''); if (ghi === null) return; }
-  if (!confirm(({ 'DX|DUYET': 'Ghi ', 'TON|CHAP': 'Chấp nhận ', 'TON|KIEMLAI': 'Yêu cầu kiểm lại ', 'DN|DUYET': 'Duyệt ', 'DN|TUCHOI': 'Không duyệt ' })[v] + ids.length + ' dòng?')) return;
-  send('kduyet', '', { loai: loai, cach: cach, ids: ids, ghi: ghi }, ({ DX: 'Đề xuất', TON: 'Báo tồn', DN: 'Đề nghị' })[loai] + ' ' + ids.length + ' dòng').then(function(ok){ if (ok) { ids.forEach(function(i){ delete sel[loai + '|' + i]; }); draw(); } });
+  var ghi = ''; if ((loai === 'DN' || loai === 'TPS') && cach === 'TUCHOI') { ghi = prompt('Lý do không duyệt (tổ thấy trên web):', ''); if (ghi === null) return; if (loai === 'TPS' && !ghi.trim()) { toast('Ghi lý do từ chối'); return; } }
+  if (!confirm(({ 'DX|DUYET': 'Ghi ', 'TON|CHAP': 'Chấp nhận ', 'TON|KIEMLAI': 'Yêu cầu kiểm lại ', 'DN|DUYET': 'Duyệt ', 'DN|TUCHOI': 'Không duyệt ', 'TPS|DUYET': 'Duyệt đề nghị sửa ', 'TPS|TUCHOI': 'Từ chối đề nghị sửa ' })[v] + ids.length + ' dòng?')) return;
+  send('kduyet', '', { loai: loai, cach: cach, ids: ids, ghi: ghi }, ({ DX: 'Đề xuất', TON: 'Báo tồn', DN: 'Đề nghị', TPS: 'Đề nghị sửa số phát' })[loai] + ' ' + ids.length + ' dòng').then(function(ok){ if (ok) { ids.forEach(function(i){ delete sel[loai + '|' + i]; }); draw(); } });
 }
 /* ---------- le & ngay nho ---------- */
 // 10.9a: thu trong tuan cho lich le (CN do, T7 cam)
@@ -4364,6 +4366,57 @@ function erpTuoi(s){ var m = String(s || '').match(/^(\d\d)\/(\d\d)\/(\d{4})/); 
 })();
 
 
+
+/* ===== 10.37: BANH SUA - TONG QUAN KY + GOM TAB THANH 5 NHOM ===== */
+SBT.unshift(['tq', '&#128202; Tổng quan']);
+var sbTabOn37 = sbTabOn;
+sbTabOn = function(k){ if (k === 'tq') return true; return sbTabOn37(k); };
+var SBG = [['tq', '&#128202; Tổng quan', ['tq']], ['ng', '&#128230; Nhận & giao', ['nhan', 'lg', 'gt']], ['sp', '&#128203; Số phát', ['phat', 'sl', 'tn']], ['gk', '&#9993; Gửi kho', ['dx', 'ton', 'dn']], ['ls', '&#128220; Lịch sử', ['ls', 'dg']]];
+var SBTEN = { tq: 'Tổng quan', nhan: 'Nhận hàng', lg: 'Lịch giao', gt: 'Kho còn nợ tổ / giao các tổ', phat: 'Biểu số phát', sl: 'Lệch phát', tn: 'Thiếu/dư người', dx: 'Đề xuất dự tính', ton: 'Báo tồn', dn: 'Đề nghị', ls: 'Các kỳ', dg: 'Điểm phối hợp' };
+function sbLechTxt(a, b){ var f = function(v){ return v > 0 ? '+' + kN(v) : '−' + kN(-v); }; if (!a && !b) return ' <span class="tag green">khớp</span>'; return ' <span class="tag ' + ((a || b) > 0 ? 'red' : 'orange') + '">lệch ' + (a ? f(a) : '0') + ' / ' + (b ? f(b) : '0') + '</span>'; }
+sbTabs = function(sb){
+  var vc = (sb.vc || []).filter(function(x){ return !x[3]; }).length, cho = (sb.gn || []).filter(function(g){ return g[6] === 'CHO'; }).length, sl = sbIn((sb.tp || {}).sl).filter(function(x){ return !x[8]; }).length;
+  var cnt = function(k){ return k === 'tq' ? vc : k === 'nhan' ? cho : k === 'sl' ? sl : 0; };
+  var g0 = SBG.filter(function(g){ return g[2].indexOf(S.sbt) >= 0; })[0] || SBG[0];
+  var h = '<div class="chips" style="margin-bottom:4px">' + SBG.map(function(g){ var on = g[2].filter(sbTabOn); if (!on.length) return ''; var n = on.reduce(function(a, k){ return a + cnt(k); }, 0);
+    return '<button class="chip' + (g === g0 ? ' on' : '') + '" data-sbt="' + (on.indexOf(S.sbt) >= 0 ? S.sbt : on[0]) + '">' + g[1] + (n ? ' <span class="tag red">' + n + '</span>' : '') + '</button>'; }).join('') + '</div>';
+  var sub = g0[2].filter(sbTabOn);
+  if (sub.length > 1) h += '<div class="chips" style="margin-bottom:6px;font-size:13px">' + sub.map(function(k){ var n = cnt(k); return '<button class="chip' + (S.sbt === k ? ' on' : '') + '" data-sbt="' + k + '" style="padding:4px 10px">' + esc(k === 'gt' ? 'Giao các tổ' : SBTEN[k]) + (n ? ' <span class="tag red">' + n + '</span>' : '') + '</button>'; }).join('') + '</div>';
+  return h;
+};
+var kSbView37 = kSbView;
+kSbView = function(){
+  var sb = sbOf();
+  if (S.sbt !== 'tq') return kSbView37();
+  if (!(sb.bp || []).length && !(sb.tq || []).length) return kSbView37();
+  return sbTabs(sb) + sbNoBanner(sb) + sbTongQuan(sb);
+};
+function sbTongQuan(sb){
+  var tq = sb.tq || [], f = function(v){ return v == null ? '<span class="hint">–</span>' : kN(Math.round(v * 100) / 100); }, sp = {}; sbSp().forEach(function(s){ sp[s[0]] = s; });
+  var lf = function(v){ if (v == null) return '<span class="hint">chưa phát</span>'; if (Math.abs(v) < 0.001) return '<span class="tag green">khớp</span>'; return '<span class="tag ' + (v > 0 ? 'red' : 'orange') + '">' + (v > 0 ? '+' : '−') + kN(Math.abs(Math.round(v * 100) / 100)) + '</span>'; };
+  var bst = { OK: 'green', TRE: 'orange', QUAHAN: 'red', CHUA: '' };
+  var h = '', by = {}, ord = []; tq.forEach(function(x){ if (!by[x[0]]) { by[x[0]] = []; ord.push(x[0]); } by[x[0]].push(x); });
+  var cb = []; ord.forEach(function(b){ (by[b][0][15] || []).forEach(function(c){ cb.push('<b>' + esc(b) + '</b>: ' + esc(c)); }); });
+  h += '<div class="box"><h3>&#128202; Tổng quan kỳ ' + esc(sb.tqky ? sb.tqky.substr(5, 2) + '/' + sb.tqky.substr(0, 4) : sb.ten || '') + '</h3>';
+  if (cb.length) h += '<div class="pend" style="display:block;border-left:4px solid var(--red)">&#9888; ' + cb.join('<br>&#9888; ') + '</div>';
+  if (!ord.length) h += '<div class="hint">Chưa có số liệu kỳ này.</div>';
+  if (!S.role) {
+    h += '<div style="overflow-x:auto"><table class="dk"><tr><th>Tổ</th><th>Hàng</th><th>Được hưởng</th><th>Kho đã giao</th><th>Kho còn nợ</th><th>Tổ phát</th><th>Lệch phát</th><th>Còn ở tổ</th><th>Biểu</th><th>Chờ duyệt</th><th>Điểm</th></tr>';
+    var tg = {};
+    ord.forEach(function(b){ by[b].forEach(function(x, i){ var s = sp[x[2]] || [x[2], x[2], ''], t = tg[x[2]] = tg[x[2]] || [0, 0, 0, 0, 0, 0]; t[0] += +x[3] || 0; t[1] += +x[4] || 0; t[2] += +x[5] || 0; t[3] += +x[6] || 0; t[4] += +x[7] || 0; t[5] += +x[8] || 0;
+      h += '<tr style="cursor:pointer' + ((x[15] || []).length && !i ? ';background:#fff7ed' : '') + '" data-sbt="sl" data-ksb2="' + esc(b) + '"><td>' + (i ? '' : '<b>' + esc(b) + '</b><br><span class="hint">' + esc(x[1]) + (x[14] ? ' · TC: ' + esc(x[14]) : '') + '</span>') + '</td><td>' + esc(s[1]) + '</td><td style="text-align:right">' + f(x[3]) + '</td><td style="text-align:right">' + f(x[4]) + '</td><td style="text-align:right">' + (x[5] > 0 ? '<span class="tag orange">' + f(x[5]) + '</span>' : '') + '</td><td style="text-align:right">' + f(x[6]) + '</td><td style="text-align:right">' + lf(x[7]) + '</td><td style="text-align:right">' + (x[8] < 0 ? '<span class="tag red">' + f(x[8]) + '</span>' : f(x[8])) + '</td><td>' + (i ? '' : (x[9] ? '<span class="tag ' + (bst[x[10]] || '') + '">' + esc(x[9]) + '</span>' : '')) + '</td><td style="text-align:center">' + (i || !x[11] ? '' : '<span class="tag red">' + x[11] + '</span>') + '</td><td style="text-align:center">' + (i || x[12] == null ? '' : f(x[12]) + ' ' + esc(x[13])) + '</td></tr>'; }); });
+    Object.keys(tg).forEach(function(k){ var t = tg[k], s = sp[k] || [k, k, '']; h += '<tr style="font-weight:bold;background:#EEF2FF"><td>TỔNG</td><td>' + esc(s[1]) + '</td><td style="text-align:right">' + f(t[0]) + '</td><td style="text-align:right">' + f(t[1]) + '</td><td style="text-align:right">' + f(t[2]) + '</td><td style="text-align:right">' + f(t[3]) + '</td><td style="text-align:right">' + (t[4] ? (t[4] > 0 ? '+' : '') + f(t[4]) : '') + '</td><td style="text-align:right">' + f(t[5]) + '</td><td colspan="3"></td></tr>'; });
+    h += '</table></div><div class="hint">Bấm 1 dòng để xem lệch phát từng người của tổ đó.</div>';
+  } else {
+    ord.forEach(function(b){ var r = by[b], x0 = r[0];
+      h += '<div class="box" style="margin-top:8px"><b>Tổ ' + esc(b) + '</b> ' + esc(x0[1]) + (x0[9] ? ' · <span class="tag ' + (bst[x0[10]] || '') + '">biểu: ' + esc(x0[9]) + '</span>' : '') + (x0[12] != null ? ' · điểm ' + f(x0[12]) + ' ' + esc(x0[13]) : '');
+      r.forEach(function(x){ var s = sp[x[2]] || [x[2], x[2], ''];
+        h += '<div class="mini"><span><b>' + esc(s[1]) + '</b>: đã nhận <b>' + f(x[4]) + '</b> · đã phát <b>' + f(x[6]) + '</b> · còn ở tổ ' + (x[8] < 0 ? '<span class="tag red">' + f(x[8]) + '</span>' : '<b>' + f(x[8]) + '</b>') + ' ' + esc(s[2]) + '</span><span>' + (x[3] != null ? 'chấm công ' + f(x[3]) + (x[7] != null ? ' · lệch ' + lf(x[7]) : '') : '<span class="hint">chấm công hiện sau khi nộp biểu</span>') + '</span></div>'; });
+      h += '</div>'; });
+  }
+  h += '<div class="hint" style="margin-top:6px">' + esc(sb.tqgt || '') + '</div></div>';
+  return h + sbViec(sb);
+}
 </script>
 </body>
 </html>
