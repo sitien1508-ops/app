@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Sổ CV">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#1f6feb">
-<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.15-202611271435';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<script>window.SCV_API='https://script.google.com/macros/s/AKfycbxRVlEgAR_jAuLksGJ4LNTSyxtMuih8TWqaIFgiuvXAS11Jme_Oos0Wi_wY8P731Iab/exec';window.SCV_APPBAN='10.36-202611281408';if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
 
 <style>
 :root{
@@ -915,7 +915,9 @@ function kSendSb(){
   var sb = S.kho.sb, rows = [];
   (sb.nv || []).forEach(function(x){ if (x[0] !== S.ksbBp) return; var k = S.ksbBp + '|' + x[1], v = S.ksbVal[k] || { s: x[5] != null ? x[5] : '', b: x[6] != null ? x[6] : '' }; rows.push({ nv: x[1], ten: x[2], sua: v.s === '' ? null : +v.s, banh: v.b === '' ? null : +v.b }); });
   if (!rows.some(function(r){ return r.sua != null || r.banh != null; })) { toast('Chưa nhập số nào'); return; }
-  send('ksb', '', { ky: sb.ky, bp: S.ksbBp, rows: rows }, 'Bánh sữa tổ ' + S.ksbBp).then(function(ok){ if (ok) { Object.keys(S.ksbVal).forEach(function(k){ if (k.indexOf(S.ksbBp + '|') === 0) delete S.ksbVal[k]; }); } });
+  var nopS = ((sb.tp || {}).nop || []).some(function(x){ return x[0] === S.ksbBp; }) && !!S.kho.tt, ldS = '';
+  if (nopS) { ldS = (($('sbLdSua') || {}).value || '').trim(); if (!ldS) { toast('Tổ đã nộp - ghi lý do sửa rồi gửi đề nghị'); return; } }
+  send('ksb', '', { ky: sb.ky, bp: S.ksbBp, rows: rows, ld: ldS }, (nopS ? 'Đề nghị sửa số phát tổ ' : 'Bánh sữa tổ ') + S.ksbBp).then(function(ok){ if (ok) { Object.keys(S.ksbVal).forEach(function(k){ if (k.indexOf(S.ksbBp + '|') === 0) delete S.ksbVal[k]; }); } });
 }
 /* ===== 9.4: banh sua - to truong: viec can lam, so phat / bieu thuc phat (Excel), sai lech, de xuat du tinh, bao ton, thieu du, de nghi, lich giao ===== */
 var SBT = [['viec','&#9989; Việc cần làm'],['nhan','&#128230; Nhận hàng'],['phat','&#128203; Số phát / biểu'],['sl','&#9888; Sai lệch'],['dx','&#128200; Đề xuất dự tính'],['ton','&#128230; Báo tồn'],['tn','&#9878; Thiếu / dư'],['dn','&#9993; Đề nghị'],['lg','&#128197; Lịch giao'],['ls','&#128220; Lịch sử các kỳ'],['dg','&#11088; Điểm phối hợp']];
@@ -1056,6 +1058,11 @@ function sbPhat(sb){
   if (tp.giao && tp.ky === sb.ky) h += '<div class="box"><b>&#128203; Biểu thực phát kỳ ' + esc(sb.ten) + '</b> - hạn nộp <b>' + esc(kD(tp.han)) + '</b>' + (nop ? ' &middot; <span class="tag green">tổ ' + esc(S.ksbBp) + ' đã nộp ' + esc(nop[1]) + '</span>' : ' &middot; <span class="tag orange">tổ ' + esc(S.ksbBp) + ' chưa nộp</span>') + '<div class="hint">Nhập số đã phát thật cho từng người rồi Gửi, hoặc tải mẫu Excel về điền rồi tải lên.</div></div>';
   h += '<div class="hint" style="margin:0 2px 6px">Kỳ ' + esc(sb.ten) + (sb.khoa ? ' · <b style="color:var(--red)">ĐÃ KHOÁ - không sửa được</b>' : '') + '.</div>';
   h += sbPhatTT(sb); var pv = sbPendVals(sbPendQ(sb));
+  /* 10.36: to truong da nop -> sua = de nghi sua (kho duyet), phai ghi ly do; xem sai lech + ly do o muc Sai lech */
+  var daNop = !!nop && !!(S.kho && S.kho.tt), dsS = ((sb.tp || {}).ds || []).filter(function(x){ return x[0] === S.ksbBp; });
+  if (daNop && !sb.khoa) h += '<div class="box" style="border-left:4px solid #f59e0b"><b>Tổ đã nộp biểu lúc ' + esc(nop[1]) + '.</b> Số đã nộp được giữ lại để đối chiếu. Xem chênh lệch với chấm công và lý do ở mục <b>&#9888; Sai lệch</b>.<br>Muốn sửa số: sửa ô bên dưới, ghi lý do rồi bấm <b>Gửi đề nghị sửa</b> - kho duyệt mới có hiệu lực.<label class="f">Lý do sửa</label><input id="sbLdSua" class="inp" maxlength="300" placeholder="vd: nhập nhầm, đã phát thêm..."></div>';
+  var TTS = { CHO: '<span class="tag orange">chờ kho duyệt</span>', DUYET: '<span class="tag green">kho đã duyệt</span>', TUCHOI: '<span class="tag red">kho từ chối</span>' };
+  if (dsS.length) h += '<div class="box"><b>Đề nghị sửa số phát</b>' + dsS.map(function(x){ return '<div class="mini"><span>' + esc(x[1]) + ' · ' + esc(x[5]) + ' người · ' + esc(x[3]) + (x[4] ? ' <span class="hint">(kho: ' + esc(x[4]) + ')</span>' : '') + '</span><span>' + (TTS[x[2]] || esc(x[2])) + '</span></div>'; }).join('') + '</div>';
   var rows = (sb.nv || []).filter(function(x){ return x[0] === S.ksbBp; }), cc = sbMucOn('cc', S.ksbBp);
   h += '<div class="box" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:14px"><tr><th style="text-align:left">Người</th>' + (cc ? '<th>Chấm công<br>sữa / bánh</th>' : '') + '<th>Sữa</th><th>Bánh</th></tr>';
   rows.forEach(function(x){
@@ -1067,7 +1074,7 @@ function sbPhat(sb){
   var tc = [0, 0], tn = sbPhatTong(); rows.forEach(function(x){ tc[0] += +x[3] || 0; tc[1] += +x[4] || 0; });
   h += '<tr style="border-top:2px solid var(--line);font-weight:bold;background:#EEF2FF"><td>TỔNG (' + rows.length + ' người)</td>' + (cc ? '<td style="text-align:center">' + kN(tc[0]) + ' / ' + kN(tc[1]) + '</td>' : '') + '<td id="sbTgS" style="text-align:center">' + kN(tn[0]) + '</td><td id="sbTgB" style="text-align:center">' + kN(tn[1]) + '</td></tr>';
   h += '</table></div>';
-  if (!sb.khoa) h += '<div style="display:flex;gap:6px;flex-wrap:wrap">' + (sbMucOn('ccdien', S.ksbBp) && cc ? '<button class="btn" data-kact="sbcc">Điền theo chấm công</button>' : '') + '<button class="btn" data-kact="sbmau">&#11015; Tải mẫu Excel</button><button class="btn" data-kact="sbup">&#11014; Tải lên Excel đã điền</button><button class="btn pri" style="flex:1" data-kact="ksb">Gửi số phát kỳ ' + esc(sb.ten) + ' - tổ ' + esc(S.ksbBp) + '</button></div>';
+  if (!sb.khoa) h += '<div style="display:flex;gap:6px;flex-wrap:wrap">' + (sbMucOn('ccdien', S.ksbBp) && cc ? '<button class="btn" data-kact="sbcc">Điền theo chấm công</button>' : '') + '<button class="btn" data-kact="sbmau">&#11015; Tải mẫu Excel</button><button class="btn" data-kact="sbup">&#11014; Tải lên Excel đã điền</button><button class="btn pri" style="flex:1" data-kact="ksb">' + (daNop ? 'Gửi đề nghị sửa - tổ ' + esc(S.ksbBp) : 'Gửi số phát kỳ ' + esc(sb.ten) + ' - tổ ' + esc(S.ksbBp)) + '</button></div>';
   return h;
 }
 /* 10.1: tong so phat dang nhap cua to (o nhap + so da luu) */
@@ -1089,7 +1096,7 @@ function sbSaiLech(sb){
   var rows = sbIn(tp.sl); if (!rows.length) return '<div class="box"><span class="tag green">&#10003;</span> Số phát của tổ khớp với chấm công - không có sai lệch.</div>';
   var h = '<div class="hint" style="margin:0 2px 6px">Kỳ ' + esc(tp.ky) + ': số chuẩn là chấm công. Ghi lý do cho từng người lệch rồi bấm Gửi giải thích.</div><div class="box" style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><tr><th style="text-align:left">Người</th><th>Chấm công<br>sữa/bánh</th><th>Tổ báo<br>sữa/bánh</th><th style="text-align:left">Giải thích</th></tr>';
   rows.forEach(function(x){ var k = x[1], v = S.sbGt[k] != null ? S.sbGt[k] : (x[8] || '');
-    h += '<tr style="border-top:1px solid var(--line)"><td>' + esc(x[2]) + '<br><span class="hint">' + esc(x[1]) + '</span><br>' + TPL[x[7]] + (x[9] ? '<br><span class="tag green">kho: ' + esc(x[9]) + '</span>' : '') + '</td><td style="text-align:center">' + kN(x[3]) + ' / ' + kN(x[4]) + '</td><td style="text-align:center">' + kN(x[5]) + ' / ' + kN(x[6]) + '</td><td><input class="inp sbgt" data-k="' + esc(k) + '" maxlength="300" value="' + esc(v) + '" placeholder="lý do"></td></tr>'; });
+    h += '<tr style="border-top:1px solid var(--line)"><td>' + esc(x[2]) + '<br><span class="hint">' + esc(x[1]) + '</span><br>' + TPL[x[7]] + (x[10] ? '<br><span class="hint" style="color:#b45309">&#9432; ' + esc(x[10]) + '</span>' : '') + (x[9] ? '<br><span class="tag green">kho: ' + esc(x[9]) + '</span>' : '') + '</td><td style="text-align:center">' + kN(x[3]) + ' / ' + kN(x[4]) + '</td><td style="text-align:center">' + kN(x[5]) + ' / ' + kN(x[6]) + '</td><td><input class="inp sbgt" data-k="' + esc(k) + '" maxlength="300" value="' + esc(v) + '" placeholder="lý do"></td></tr>'; });
   var t = [0, 0, 0, 0]; rows.forEach(function(x){ t[0] += +x[3] || 0; t[1] += +x[4] || 0; t[2] += +x[5] || 0; t[3] += +x[6] || 0; });
   h += '<tr style="border-top:2px solid var(--line);font-weight:bold;background:#EEF2FF"><td>TỔNG (' + rows.length + ' người)</td><td style="text-align:center">' + kN(t[0]) + ' / ' + kN(t[1]) + '</td><td style="text-align:center">' + kN(t[2]) + ' / ' + kN(t[3]) + '</td><td class="hint">chênh sữa ' + kN(t[2] - t[0]) + ' · bánh ' + kN(t[3] - t[1]) + '</td></tr>';
   return h + '</table></div><button class="btn pri" style="width:100%" data-kact="sbgt">Gửi giải thích</button>';
